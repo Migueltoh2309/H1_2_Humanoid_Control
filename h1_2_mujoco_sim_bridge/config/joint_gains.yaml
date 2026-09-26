@@ -1,0 +1,33 @@
+# Ganancias PD por joint: tau = tau_ff + kp*(q_des-q) + kd*(dq_des-dq), saturado a ±tau_max.
+# tau_max copiado de actuatorfrcrange del MJCF (h1_2_scene_qp_reachable.xml).
+# Piernas/cintura: se mantienen en la pose de arranque salvo que se les mande
+# /joint_cmd explícito (la base está soldada, las piernas no cargan peso).
+gains:
+  left_hip_yaw_joint:      {kp: 120.0, kd: 4.0, tau_max: 200.0}
+  left_hip_pitch_joint:    {kp: 120.0, kd: 4.0, tau_max: 200.0}
+  left_hip_roll_joint:     {kp: 120.0, kd: 4.0, tau_max: 200.0}
+  left_knee_joint:         {kp: 150.0, kd: 5.0, tau_max: 300.0}
+  left_ankle_pitch_joint:  {kp: 40.0,  kd: 2.0, tau_max: 60.0}
+  left_ankle_roll_joint:   {kp: 30.0,  kd: 1.5, tau_max: 40.0}
+  right_hip_yaw_joint:     {kp: 120.0, kd: 4.0, tau_max: 200.0}
+  right_hip_pitch_joint:   {kp: 120.0, kd: 4.0, tau_max: 200.0}
+  right_hip_roll_joint:    {kp: 120.0, kd: 4.0, tau_max: 200.0}
+  right_knee_joint:        {kp: 150.0, kd: 5.0, tau_max: 300.0}
+  right_ankle_pitch_joint: {kp: 40.0,  kd: 2.0, tau_max: 60.0}
+  right_ankle_roll_joint:  {kp: 30.0,  kd: 1.5, tau_max: 40.0}
+  torso_joint:              {kp: 150.0, kd: 5.0, tau_max: 200.0}
+  # Brazos: ganancias más suaves, pensadas para manipulación (picking).
+  left_shoulder_pitch_joint: {kp: 60.0, kd: 2.0, tau_max: 40.0}
+  left_shoulder_roll_joint:  {kp: 60.0, kd: 2.0, tau_max: 40.0}
+  left_shoulder_yaw_joint:   {kp: 40.0, kd: 1.5, tau_max: 18.0}
+  left_elbow_joint:          {kp: 40.0, kd: 1.5, tau_max: 18.0}
+  left_wrist_roll_joint:     {kp: 15.0, kd: 0.8, tau_max: 19.0}
+  left_wrist_pitch_joint:    {kp: 15.0, kd: 0.8, tau_max: 19.0}
+  left_wrist_yaw_joint:      {kp: 15.0, kd: 0.8, tau_max: 19.0}
+  right_shoulder_pitch_joint: {kp: 60.0, kd: 2.0, tau_max: 40.0}
+  right_shoulder_roll_joint:  {kp: 60.0, kd: 2.0, tau_max: 40.0}
+  right_shoulder_yaw_joint:   {kp: 40.0, kd: 1.5, tau_max: 18.0}
+  right_elbow_joint:          {kp: 40.0, kd: 1.5, tau_max: 18.0}
+  right_wrist_roll_joint:     {kp: 15.0, kd: 0.8, tau_max: 19.0}
+  right_wrist_pitch_joint:    {kp: 15.0, kd: 0.8, tau_max: 19.0}
+  right_wrist_yaw_joint:      {kp: 15.0, kd: 0.8, tau_max: 19.0}

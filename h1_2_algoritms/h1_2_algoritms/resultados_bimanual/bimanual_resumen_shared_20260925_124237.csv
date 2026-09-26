@@ -1,0 +1,3 @@
+scenario,mode,tareas_completadas,t_completar_s,eventos_capas23,t_planificacion_s,pasos_con_choque_brazos,pasos_con_choque_entorno,pasos_con_choque_torso,penetracion_max_mm,d_brazos_min_mm,d_bandeja_min_mm,d_faja_min_mm,err_final_izq_mm,err_final_der_mm,qp_fallos,qp_ms_medio,qp_ms_max
+shared,full,2/2,6.050000000000001,2,0.0,0,0,0,-0.0,149.10717433303776,nan,211.40146152702067,0.0008890368008678442,0.0002133474943994364,19,7.32042109942995,13.042019010754302
+shared,full+plan,2/2,6.050000000000001,2,0.006537403241964057,0,0,0,-0.0,149.10717433303776,nan,211.40146152702067,0.0008890368008678442,0.0002133474943994364,19,7.209576736204326,18.78943099291064

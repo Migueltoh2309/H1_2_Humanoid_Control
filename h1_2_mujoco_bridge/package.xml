@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>h1_2_mujoco_lowlevel_bridge</name>
+  <version>1.0.0</version>
+  <description>
+    Bridge ROS 2 - MuJoCo de BAJO NIVEL para el Unitree H1-2: emula la
+    interfaz /lowcmd (unitree_hg/LowCmd) y /lowstate (unitree_hg/LowState)
+    del robot real exclusivamente en simulacion local. Sin ninguna conexion
+    con hardware fisico.
+  </description>
+  <maintainer email="user@example.com">usuario</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>unitree_hg</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <!-- mujoco se instala via pip: pip install mujoco -->
+
+  <!-- El MJCF y meshes se toman del paquete existente del proyecto -->
+  <exec_depend>h1_2_mujoco_bridge</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

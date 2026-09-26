@@ -1,0 +1,61 @@
+h1_2_mujoco_lowlevel_bridge:
+  ros__parameters:
+    # ── Modelo ────────────────────────────────────────────────────────────
+    # Si model_path está vacío, se resuelve como:
+    #   share(model_package)/model_relpath
+    model_path: ""
+    model_package: "h1_2_mujoco_bridge"
+    model_relpath: "mjcf/h1_2_scene_qp_reachable.xml"
+
+    # ── Tópicos ───────────────────────────────────────────────────────────
+    lowcmd_topic: "/lowcmd"
+    lowstate_topic: "/lowstate"
+    joint_state_topic: "/joint_states"
+
+    # ── Frecuencias (ver README: quién marca cada ritmo) ─────────────────
+    mujoco_timestep: 0.001        # dt interno de la física [s]
+    control_frequency: 500.0      # aplicación del control [Hz] (2 sub-pasos/tick)
+    lowstate_frequency: 500.0     # publicación de /lowstate [Hz]
+    joint_state_frequency: 50.0   # publicación auxiliar /joint_states [Hz]
+    viewer_frequency: 60.0        # refresco del viewer [Hz] (nunca marca el ritmo)
+
+    use_viewer: true
+    realtime: true                # false = correr tan rápido como se pueda
+
+    # ── Interfaz ──────────────────────────────────────────────────────────
+    verify_crc: true              # false para pruebas iniciales
+    mode_machine: 4               # valor eco en LowState (arbitrario en sim)
+
+    # ── Watchdog de /lowcmd ───────────────────────────────────────────────
+    command_timeout: 0.1          # [s]
+    timeout_behavior: "zero_torque"   # "zero_torque" | "hold_position"
+    hold_kp: 60.0
+    hold_kd: 2.0
+
+    # ── Salidas auxiliares ────────────────────────────────────────────────
+    publish_joint_states: true
+    publish_imu: true
+
+    # ── Límites globales por defecto (los por-joint van en motor_limits.yaml)
+    max_kp: 300.0
+    max_kd: 20.0
+    max_torque_rate: 1000.0       # [N·m/s] limita |delta_tau| entre ciclos
+    default_dq_max: 20.0          # [rad/s]
+    default_tau_max: 80.0         # [N·m] fallback si el joint no está en YAML
+
+    # ── Overrides de estabilidad del modelo (EN MEMORIA, el XML no se toca)
+    # Los joints del MJCF traen armature=0/damping=0 y las muñecas tienen
+    # inercia ~6e-4 kg·m²: con Euler explícito el kd del PD se vuelve
+    # numéricamente inestable (chattering). armature=0.01 (inercia del rotor,
+    # presente en los modelos oficiales de Unitree) lo corrige. Ver README.
+    joint_armature: 0.01          # 0.0 para desactivar
+    joint_damping: 0.05           # 0.0 para desactivar
+
+    # Elevar la base soldada (pelvis) en Z [m]. 0.0 = escena tal cual (robot
+    # DE PIE, pies en el suelo con ~460 N de normal: los senos de tobillo del
+    # ejemplo del SDK quedan limitados por el contacto — física correcta).
+    # 0.3 = robot "colgado" como en el pórtico del que Unitree suspende el
+    # robot en los tests de bajo nivel: tobillos libres (RMSE 132 -> 13 mrad).
+    base_height_offset: 0.0
+
+    log_throttle_sec: 2.0

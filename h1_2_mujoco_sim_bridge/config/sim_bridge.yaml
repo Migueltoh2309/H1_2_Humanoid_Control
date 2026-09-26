@@ -1,0 +1,76 @@
+h1_2_mujoco_sim_bridge:
+  ros__parameters:
+    # ── Modelo ────────────────────────────────────────────────────────────
+    # Si model_path está vacío, se resuelve como share(model_package)/model_relpath.
+    # Escena con la mesa quirúrgica en forma de "U" ("surgery_table") y la
+    # faja transportadora encima ("conveyor_belt"), frente al robot; también
+    # trae la cámara RGB-D del torso ("robot_rgbd_camera").
+    model_path: ""
+    model_package: "h1_2_description"
+    model_relpath: "mjcf/h1_2_scene_surgery_table.xml"
+
+    # Listas de joints/ganancias por defecto (los 27 motores del H1-2, ver
+    # sim_bridge_node.py). Para controlar solo un subconjunto (p.ej. brazos),
+    # apuntar aquí a config/joint_names.yaml recortado.
+    joint_names_file: ""
+    joint_gains_file: ""
+
+    # Nombre de un <key> (keyframe) del MJCF para el estado inicial, p.ej.
+    # "mandarina_moving" (hace que la mandarina arranque en una punta de la
+    # faja y se mueva sola a velocidad constante — ver sim_bridge_moving.launch.py).
+    # Vacío = estado por defecto del modelo: mandarina quieta en el centro
+    # de la faja (usado por sim_bridge_static.launch.py / este archivo).
+    initial_keyframe: ""
+
+    # ── Tópicos ───────────────────────────────────────────────────────────
+    joint_cmd_topic: "/joint_cmd"       # sensor_msgs/JointState (comando, parcial por nombre)
+    joint_state_topic: "/joint_states"  # sensor_msgs/JointState (estado, para robot_state_publisher)
+
+    base_body: "pelvis"    # raíz real del TF (base fija, sin floating_base_joint)
+
+    # ── Frecuencias ───────────────────────────────────────────────────────
+    mujoco_timestep: 0.002        # dt de la física [s]; el PD se recalcula cada paso (no tocar: ver nota de estabilidad abajo)
+    joint_state_frequency: 100.0  # publicación de /joint_states [Hz] (barata, no es el cuello de botella)
+    # Bajado de 60 a 30 Hz: en laptops con GPU modesta (p.ej. GTX 1650) el
+    # refresco del viewer nativo compite por GPU con RViz y con la cámara
+    # offscreen; 30 Hz se ve fluido para "ver en vivo" y reduce esa carga.
+    viewer_frequency: 30.0        # refresco del viewer nativo de MuJoCo [Hz]
+
+    use_viewer: true     # viewer nativo de MuJoCo además de RViz (espejo visual)
+    realtime: true        # false = correr tan rápido como se pueda
+
+    # Compensación de gravedad en el lazo del motor: tau = g(q) + PD.
+    # Así está configurado el control de los motores del H1-2 REAL, así que el
+    # simulador lo replica para que comparar sim vs. real mida la planta
+    # (masas, fricción, holguras) y no la diferencia de controlador.
+    # Sin esto, un PD puro deja error estacionario porque el par que sostiene
+    # el brazo ES kp·Δq: medido en la escena vacía con el brazo derecho
+    # levantado, 12.2° en el hombro y 128 mm en el efector. Con g(q): ~0.
+    # g(q) se calcula con RNE (gravedad pura, sin Coriolis) sobre un MjData
+    # auxiliar; cuesta ~12 us contra los ~174 us de un mj_step.
+    gravity_comp: true
+
+    # Overrides de estabilidad EN MEMORIA (el XML no se toca) — mismo motivo
+    # que h1_2_mujoco_lowlevel_bridge: sin armature las muñecas hacen
+    # chattering con el PD explícito. Ver README de ese paquete.
+    joint_armature: 0.01
+    joint_damping: 0.05
+
+    # ── Cámara RGB-D (robot_rgbd_camera del MJCF) ────────────────────────
+    publish_camera: true
+    camera_name: "robot_rgbd_camera"
+    camera_width: 640     # si <=0 o se omite, se toma de <camera resolution="..."> del MJCF
+    camera_height: 480
+    # Bajado de 15 a 7.5 Hz: el propio código dice que el render offscreen
+    # es lo más caro del bridge (10-100x un mj_step); a la mitad de Hz
+    # sigue sirviendo para ver la RGB-D sin tanta carga en GPUs modestas.
+    camera_frequency: 7.5   # Hz — el render offscreen es lo más caro del bridge
+    color_image_topic: "/camera/color/image_raw"
+    color_info_topic: "/camera/color/camera_info"
+    depth_image_topic: "/camera/depth/image_raw"     # 32FC1, metros
+    depth_info_topic: "/camera/depth/camera_info"
+
+    # ── Contactos (visualización de colisiones en RViz) ──────────────────
+    publish_contacts: true
+    contacts_topic: "/contacts"      # visualization_msgs/MarkerArray
+    contacts_frequency: 5.0   # bajado de 15: solo visualización en RViz, no necesita ir rápido

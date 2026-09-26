@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>h1_2_mujoco_sim_bridge</name>
+  <version>1.0.0</version>
+  <description>
+    Bridge ROS 2 - MuJoCo de SIMULACION general para el Unitree H1-2: MuJoCo
+    corre la fisica (motor dinamico, colisiones) y expone /joint_states, TF,
+    camara RGB-D y contactos para visualizar y trabajar en RViz2. No usa
+    mensajes unitree_hg: interfaz de comando generica (sensor_msgs/JointState)
+    pensada para prototipar manipulacion (no replica el protocolo del robot
+    real; para eso esta h1_2_mujoco_lowlevel_bridge).
+  </description>
+  <maintainer email="user@example.com">usuario</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <!-- mujoco se instala via pip: pip install mujoco -->
+
+  <!-- URDF/MJCF/meshes/rviz del robot -->
+  <exec_depend>h1_2_description</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
