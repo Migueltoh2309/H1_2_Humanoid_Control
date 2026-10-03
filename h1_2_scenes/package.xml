@@ -4,7 +4,7 @@
   <name>h1_2_scenes</name>
   <version>1.0.0</version>
   <description>Escenas MuJoCo de la tesis para el Unitree H1-2: mesa quirúrgica, faja transportadora, mandarina, manos Inspire y bandeja-obstáculo</description>
-  <maintainer email="molortegui@utec.edu.pe">Miguel Olortegui</maintainer>
+  <maintainer email="molortegui@utec.edu.pe">MiTo Olórtegui Huamán</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
