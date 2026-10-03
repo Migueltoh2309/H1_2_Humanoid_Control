@@ -1,0 +1,16 @@
+<!-- Escena de la mesa quirúrgica + una BANDEJA horizontal (24x24x2 cm) delante
+     del pecho, a la derecha: obstáculo que el modelo del robot NO conoce (solo
+     lo ve la cámara). Sirve para probar la capa 3 del control bimanual
+     (bimanual_planner.py): la mano derecha debe subir a un punto por encima de
+     la bandeja y el camino recto choca de frente con ella.
+     Posición = TRAY_CENTER de demos/evaluate_bimanual_avoidance.py expresado
+     en torso_link (0.44, -0.22, 0.19) + altura de torso_link en el mundo
+     (1.0282): z = 1.2182. -->
+<mujoco model="h1_2_tray_obstacle">
+  <include file="h1_2_scene_surgery_table.xml"/>
+  <worldbody>
+    <body name="obstaculo_bandeja" pos="0.44 -0.22 1.2182">
+      <geom name="obstaculo_bandeja_geom" type="box" size="0.12 0.12 0.01" rgba="0.2 0.6 1.0 1"/>
+    </body>
+  </worldbody>
+</mujoco>

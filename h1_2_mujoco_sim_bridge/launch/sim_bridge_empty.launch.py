@@ -2,7 +2,7 @@
 
 Igual que sim_bridge.launch.py (MuJoCo corre la física y publica
 /joint_states, robot_state_publisher arma el TF, RViz2 visualiza), pero
-cargando `h1_2_description/mjcf/h1_2_scene_empty.xml`: el H1-2 sobre el piso,
+cargando `h1_2_scenes/mjcf/h1_2_scene_empty.xml`: el H1-2 sobre el piso,
 SIN mesa quirúrgica, SIN faja transportadora y SIN mandarina. El robot, sus
 27 actuadores, los sensores de IMU y la cámara RGB-D del torso son los mismos
 que en la escena de la mesa, así que un mismo experimento (/joint_cmd) corre

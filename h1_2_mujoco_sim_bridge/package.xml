@@ -26,6 +26,7 @@
 
   <!-- URDF/MJCF/meshes/rviz del robot -->
   <exec_depend>h1_2_description</exec_depend>
+  <exec_depend>h1_2_scenes</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rviz2</exec_depend>
 

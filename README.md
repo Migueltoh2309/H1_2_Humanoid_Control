@@ -21,6 +21,7 @@ está en [Multiview_Demo_Capture](https://github.com/Migueltoh2309/Multiview_Dem
 | **Bimanualidad** | Evasión de colisiones en 3 capas: QP con *velocity dampers* entre brazos y entorno, coordinación de quién cede y planificación global RRT-Connect | [`h1_2_algoritms/.../bimanual`](h1_2_algoritms/h1_2_algoritms/bimanual) |
 | **Visión** | Detección de la mandarina (color o YOLO + profundidad), localización 3D por ajuste de esfera, filtro de Kalman y *visual servoing* para el agarre | [`h1_2_algoritms/.../vision`](h1_2_algoritms/h1_2_algoritms/vision) |
 | **Simulación** | Bridge ROS 2 ↔ MuJoCo: física y colisiones en MuJoCo, cámara RGB-D simulada, contactos y visualización en RViz2 | [`h1_2_mujoco_sim_bridge`](h1_2_mujoco_sim_bridge) |
+| **Escenas** | Escenas MuJoCo de la tesis: mesa quirúrgica, faja con la mandarina, manos Inspire y bandeja-obstáculo | [`h1_2_scenes`](h1_2_scenes) |
 | **Robot real** | Lectura de `/lowstate` y envío de comandos de bajo nivel `/lowcmd` al H1-2 | [`h1_2_real`](h1_2_real) |
 
 ```text
@@ -64,6 +65,7 @@ Todos medidos en simulación con MuJoCo como verdad de terreno:
 │   ├── results/                 #   CSV y gráficas de las evaluaciones
 │   └── videos/                  #   videos comparativos del control bimanual
 ├── h1_2_mujoco_sim_bridge/      # Bridge ROS 2 ↔ MuJoCo + RViz2
+├── h1_2_scenes/                 # Escenas MuJoCo: mesa, faja, mandarina, manos, bandeja
 └── h1_2_real/                   # Nodos para el robot físico
 ```
 
@@ -75,18 +77,13 @@ Todos medidos en simulación con MuJoCo como verdad de terreno:
   - [`h1_2_utec`](https://github.com/oscar-ramos/h1_2_utec): modelo del robot (`h1_2_description`, MJCF y URDF)
   - [`unitree_ros2`](https://github.com/unitreerobotics/unitree_ros2): mensajes `unitree_hg` (solo para `h1_2_real` y `/lowcmd`)
 
-> **Nota:** las escenas de la tesis (mesa quirúrgica, faja, mandarina y
-> bandeja: `h1_2_scene_surgery_table*.xml`, `h1_2_scene_tray_obstacle.xml` y
-> sus mallas) todavía no están publicadas. Sin ellas, los demos y la
-> simulación de la faja no corren.
-
 ## Compilar y ejecutar
 
 ```bash
 mkdir -p ~/humanoid_ws/src && cd ~/humanoid_ws/src
 git clone https://github.com/Migueltoh2309/H1_2_Humanoid_Control.git
 ln -s H1_2_Humanoid_Control/h1_2_algoritms H1_2_Humanoid_Control/h1_2_mujoco_sim_bridge \
-      H1_2_Humanoid_Control/h1_2_real .
+      H1_2_Humanoid_Control/h1_2_real H1_2_Humanoid_Control/h1_2_scenes .
 git clone https://github.com/oscar-ramos/h1_2_utec.git
 cd ~/humanoid_ws
 colcon build
@@ -124,6 +121,7 @@ Los nodos disponibles y la lista completa de demos están en
 | Visual servoing y agarre | [`VISUAL_SERVOING_PLAN.md`](h1_2_algoritms/docs/VISUAL_SERVOING_PLAN.md) |
 | Referencias | [`REFERENCIAS_BIMANUAL.md`](h1_2_algoritms/docs/REFERENCIAS_BIMANUAL.md), [`REFERENCIAS_VISUAL_SERVOING.md`](h1_2_algoritms/docs/REFERENCIAS_VISUAL_SERVOING.md) |
 | Bridge de simulación | [`h1_2_mujoco_sim_bridge/README.md`](h1_2_mujoco_sim_bridge/README.md) |
+| Escenas MuJoCo | [`h1_2_scenes/README.md`](h1_2_scenes/README.md) |
 
 ## Autor
 

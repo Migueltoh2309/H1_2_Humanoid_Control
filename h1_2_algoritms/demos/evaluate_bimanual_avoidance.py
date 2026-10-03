@@ -84,8 +84,9 @@ from h1_2_algoritms.movimiento.ik_functions import ik_solve_limited             
 from h1_2_algoritms.movimiento.fk_functions import TF2xyzquat                         # noqa: E402
 from h1_2_algoritms.movimiento import joint_limits as JL                              # noqa: E402
 
-DEFAULT_MJCF = os.path.normpath(os.path.join(
-    PKG_DIR, "..", "h1_2_utec", "h1_2_description", "mjcf", "h1_2_scene_surgery_table.xml"))
+from ament_index_python.packages import get_package_share_directory  # noqa: E402
+DEFAULT_MJCF = os.path.join(get_package_share_directory("h1_2_scenes"), "mjcf",
+                            "h1_2_scene_surgery_table.xml")
 RESULTS_DIR = os.path.join(PKG_DIR, "results", "bimanual")
 CAMERA_NAME = "robot_rgbd_camera"
 WIDTH, HEIGHT = 640, 480

@@ -67,8 +67,9 @@ from h1_2_algoritms.vision.fruit_localization import (                      # no
     Intrinsics, segment_orange, locate_median, locate_median_radius, locate_sphere,
     locate_stereo_ir, realsense_depth_noise, image_noise, MANDARINA_RADIUS)
 
-MJCF = os.path.normpath(os.path.join(PKG_DIR, "..", "h1_2_utec", "h1_2_description", "mjcf",
-                                     "h1_2_scene_surgery_table_hands.xml"))
+from ament_index_python.packages import get_package_share_directory  # noqa: E402
+MJCF = os.path.join(get_package_share_directory("h1_2_scenes"), "mjcf",
+                    "h1_2_scene_surgery_table_hands.xml")
 RESULTS_DIR = os.path.join(PKG_DIR, "results", "servoing")
 OPT_FLIP = np.diag([1.0, -1.0, -1.0])
 ARM_JOINTS = {s: [f"{s}_{j}" for j in ("shoulder_pitch_joint", "shoulder_roll_joint",

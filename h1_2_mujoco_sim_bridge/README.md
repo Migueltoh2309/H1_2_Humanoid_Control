@@ -76,7 +76,8 @@ Ambos pueden convivir en el workspace; no comparten nodos ni tópicos.
 
 ## Modelo
 
-Por defecto usa `h1_2_description/mjcf/h1_2_scene_surgery_table.xml`: mesa
+Por defecto usa `h1_2_scenes/mjcf/h1_2_scene_surgery_table.xml` (paquete
+[`h1_2_scenes`](../h1_2_scenes)): mesa
 quirúrgica en forma de "U" (`surgery_table`, marrón/mostaza, mesh
 `Extra/surgery_table.stl` de la mesa real), faja transportadora encima
 (`conveyor_belt`, blanca, mesh `h1_2_mujoco_sim_bridge/Extra/faja_L201.stl`

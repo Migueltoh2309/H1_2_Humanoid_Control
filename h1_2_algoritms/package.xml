@@ -15,6 +15,7 @@
   <exec_depend>unitree_hg</exec_depend>
   <exec_depend>h1_2_mujoco_sim_bridge</exec_depend>
   <exec_depend>h1_2_description</exec_depend>
+  <exec_depend>h1_2_scenes</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-opencv</exec_depend>

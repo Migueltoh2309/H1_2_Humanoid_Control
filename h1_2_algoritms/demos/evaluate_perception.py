@@ -269,7 +269,7 @@ def main():
     args = ap.parse_args()
 
     mjcf_path = args.mjcf or os.path.join(
-        get_package_share_directory("h1_2_description"), "mjcf", "h1_2_scene_surgery_table.xml")
+        get_package_share_directory("h1_2_scenes"), "mjcf", "h1_2_scene_surgery_table.xml")
 
     print("#" * 90)
     print("#  EVALUACIÓN DE PERCEPCIÓN — Método A (color) vs Método B (YOLO)")
