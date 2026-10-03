@@ -3,7 +3,7 @@
 <package format="3">
   <name>h1_2_algoritms</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Movimiento, manipulación bimanual y visión para el humanoide Unitree H1-2</description>
   <maintainer email="molortegui@utec.edu.pe">utec</maintainer>
   <license>TODO: License declaration</license>
 
@@ -13,7 +13,6 @@
   <exec_depend>visualization_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>unitree_hg</exec_depend>
-  <exec_depend>h1_2_mujoco_lowlevel_bridge</exec_depend>
   <exec_depend>h1_2_mujoco_sim_bridge</exec_depend>
   <exec_depend>h1_2_description</exec_depend>
   <exec_depend>ament_index_python</exec_depend>

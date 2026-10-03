@@ -3,11 +3,11 @@ bloquea y con el coordinador las dos tareas se completan sin acercarse
 por debajo de d_s (solo cinemática, sin MuJoCo)."""
 import numpy as np
 
-from h1_2_algoritms.bimanual_avoidance import BimanualAvoidanceController
-from h1_2_algoritms.bimanual_coordinator import BimanualCoordinator, TaskSequence
-from h1_2_algoritms.fk_functions import TF2xyzquat, fkine_arm_left_unitree, fkine_arm_right_unitree
-from h1_2_algoritms.ik_functions import ik_solve_limited
-from h1_2_algoritms import joint_limits as JL
+from h1_2_algoritms.bimanual.bimanual_avoidance import BimanualAvoidanceController
+from h1_2_algoritms.bimanual.bimanual_coordinator import BimanualCoordinator, TaskSequence
+from h1_2_algoritms.movimiento.fk_functions import TF2xyzquat, fkine_arm_left_unitree, fkine_arm_right_unitree
+from h1_2_algoritms.movimiento.ik_functions import ik_solve_limited
+from h1_2_algoritms.movimiento import joint_limits as JL
 
 Q = [1.0, 0.0, 0.0, 0.0]
 HOME = {"left": np.array([0.30, 0.20, 0.05, *Q]), "right": np.array([0.30, -0.20, 0.05, *Q])}

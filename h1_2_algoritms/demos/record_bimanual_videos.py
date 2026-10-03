@@ -39,10 +39,10 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import evaluate_bimanual_avoidance as E                                  # noqa: E402
-from h1_2_algoritms.collision_model import arm_capsules, points_to_segment  # noqa: E402
-from h1_2_algoritms.fk_functions import fkine_arm_left_unitree, fkine_arm_right_unitree  # noqa: E402
+from h1_2_algoritms.bimanual.collision_model import arm_capsules, points_to_segment  # noqa: E402
+from h1_2_algoritms.movimiento.fk_functions import fkine_arm_left_unitree, fkine_arm_right_unitree  # noqa: E402
 
-DEFAULT_OUT = os.path.normpath(os.path.join(E.PKG_DIR, "..", "..", "videos_bimanual"))
+DEFAULT_OUT = os.path.join(E.PKG_DIR, "videos")
 W, H = 1920, 1080
 PANEL = 960                 # cada panel es cuadrado: 960x960
 HEADER = H - PANEL          # 120 px de título arriba

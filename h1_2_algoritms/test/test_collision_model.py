@@ -2,11 +2,11 @@
 import numpy as np
 import pytest
 
-from h1_2_algoritms.fk_functions import fkine_arm_left_unitree, fkine_arm_right_unitree
-from h1_2_algoritms.collision_model import (
+from h1_2_algoritms.movimiento.fk_functions import fkine_arm_left_unitree, fkine_arm_right_unitree
+from h1_2_algoritms.bimanual.collision_model import (
     arm_frames, arm_capsules, point_jacobian, closest_points_segments,
     self_collision_constraints, CAPSULES)
-from h1_2_algoritms import joint_limits as JL
+from h1_2_algoritms.movimiento import joint_limits as JL
 
 FK = {"left": fkine_arm_left_unitree, "right": fkine_arm_right_unitree}
 RNG = np.random.default_rng(1)

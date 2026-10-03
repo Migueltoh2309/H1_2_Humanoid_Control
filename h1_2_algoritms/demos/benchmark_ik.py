@@ -16,11 +16,11 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from h1_2_algoritms.fk_functions import (          # noqa: E402
+from h1_2_algoritms.movimiento.fk_functions import (          # noqa: E402
     fkine_arm_left_unitree, fkine_arm_right_unitree, TF2xyzquat)
-from h1_2_algoritms.ik_functions import (          # noqa: E402
+from h1_2_algoritms.movimiento.ik_functions import (          # noqa: E402
     ik_dls_step, ik_pseudo_step, ik_solve_limited, pose_error)
-from h1_2_algoritms import joint_limits as JL      # noqa: E402
+from h1_2_algoritms.movimiento import joint_limits as JL      # noqa: E402
 
 
 def solve_original(fk, xd, q0, method, iters=500):

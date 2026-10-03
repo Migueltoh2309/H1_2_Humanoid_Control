@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Demo 2 — Lazo cerrado IK -> /lowcmd -> MuJoCo -> /lowstate.
 
-NECESITA el bridge corriendo:
-    ros2 launch h1_2_mujoco_lowlevel_bridge mujoco_lowlevel_bridge.launch.py
+NECESITA algo que consuma /lowcmd y publique /lowstate: el robot real o un
+bridge de bajo nivel (`h1_2_mujoco_lowlevel_bridge`, ya no incluido en este
+repositorio).
 
 Para cada objetivo mide el error del efector en tres puntos:
   1. la solución de la IK (error puramente numérico),
@@ -24,13 +25,13 @@ from unitree_hg.msg import LowCmd, LowState
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from h1_2_mujoco_lowlevel_bridge.crc import attach_crc          # noqa: E402
-from h1_2_algoritms.fk_functions import (                       # noqa: E402
+from h1_2_algoritms.unitree_crc import attach_crc          # noqa: E402
+from h1_2_algoritms.movimiento.fk_functions import (                       # noqa: E402
     fkine_arm_left_unitree as FK, TF2xyzquat)
-from h1_2_algoritms.ik_functions import (                       # noqa: E402
+from h1_2_algoritms.movimiento.ik_functions import (                       # noqa: E402
     ik_solve_limited, pose_error)
-from h1_2_algoritms import joint_limits as JL                   # noqa: E402
-from h1_2_algoritms.ik_lowcmd_node import (                     # noqa: E402
+from h1_2_algoritms.movimiento import joint_limits as JL                   # noqa: E402
+from h1_2_algoritms.nodos.ik_lowcmd_node import (                     # noqa: E402
     DEFAULT_KP, DEFAULT_KD, DEFAULT_KI, DEFAULT_TAU_I_MAX)
 
 SIDE = "left"
@@ -116,9 +117,8 @@ def main():
     print("\nEsperando /lowstate del bridge...")
     node.wait(2.0)
     if node.q is None:
-        print("\n  ERROR: no llega /lowstate. ¿Está corriendo el bridge?")
-        print("  ros2 launch h1_2_mujoco_lowlevel_bridge "
-              "mujoco_lowlevel_bridge.launch.py\n")
+        print("\n  ERROR: no llega /lowstate. ¿Está conectado el robot o "
+              "corriendo un bridge de bajo nivel?\n")
         node.destroy_node()
         rclpy.shutdown()
         return 1

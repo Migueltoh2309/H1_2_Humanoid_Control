@@ -58,7 +58,7 @@ Uso:
     MUJOCO_GL=egl python3 demos/evaluate_bimanual_avoidance.py   # sin pantalla
 
 Guarda CSVs (y PNG si hay matplotlib) en
-h1_2_algoritms/resultados_bimanual/.
+results/bimanual/.
 """
 import argparse
 import csv
@@ -73,20 +73,20 @@ from scipy.spatial import cKDTree
 PKG_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PKG_DIR)
 
-from h1_2_algoritms.bimanual_avoidance import BimanualAvoidanceController  # noqa: E402
-from h1_2_algoritms.bimanual_coordinator import BimanualCoordinator, TaskSequence  # noqa: E402
-from h1_2_algoritms.collision_model import arm_frames                      # noqa: E402
-from h1_2_algoritms.depth_obstacles import (                               # noqa: E402
+from h1_2_algoritms.bimanual.bimanual_avoidance import BimanualAvoidanceController  # noqa: E402
+from h1_2_algoritms.bimanual.bimanual_coordinator import BimanualCoordinator, TaskSequence  # noqa: E402
+from h1_2_algoritms.bimanual.collision_model import arm_frames                      # noqa: E402
+from h1_2_algoritms.bimanual.depth_obstacles import (                               # noqa: E402
     obstacles_from_depth, camera_pose_from_mjcf_xyaxes, intrinsics_from_fovy, ObstacleMemory)
-from h1_2_algoritms.bimanual_planner import GlobalPlannerLayer                   # noqa: E402
-from h1_2_algoritms.fk_functions import fkine_arm_left_unitree, fkine_arm_right_unitree  # noqa: E402
-from h1_2_algoritms.ik_functions import ik_solve_limited                  # noqa: E402
-from h1_2_algoritms.fk_functions import TF2xyzquat                         # noqa: E402
-from h1_2_algoritms import joint_limits as JL                              # noqa: E402
+from h1_2_algoritms.bimanual.bimanual_planner import GlobalPlannerLayer                   # noqa: E402
+from h1_2_algoritms.movimiento.fk_functions import fkine_arm_left_unitree, fkine_arm_right_unitree  # noqa: E402
+from h1_2_algoritms.movimiento.ik_functions import ik_solve_limited                  # noqa: E402
+from h1_2_algoritms.movimiento.fk_functions import TF2xyzquat                         # noqa: E402
+from h1_2_algoritms.movimiento import joint_limits as JL                              # noqa: E402
 
 DEFAULT_MJCF = os.path.normpath(os.path.join(
     PKG_DIR, "..", "h1_2_utec", "h1_2_description", "mjcf", "h1_2_scene_surgery_table.xml"))
-RESULTS_DIR = os.path.join(PKG_DIR, "h1_2_algoritms", "resultados_bimanual")
+RESULTS_DIR = os.path.join(PKG_DIR, "results", "bimanual")
 CAMERA_NAME = "robot_rgbd_camera"
 WIDTH, HEIGHT = 640, 480
 

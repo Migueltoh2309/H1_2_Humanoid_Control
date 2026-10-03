@@ -1,164 +1,93 @@
-# Demos — H1-2: bridge MuJoCo y cinemática inversa
+# Demos y evaluaciones
 
-Secuencia para mostrar los resultados. Cada bloque es una terminal.
-En **todas** las terminales, primero:
-
-```bash
-cd ~/humanoid_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-```
-
----
-
-## 0. Compilar (una sola vez)
+Scripts reproducibles que miden cada parte del sistema contra MuJoCo como
+verdad de terreno. Salvo `validacion_lazo_cerrado.py`, **no usan ROS**:
+instancian MuJoCo directamente y llaman a las mismas funciones que los nodos
+en vivo, así que lo que se mide es exactamente lo que corre en el robot.
 
 ```bash
-cd ~/humanoid_ws
-colcon build --packages-select h1_2_mujoco_lowlevel_bridge h1_2_algoritms --symlink-install
-source install/setup.bash
-```
-
----
-
-## 1. El bridge es correcto — 31 pruebas unitarias
-
-```bash
-export H12_MJCF_PATH=~/humanoid_ws/install/h1_2_mujoco_bridge/share/h1_2_mujoco_bridge/mjcf/h1_2_scene_qp_reachable.xml
-cd ~/humanoid_ws/src/h1_2_mujoco_bridge
-python3 -m pytest test/ -v
-```
-
-`31 passed`. Cubren CRC, mapeo de articulaciones, construcción de LowState,
-control PD y saturaciones.
-
-> Sin `H12_MJCF_PATH` se saltan 12 pruebas: el `conftest.py` busca el modelo
-> en una ruta que no existe en esta máquina.
-
----
-
-## 2. Lazo cerrado sin ROS, con gráfica
-
-```bash
-cd ~/humanoid_ws/src/h1_2_mujoco_bridge
-python3 -m h1_2_mujoco_lowlevel_bridge.offline_demo \
-    --mjcf $H12_MJCF_PATH --out ~/demo_bridge.png
-```
-
-Imprime métricas (RMSE muñeca ~43 mrad, tobillo ~13 mrad, 0 CRC rechazados)
-y guarda `~/demo_bridge.png` con el seguimiento de consigna. **Buena lámina.**
-
----
-
-## 3. IK con límites articulares — el resultado principal
-
-No necesita ROS ni el bridge.
-
-```bash
+source /opt/ros/humble/setup.bash && source ~/humanoid_ws/install/setup.bash
 cd ~/humanoid_ws/src/h1_2_algoritms
+export MUJOCO_GL=egl          # para renderizar sin pantalla
+```
+
+Los resultados se guardan en [`../results/`](../results).
+
+| Demo | Qué mide | Salida |
+|---|---|---|
+| `benchmark_ik.py [N]` | IK con límites articulares vs. IK original (DLS) | consola |
+| `evaluate_bimanual_avoidance.py` | Las 3 capas de evasión en 6 escenarios y 6 modos | `results/bimanual/` |
+| `record_bimanual_videos.py` | Videos comparativos lado a lado de los escenarios bimanuales | `videos/` |
+| `evaluate_perception.py` | Detección por color vs. YOLO, con la fruta quieta y en movimiento | `results/percepcion/` |
+| `evaluate_ir_stereo.py` | Los 4 estimadores del centro de la fruta, con ruido y oclusión | `results/percepcion/ir_stereo.csv` |
+| `visual_servoing_grasp.py` | Lazo completo: cámara → localización → Kalman → QP bimanual → agarre, con física | `results/servoing/` |
+| `validacion_lazo_cerrado.py [N]` | IK → `/lowcmd`: PD puro vs. PD + integral | consola |
+
+## IK con límites articulares
+
+```bash
 python3 demos/benchmark_ik.py 15
 ```
 
-Compara la IK original contra la nueva sobre objetivos que **sí** tienen
-solución válida. Resultado típico con arranque en frío:
+Genera objetivos alcanzables por construcción y cuenta cuántas soluciones
+respetan los límites mecánicos:
 
-| IK | soluciones usables |
+| IK | Soluciones usables |
 |---|---|
-| original (DLS) | ~13 % |
-| **nueva con límites** | **~97 %** |
+| Original (DLS) | ~13 % |
+| **Con límites** | **~97 %** |
 
-Sube el número (`30`, `60`) para más muestras; tarda ~0.5 s por objetivo
-con la IK original.
-
----
-
-## 4. El bridge en vivo, con visor de MuJoCo
-
-**Terminal A** — dejar corriendo:
+## Evasión bimanual
 
 ```bash
-ros2 launch h1_2_mujoco_lowlevel_bridge mujoco_lowlevel_bridge.launch.py
+python3 demos/evaluate_bimanual_avoidance.py                       # todo
+python3 demos/evaluate_bimanual_avoidance.py --scenarios shared obstacle --seconds 3
 ```
 
-Se abre la ventana de MuJoCo con el H1-2. El log muestra el mapeo 27/27
-validado y las frecuencias. Los brazos cuelgan: sin comandos, los motores
-están deshabilitados (comportamiento seguro).
+| Escenario | Situación |
+|---|---|
+| `circles` | Las manos giran en círculos en contrafase que se cruzan |
+| `shared` | Las dos manos van al mismo punto (como tomar la fruta del centro) |
+| `converge` / `swap` | Objetivos incompatibles o cruzados |
+| `table` | Objetivos por debajo de la faja: solo la cámara evita el choque |
+| `obstacle` | Bandeja desconocida por el modelo encima de la mano derecha |
 
-**Terminal B** — comprobar la interfaz:
+Modos: `off` (sin evasión), `self` (autocolisión), `self+frame` (cámara sin
+memoria), `self+cam` (con memoria de vóxeles), `full` (+ capa 2) y
+`full+plan` (+ capa 3). La verdad de terreno de los choques sale de los
+contactos entre mallas de MuJoCo, no del modelo de cápsulas del controlador.
+
+Para regenerar los videos (~5 min):
 
 ```bash
-ros2 topic list
-ros2 topic info /lowcmd
-ros2 topic info /lowstate
-ros2 topic hz /lowstate        # ~500 Hz
-ros2 topic echo /lowstate --once | head -30
+python3 demos/record_bimanual_videos.py            # los 5
+python3 demos/record_bimanual_videos.py --only 3   # uno solo
 ```
 
----
-
-## 5. El robot se mueve: IK → /lowcmd → MuJoCo
-
-Con el visor de la terminal A abierto, en la **terminal B**:
+## Percepción y visual servoing
 
 ```bash
-ros2 run h1_2_algoritms ik_lowcmd_node
+python3 demos/evaluate_perception.py --no-yolo     # solo color + profundidad
+python3 demos/evaluate_ir_stereo.py
+python3 demos/visual_servoing_grasp.py --quick
+python3 demos/visual_servoing_grasp.py --only static:sphere:-0.15 --video
 ```
 
-Los dos brazos van a su pose objetivo **en el visor**. El log reporta cada
-segundo el error real del efector, que baja a 0.0 mm.
+Resultados principales (detalle en [`../docs/VISUAL_SERVOING_PLAN.md`](../docs/VISUAL_SERVOING_PLAN.md)):
 
-Cambiar el objetivo en vivo:
+| Estimador del centro | Error con ruido D435 | Agarres (fruta quieta / faja) |
+|---|---|---|
+| Mediana de profundidad | ~34 mm | 0/6 · 0/3 |
+| Mediana + radio | ~4 mm | 2/6 · 1/3 |
+| **Ajuste de esfera** | **~2.4 mm** | **5/6 · 3/3** |
+| Estéreo IR | ~13 mm | 0/6 · 0/3 |
 
-```bash
-ros2 run h1_2_algoritms ik_lowcmd_node --ros-args \
-    -p left_target:="[0.30, 0.28, 0.15, 1.0, 0.0, 0.0, 0.0]" \
-    -p right_target:="[0.30, -0.28, 0.15, 1.0, 0.0, 0.0, 0.0]"
-```
-
-El formato es `[x, y, z, qw, qx, qy, qz]` en el marco `torso_link`.
-
-Al cortar con Ctrl-C, el watchdog del bridge baja el torque en rampa
-(se ve en el log de la terminal A).
-
----
-
-## 6. Medición del lazo cerrado — PD puro vs PD + integral
-
-Con el bridge corriendo (terminal A), en la **terminal B**:
+## Lazo cerrado con `/lowcmd`
 
 ```bash
-cd ~/humanoid_ws/src/h1_2_algoritms
 python3 demos/validacion_lazo_cerrado.py 4
 ```
 
-Para cada objetivo mide el error del efector con PD puro y con PD +
-integral. Resultado típico:
-
-| | error medio del efector |
-|---|---|
-| PD puro | ~75 mm (caída por gravedad) |
-| **PD + integral** | **~0.07 mm** |
-
-Tarda ~14 s por objetivo (rampa + asentamiento).
-
----
-
-## Qué se arregló
-
-| Problema | Estado |
-|---|---|
-| La IK ignoraba los límites articulares (13 % de soluciones usables) | Corregido: proyección en espacio nulo + bloqueo de articulaciones en tope + saturación por iteración → ~97 % |
-| Cuaternión objetivo `[0,0,0,1]` era un giro de 180° en Z, no la identidad | Corregido a `[1,0,0,0]` |
-| Nada conectaba la IK con el bridge | Nuevo nodo `ik_lowcmd_node` |
-| PD puro deja error de ~75 mm por gravedad | Término integral con anti-windup sobre `tau_ff` |
-
-## Limitaciones conocidas (conviene mencionarlas)
-
-- **No hay planificación de trayectoria.** El nodo interpola en línea recta
-  en el espacio articular. La escena tiene una mesa (`table_front`): si el
-  camino la atraviesa, el brazo choca, el par satura y no llega. El objetivo
-  puede ser alcanzable aunque el camino recto no lo sea.
-- **La IK no conoce las colisiones**, solo los límites articulares.
-- Si el objetivo cae fuera del espacio de trabajo admisible, la IK lo
-  informa (`ok=False` y el residuo en mm) en vez de devolver una pose falsa.
-- El bridge tiene la pelvis soldada al mundo; la IMU es casi estática.
+Necesita algo que consuma `/lowcmd` y publique `/lowstate`: el robot real o
+un bridge de bajo nivel. Mide el error del efector con PD puro (~75 mm por
+la gravedad) y con PD + término integral (~0.07 mm).

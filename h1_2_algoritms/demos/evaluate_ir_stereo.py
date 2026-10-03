@@ -21,7 +21,7 @@ Uso:
     MUJOCO_GL=egl python3 demos/evaluate_ir_stereo.py
     MUJOCO_GL=egl python3 demos/evaluate_ir_stereo.py --seeds 5 --n-y 11
 
-Guarda resultados_percepcion/ir_stereo.csv y un resumen en pantalla.
+Guarda results/percepcion/ir_stereo.csv y un resumen en pantalla.
 """
 import argparse
 import csv
@@ -36,13 +36,13 @@ import numpy as np
 PKG_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PKG_DIR)
 
-from h1_2_algoritms.fruit_localization import (   # noqa: E402
+from h1_2_algoritms.vision.fruit_localization import (   # noqa: E402
     Intrinsics, segment_orange, locate_median, locate_median_radius, locate_sphere,
     locate_stereo_ir, realsense_depth_noise, image_noise)
 
 MJCF = os.path.normpath(os.path.join(PKG_DIR, "..", "h1_2_utec", "h1_2_description", "mjcf",
                                      "h1_2_scene_surgery_table_hands.xml"))
-RESULTS_DIR = os.path.join(PKG_DIR, "h1_2_algoritms", "resultados_percepcion")
+RESULTS_DIR = os.path.join(PKG_DIR, "results", "percepcion")
 OPT_FLIP = np.diag([1.0, -1.0, -1.0])   # óptico ROS <-> cámara MuJoCo
 METHODS = ["median", "median+R", "sphere", "stereo_ir"]
 
@@ -123,7 +123,7 @@ def estimate_all(rig, rgb, depth, irL, irR):
 def set_occluding_arm(rig, fruit_w):
     """Mano derecha en pre-agarre sobre la fruta (IK del paquete), para el
     caso con oclusión."""
-    from h1_2_algoritms.grasp_geometry import pregrasp_wrist_target, solve_arm_ik, TORSO_Z
+    from h1_2_algoritms.vision.grasp_geometry import pregrasp_wrist_target, solve_arm_ik, TORSO_Z
     xd = pregrasp_wrist_target("right", fruit_w - np.array([0, 0, TORSO_Z]), approach=0.10)
     q, ok = solve_arm_ik("right", xd)
     names = ["right_shoulder_pitch_joint", "right_shoulder_roll_joint", "right_shoulder_yaw_joint",

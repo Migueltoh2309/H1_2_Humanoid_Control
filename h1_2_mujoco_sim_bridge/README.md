@@ -5,7 +5,7 @@ para manipulación bimanual / aprendizaje por demostración (picking): MuJoCo
 corre la física y las colisiones, RViz2 visualiza TF/joint_states/cámara/
 contactos.
 
-A diferencia de [`h1_2_mujoco_lowlevel_bridge`](../h1_2_mujoco_bridge/README.md)
+A diferencia de `h1_2_mujoco_lowlevel_bridge` (bridge de bajo nivel, ya no incluido en este repositorio)
 (que emula `/lowcmd`+`/lowstate` con mensajes `unitree_hg` para que un
 controlador escrito para el robot real corra sin cambios), este paquete **no
 replica ningún protocolo de hardware**: la interfaz es genérica

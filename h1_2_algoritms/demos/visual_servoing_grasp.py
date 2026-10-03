@@ -34,7 +34,7 @@ Uso:
     MUJOCO_GL=egl python3 demos/visual_servoing_grasp.py --video --only static:sphere:-0.15
     MUJOCO_GL=egl python3 demos/visual_servoing_grasp.py --only moving:sphere:0.05 --video
 
-Resultados en h1_2_algoritms/resultados_servoing/ (resumen.csv + un CSV por
+Resultados en results/servoing/ (resumen.csv + un CSV por
 ensayo con la traza completa, útil también como "demostración" robot para
 comparar contra LfD).
 """
@@ -57,19 +57,19 @@ from h1_2_mujoco_sim_bridge.mujoco_sim import MujocoSim             # noqa: E402
 from h1_2_mujoco_sim_bridge.pd_controller import JointPD             # noqa: E402
 from h1_2_mujoco_sim_bridge.sim_bridge_node import DEFAULT_JOINT_NAMES, DEFAULT_GAINS  # noqa: E402
 
-from h1_2_algoritms import grasp_geometry as GG                      # noqa: E402
-from h1_2_algoritms.bimanual_avoidance import BimanualAvoidanceController  # noqa: E402
-from h1_2_algoritms.visual_servoing import FruitTracker, GraspServoing  # noqa: E402
-from h1_2_algoritms.collision_model import arm_frames                # noqa: E402
-from h1_2_algoritms.depth_obstacles import obstacles_from_depth, ObstacleMemory  # noqa: E402
-from h1_2_algoritms.fk_functions import TF2xyzquat                   # noqa: E402
-from h1_2_algoritms.fruit_localization import (                      # noqa: E402
+from h1_2_algoritms.vision import grasp_geometry as GG                      # noqa: E402
+from h1_2_algoritms.bimanual.bimanual_avoidance import BimanualAvoidanceController  # noqa: E402
+from h1_2_algoritms.vision.visual_servoing import FruitTracker, GraspServoing  # noqa: E402
+from h1_2_algoritms.bimanual.collision_model import arm_frames                # noqa: E402
+from h1_2_algoritms.bimanual.depth_obstacles import obstacles_from_depth, ObstacleMemory  # noqa: E402
+from h1_2_algoritms.movimiento.fk_functions import TF2xyzquat                   # noqa: E402
+from h1_2_algoritms.vision.fruit_localization import (                      # noqa: E402
     Intrinsics, segment_orange, locate_median, locate_median_radius, locate_sphere,
     locate_stereo_ir, realsense_depth_noise, image_noise, MANDARINA_RADIUS)
 
 MJCF = os.path.normpath(os.path.join(PKG_DIR, "..", "h1_2_utec", "h1_2_description", "mjcf",
                                      "h1_2_scene_surgery_table_hands.xml"))
-RESULTS_DIR = os.path.join(PKG_DIR, "h1_2_algoritms", "resultados_servoing")
+RESULTS_DIR = os.path.join(PKG_DIR, "results", "servoing")
 OPT_FLIP = np.diag([1.0, -1.0, -1.0])
 ARM_JOINTS = {s: [f"{s}_{j}" for j in ("shoulder_pitch_joint", "shoulder_roll_joint",
                                        "shoulder_yaw_joint", "elbow_joint", "wrist_roll_joint",

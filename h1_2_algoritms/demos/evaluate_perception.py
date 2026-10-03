@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Demo — Método A (color+profundidad) vs Método B (YOLO+profundidad) del
-plan de percepción (ver h1_2_algoritms/PERCEPTION_PLAN.md, secciones 4, 6 y
+plan de percepción (ver docs/PERCEPTION_PLAN.md, secciones 4, 6 y
 7), medidos contra el ground truth EXACTO del simulador (posición real de
 la mandarina, sin necesidad de motion capture).
 
@@ -33,8 +33,8 @@ Uso:
     python3 demos/evaluate_perception.py --no-yolo         # solo Método A
     python3 demos/evaluate_perception.py --device cuda:0   # si hay torch+CUDA
 
-Guarda CSVs en h1_2_algoritms/resultados_percepcion/ (mismo patrón que
-resultados_trayectorias/ del paquete) para graficar después.
+Guarda CSVs en results/percepcion/ (mismo patrón que
+results/trayectorias/ del paquete) para graficar después.
 """
 import argparse
 import csv
@@ -53,7 +53,7 @@ from ament_index_python.packages import get_package_share_directory  # noqa: E40
 from h1_2_mujoco_sim_bridge.mujoco_sim import MujocoSim               # noqa: E402
 from h1_2_mujoco_sim_bridge.sim_bridge_node import DEFAULT_JOINT_NAMES  # noqa: E402
 
-from h1_2_algoritms.perception_common import (                        # noqa: E402
+from h1_2_algoritms.vision.perception_common import (                        # noqa: E402
     detect_color, detect_yolo, deproject,
     DEFAULT_YOLO_MODEL_VARIANT, DEFAULT_YOLO_TARGET_CLASSES)
 
@@ -72,7 +72,7 @@ MOVING_KEYFRAME = "mandarina_moving"
 _OPTICAL_TO_MUJOCO_CAM = np.diag([1.0, -1.0, -1.0])
 
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                            "h1_2_algoritms", "resultados_percepcion")
+                            "results", "percepcion")
 
 
 def camera_intrinsics(sim):
