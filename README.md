@@ -89,9 +89,14 @@ ln -s H1_2_Humanoid_Control/h1_2_algoritms H1_2_Humanoid_Control/h1_2_mujoco_sim
       H1_2_Humanoid_Control/h1_2_real .
 git clone https://github.com/oscar-ramos/h1_2_utec.git
 cd ~/humanoid_ws
-colcon build --symlink-install
+colcon build
 source install/setup.bash
 ```
+
+> Compilar **sin** `--symlink-install`: en ese modo, colcon (con setuptools 59)
+> ignora el `executable = /usr/bin/env python3` de los `setup.cfg`, y los nodos
+> arrancan con el Python del sistema en vez del venv. Después de cambiar un
+> nodo, basta con volver a ejecutar `colcon build`.
 
 ```bash
 # Simulación con RViz2 (escena con faja estática o en movimiento)
