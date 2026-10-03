@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# colcon (si el repo se clona dentro de un workspace)
+build/
+install/
+log/
+
+# Editores / herramientas
+.Rhistory
+.vscode/
+.idea/
+.DS_Store
