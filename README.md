@@ -125,4 +125,4 @@ Los nodos disponibles y la lista completa de demos están en
 
 ## Autor
 
-Miguel Olortegui — Maestría, UTEC
+MiTo Olórtegui Huamán — Maestría, UTEC
