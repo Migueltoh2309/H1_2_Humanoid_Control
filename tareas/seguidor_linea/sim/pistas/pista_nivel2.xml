@@ -1,0 +1,656 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="h1_2_pista_nivel2">
+  <!-- GENERADO por tareas/seguidor_linea/sim/construir_pistas.py (nivel 2). No editar a mano. --><compiler angle="radian" meshdir="/home/mito/humanoid_ws/src/h1_2_sim2real/src/h1_2_sim2real/meshes/" autolimits="true" />
+  <asset>
+    <mesh name="pelvis" file="pelvis.STL" />
+    <mesh name="left_hip_yaw_link" file="left_hip_yaw_link.STL" />
+    <mesh name="left_hip_pitch_link" file="left_hip_pitch_link.STL" />
+    <mesh name="left_hip_roll_link" file="left_hip_roll_link.STL" />
+    <mesh name="left_knee_link" file="left_knee_link.STL" />
+    <mesh name="left_ankle_pitch_link" file="left_ankle_pitch_link.STL" />
+    <mesh name="left_ankle_roll_link" file="left_ankle_roll_link.STL" />
+    <mesh name="right_hip_yaw_link" file="right_hip_yaw_link.STL" />
+    <mesh name="right_hip_pitch_link" file="right_hip_pitch_link.STL" />
+    <mesh name="right_hip_roll_link" file="right_hip_roll_link.STL" />
+    <mesh name="right_knee_link" file="right_knee_link.STL" />
+    <mesh name="right_ankle_pitch_link" file="right_ankle_pitch_link.STL" />
+    <mesh name="right_ankle_roll_link" file="right_ankle_roll_link.STL" />
+    <mesh name="torso_link" file="torso_link.STL" />
+    <mesh name="left_shoulder_pitch_link" file="left_shoulder_pitch_link.STL" />
+    <mesh name="left_shoulder_roll_link" file="left_shoulder_roll_link.STL" />
+    <mesh name="left_shoulder_yaw_link" file="left_shoulder_yaw_link.STL" />
+    <mesh name="left_elbow_link" file="left_elbow_link.STL" />
+    <mesh name="left_wrist_roll_link" file="left_wrist_roll_link.STL" />
+    <mesh name="left_wrist_pitch_link" file="left_wrist_pitch_link.STL" />
+    <mesh name="wrist_yaw_link" file="wrist_yaw_link.STL" />
+    <mesh name="right_shoulder_pitch_link" file="right_shoulder_pitch_link.STL" />
+    <mesh name="right_shoulder_roll_link" file="right_shoulder_roll_link.STL" />
+    <mesh name="right_shoulder_yaw_link" file="right_shoulder_yaw_link.STL" />
+    <mesh name="right_elbow_link" file="right_elbow_link.STL" />
+    <mesh name="right_wrist_roll_link" file="right_wrist_roll_link.STL" />
+    <mesh name="right_wrist_pitch_link" file="right_wrist_pitch_link.STL" />
+    <mesh name="logo_link" file="logo_link.STL" />
+    <mesh name="L_hand_base_link" file="L_hand_base_link.STL" />
+    <mesh name="link11_L" file="link11_L.STL" />
+    <mesh name="link12_L" file="link12_L.STL" />
+    <mesh name="link13_L" file="link13_L.STL" />
+    <mesh name="link14_L" file="link14_L.STL" />
+    <mesh name="link15_L" file="link15_L.STL" />
+    <mesh name="link16_L" file="link16_L.STL" />
+    <mesh name="link17_L" file="link17_L.STL" />
+    <mesh name="link18_L" file="link18_L.STL" />
+    <mesh name="link19_L" file="link19_L.STL" />
+    <mesh name="link20_L" file="link20_L.STL" />
+    <mesh name="link21_L" file="link21_L.STL" />
+    <mesh name="link22_L" file="link22_L.STL" />
+    <mesh name="R_hand_base_link" file="R_hand_base_link.STL" />
+    <mesh name="link11_R" file="link11_R.STL" />
+    <mesh name="link12_R" file="link12_R.STL" />
+    <mesh name="link13_R" file="link13_R.STL" />
+    <mesh name="link14_R" file="link14_R.STL" />
+    <mesh name="link15_R" file="link15_R.STL" />
+    <mesh name="link16_R" file="link16_R.STL" />
+    <mesh name="link17_R" file="link17_R.STL" />
+    <mesh name="link18_R" file="link18_R.STL" />
+    <mesh name="link19_R" file="link19_R.STL" />
+    <mesh name="link20_R" file="link20_R.STL" />
+    <mesh name="link21_R" file="link21_R.STL" />
+    <mesh name="link22_R" file="link22_R.STL" />
+  </asset>
+  <worldbody>
+    <body name="pelvis" pos="0 0 1.0151">
+      <inertial pos="-0.0004 3.7e-05 -0.046864" quat="0.497097 0.496809 -0.503132 0.502925" mass="5.983" diaginertia="0.0531565 0.0491678 0.00902583" />
+      <freejoint name="floating_base_joint" />
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="pelvis" />
+      <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="pelvis" />
+      <body name="left_hip_yaw_link" pos="0 0.0875 -0.1632">
+        <inertial pos="0 -0.026197 0.006647" quat="0.704899 -0.0553755 0.0548434 0.705013" mass="2.829" diaginertia="0.00574303 0.00455361 0.00349461" />
+        <joint name="left_hip_yaw_joint" pos="0 0 0" axis="0 0 1" range="-0.43 0.43" actuatorfrcrange="-200 200" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_hip_yaw_link" />
+        <body name="left_hip_pitch_link" pos="0 0.0755 0">
+          <inertial pos="-0.00781 -0.004724 -6.3e-05" quat="0.701575 0.711394 0.0330266 0.0249149" mass="2.92" diaginertia="0.00560661 0.00445055 0.00385068" />
+          <joint name="left_hip_pitch_joint" pos="0 0 0" axis="0 1 0" range="-3.14 2.5" actuatorfrcrange="-200 200" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_hip_pitch_link" />
+          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_hip_pitch_link" />
+          <body name="left_hip_roll_link">
+            <inertial pos="0.004171 -0.008576 -0.194509" quat="0.634842 0.0146079 0.0074063 0.772469" mass="4.962" diaginertia="0.0480229 0.0462788 0.00887409" />
+            <joint name="left_hip_roll_joint" pos="0 0 0" axis="1 0 0" range="-0.43 3.14" actuatorfrcrange="-200 200" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_hip_roll_link" />
+            <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_hip_roll_link" />
+            <body name="left_knee_link" pos="0 0 -0.4">
+              <inertial pos="0.000179 0.000121 -0.168936" quat="0.416585 0.0104983 0.00514003 0.909021" mass="3.839" diaginertia="0.0391044 0.038959 0.00501125" />
+              <joint name="left_knee_joint" pos="0 0 0" axis="0 1 0" range="-0.12 2.19" actuatorfrcrange="-300 300" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_knee_link" />
+              <geom size="0.04 0.1" pos="0 0 -0.2" type="cylinder" rgba="0.1 0.1 0.1 1" />
+              <body name="left_ankle_pitch_link" pos="0 0 -0.4">
+                <inertial pos="-0.000294 0 -0.010794" quat="0.999984 0 -0.00574445 0" mass="0.102" diaginertia="2.39454e-05 2.1837e-05 1.34126e-05" />
+                <joint name="left_ankle_pitch_joint" pos="0 0 0" axis="0 1 0" range="-0.897334 0.523598" actuatorfrcrange="-60 60" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_ankle_pitch_link" />
+                <body name="left_ankle_roll_link" pos="0 0 -0.02">
+                  <inertial pos="0.029589 0 -0.015973" quat="0 0.725858 0 0.687845" mass="0.747" diaginertia="0.00359178 0.00343534 0.000640307" />
+                  <joint name="left_ankle_roll_joint" pos="0 0 0" axis="1 0 0" range="-0.261799 0.261799" actuatorfrcrange="-40 40" />
+                  <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_ankle_roll_link" />
+                  <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_ankle_roll_link" contype="0" conaffinity="0" group="1" density="0" />
+                  <geom name="left_suela" type="box" pos="0.04400 -0.00000 -0.03500" size="0.13000 0.04300 0.01000" rgba="0.2 0.2 0.2 0.0" group="3" friction="1.0 0.02 0.01" />
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="right_hip_yaw_link" pos="0 -0.0875 -0.1632">
+        <inertial pos="0 0.026197 0.006647" quat="0.705013 0.0548434 -0.0553755 0.704899" mass="2.829" diaginertia="0.00574303 0.00455361 0.00349461" />
+        <joint name="right_hip_yaw_joint" pos="0 0 0" axis="0 0 1" range="-0.43 0.43" actuatorfrcrange="-200 200" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_hip_yaw_link" />
+        <body name="right_hip_pitch_link" pos="0 -0.0755 0">
+          <inertial pos="-0.00781 0.004724 -6.3e-05" quat="0.711394 0.701575 -0.0249149 -0.0330266" mass="2.92" diaginertia="0.00560661 0.00445055 0.00385068" />
+          <joint name="right_hip_pitch_joint" pos="0 0 0" axis="0 1 0" range="-3.14 2.5" actuatorfrcrange="-200 200" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_hip_pitch_link" />
+          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_hip_pitch_link" />
+          <body name="right_hip_roll_link">
+            <inertial pos="0.004171 0.008576 -0.194509" quat="0.772469 0.0074063 0.0146079 0.634842" mass="4.962" diaginertia="0.0480229 0.0462788 0.00887409" />
+            <joint name="right_hip_roll_joint" pos="0 0 0" axis="1 0 0" range="-3.14 0.43" actuatorfrcrange="-200 200" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_hip_roll_link" />
+            <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_hip_roll_link" />
+            <body name="right_knee_link" pos="0 0 -0.4">
+              <inertial pos="0.000179 -0.000121 -0.168936" quat="0.909021 0.00514003 0.0104983 0.416585" mass="3.839" diaginertia="0.0391044 0.038959 0.00501125" />
+              <joint name="right_knee_joint" pos="0 0 0" axis="0 1 0" range="-0.12 2.19" actuatorfrcrange="-300 300" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_knee_link" />
+              <geom size="0.04 0.1" pos="0 0 -0.2" type="cylinder" rgba="0.1 0.1 0.1 1" />
+              <body name="right_ankle_pitch_link" pos="0 0 -0.4">
+                <inertial pos="-0.000294 0 -0.010794" quat="0.999984 0 -0.00574445 0" mass="0.102" diaginertia="2.39454e-05 2.1837e-05 1.34126e-05" />
+                <joint name="right_ankle_pitch_joint" pos="0 0 0" axis="0 1 0" range="-0.897334 0.523598" actuatorfrcrange="-60 60" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_ankle_pitch_link" />
+                <body name="right_ankle_roll_link" pos="0 0 -0.02">
+                  <inertial pos="0.029589 0 -0.015973" quat="0 0.725858 0 0.687845" mass="0.747" diaginertia="0.00359178 0.00343534 0.000640307" />
+                  <joint name="right_ankle_roll_joint" pos="0 0 0" axis="1 0 0" range="-0.261799 0.261799" actuatorfrcrange="-40 40" />
+                  <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_ankle_roll_link" />
+                  <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_ankle_roll_link" contype="0" conaffinity="0" group="1" density="0" />
+                  <geom name="right_suela" type="box" pos="0.04400 -0.00000 -0.03500" size="0.13000 0.04300 0.01000" rgba="0.2 0.2 0.2 0.0" group="3" friction="1.0 0.02 0.01" />
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="torso_link">
+        <inertial pos="0.000489 0.002797 0.20484" quat="0.999989 -0.00130808 -0.00282289 -0.00349105" mass="17.789" diaginertia="0.487315 0.409628 0.127837" />
+        <joint name="torso_joint" pos="0 0 0" axis="0 0 1" range="-2.35 2.35" actuatorfrcrange="-200 200" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="torso_link" />
+        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="torso_link" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="logo_link" />
+        <site name="imu" size="0.01" pos="-0.04452 -0.01891 0.27756" />
+        <site name="camera_site" size="0.02" pos="0.11109 0.01750 0.68789" rgba="0 1 0 1" />
+        <camera name="robot_rgbd_camera" mode="fixed" pos="0.11109 0.01750 0.68789" xyaxes="0 -1 0 0.774503060 0 0.632570162" fovy="43.3670" resolution="640 480" />
+        <camera name="robot_ir_left" mode="fixed" pos="0.11109 0.03250 0.68789" xyaxes="0 -1 0 0.774503060 0 0.632570162" fovy="64.7150" resolution="640 480" />
+        <camera name="robot_ir_right" mode="fixed" pos="0.11109 -0.01750 0.68789" xyaxes="0 -1 0 0.774503060 0 0.632570162" fovy="64.7150" resolution="640 480" />
+        <body name="left_shoulder_pitch_link" pos="0 0.14806 0.42333" quat="0.991445 0.130526 0 0">
+          <inertial pos="0.003053 0.06042 -0.0059" quat="0.761799 0.645681 -0.0378496 -0.0363943" mass="1.327" diaginertia="0.000588757 0.00053309 0.000393023" />
+          <joint name="left_shoulder_pitch_joint" pos="0 0 0" axis="0 1 0" range="-3.14 1.57" actuatorfrcrange="-40 40" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_shoulder_pitch_link" />
+          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_shoulder_pitch_link" />
+          <body name="left_shoulder_roll_link" pos="0.0342 0.061999 -0.0060011" quat="0.991445 -0.130526 0 0">
+            <inertial pos="-0.030932 -1e-06 -0.10609" quat="0.986055 0.000456937 0.166408 0.00213553" mass="1.393" diaginertia="0.00200869 0.00193464 0.000449847" />
+            <joint name="left_shoulder_roll_joint" pos="0 0 0" axis="1 0 0" range="-0.38 3.4" actuatorfrcrange="-40 40" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_shoulder_roll_link" />
+            <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_shoulder_roll_link" />
+            <body name="left_shoulder_yaw_link" pos="-0.0342 0 -0.1456">
+              <inertial pos="0.004583 0.001128 -0.001128" quat="0.663644 -0.0108866 -0.0267235 0.747492" mass="1.505" diaginertia="0.00431782 0.00420697 0.000645658" />
+              <joint name="left_shoulder_yaw_joint" pos="0 0 0" axis="0 0 1" range="-2.66 3.01" actuatorfrcrange="-18 18" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_shoulder_yaw_link" />
+              <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_shoulder_yaw_link" />
+              <body name="left_elbow_link" pos="0.006 0.0329 -0.182">
+                <inertial pos="0.077092 -0.028751 -0.009714" quat="0.544921 0.610781 0.423352 0.388305" mass="0.691" diaginertia="0.000942091 0.000905273 0.00023025" />
+                <joint name="left_elbow_joint" pos="0 0 0" axis="0 1 0" range="-0.95 3.18" actuatorfrcrange="-18 18" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_elbow_link" />
+                <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_elbow_link" />
+                <body name="left_wrist_roll_link" pos="0.121 -0.0329 -0.011">
+                  <inertial pos="0.035281 -0.00232 0.000337" quat="0.334998 0.622198 -0.240131 0.66557" mass="0.683" diaginertia="0.00034681 0.000328248 0.000294628" />
+                  <joint name="left_wrist_roll_joint" pos="0 0 0" axis="1 0 0" range="-3.01 2.75" actuatorfrcrange="-19 19" />
+                  <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_wrist_roll_link" />
+                  <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_wrist_roll_link" />
+                  <body name="left_wrist_pitch_link" pos="0.087 0 0">
+                    <inertial pos="0.020395 3.6e-05 -0.002973" quat="0.915893 -0.228405 -0.327262 -0.0432527" mass="0.484" diaginertia="7.25675e-05 7.00325e-05 6.9381e-05" />
+                    <joint name="left_wrist_pitch_joint" pos="0 0 0" axis="0 1 0" range="-0.4625 0.4625" actuatorfrcrange="-19 19" />
+                    <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="left_wrist_pitch_link" />
+                    <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="left_wrist_pitch_link" />
+                    <body name="left_wrist_yaw_link" pos="0.02 0 0">
+                      <site name="left_grasp_site" pos="0.16 0 0" size="0.012" rgba="0 1 0 1" />
+                      <inertial pos="0.0770303 -0.00131441 -0.00068617" quat="0.499919 0.510625 0.506813 0.482165" mass="0.26543" diaginertia="0.000854397 0.000723298 0.00022115" />
+                      <joint name="left_wrist_yaw_joint" pos="0 0 0" axis="0 0 1" range="-1.27 1.27" actuatorfrcrange="-19 19" />
+                      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="wrist_yaw_link" />
+                      <geom pos="0.054 0 0" quat="0.707107 0 0 0.707107" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="L_hand_base_link" />
+                      <geom pos="0.054 0 0" quat="0.707107 0 0 0.707107" type="mesh" rgba="0.1 0.1 0.1 1" mesh="L_hand_base_link" />
+                      <body name="L_thumb_proximal_base" pos="0.1231 -0.01696 0.02045" quat="-2.59735e-06 0.707107 0 0.707107">
+                        <inertial pos="0.0048817 0.00038782 -0.00722" quat="0.445981 0.352284 0.495833 0.656617" mass="0.0018869" diaginertia="8.66031e-08 6.87331e-08 4.94199e-08" />
+                        <joint name="L_thumb_proximal_yaw_joint" pos="0 0 0" axis="0 0 1" range="-0.1 1.3" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link11_L" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link11_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="L_thumb_proximal" pos="0.0099867 0.0098242 -0.0089" quat="0.704571 -0.704573 -0.0598169 0.0598167">
+                          <inertial pos="0.021936 -0.01279 -0.0080386" quat="0.25452 0.660687 -0.251949 0.659723" mass="0.0066101" diaginertia="2.78701e-06 2.44024e-06 8.6466e-07" />
+                          <joint name="L_thumb_proximal_pitch_joint" pos="0 0 0" axis="0 0 -1" range="-0.1 0.6" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link12_L" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link12_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                          <body name="L_thumb_intermediate" pos="0.04407 -0.034553 -0.0008">
+                            <inertial pos="0.0095531 0.0016282 -0.0072002" quat="0.30738 0.636732 -0.307526 0.636803" mass="0.0037844" diaginertia="4.6532e-07 4.48114e-07 2.45646e-07" />
+                            <joint name="L_thumb_intermediate_joint" pos="0 0 0" axis="0 0 -1" range="0 0.8" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link13_L" />
+                            <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link13_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                            <body name="L_thumb_distal" pos="0.020248 -0.010156 -0.0012">
+                              <inertial pos="0.0092888 -0.004953 -0.0060033" quat="0.266264 0.65596 -0.262836 0.655544" mass="0.003344" diaginertia="2.0026e-07 1.95246e-07 8.1594e-08" />
+                              <joint name="L_thumb_distal_joint" pos="0 0 0" axis="0 0 -1" range="0 1.2" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link14_L" />
+                              <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link14_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                      <body name="L_index_proximal" pos="0.19053 0.00028533 0.032268" quat="0.706999 -0.0123409 -0.0123409 0.706999">
+                        <inertial pos="0.0012971 -0.011934 -0.0059998" quat="0.489677 0.510115 -0.489692 0.510099" mass="0.0042405" diaginertia="6.9402e-07 6.62904e-07 2.10916e-07" />
+                        <joint name="L_index_proximal_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link15_L" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link15_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="L_index_intermediate" pos="-0.0024229 -0.032041 -0.001">
+                          <inertial pos="0.0021753 -0.019567 -0.005" quat="0.528694 0.469555 -0.528694 0.469555" mass="0.0045682" diaginertia="7.8176e-07 7.72427e-07 8.47209e-08" />
+                          <joint name="L_index_intermediate_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link16_L" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link16_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <body name="L_middle_proximal" pos="0.1911 0.00028533 0.01295" quat="0.707107 0 0 0.707107">
+                        <inertial pos="0.0012971 -0.011934 -0.0059999" quat="0.489677 0.510115 -0.489692 0.510099" mass="0.0042405" diaginertia="6.9402e-07 6.62904e-07 2.10916e-07" />
+                        <joint name="L_middle_proximal_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link17_L" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link17_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="L_middle_intermediate" pos="-0.0024229 -0.032041 -0.001">
+                          <inertial pos="0.001921 -0.020796 -0.0049999" quat="0.531603 0.466115 -0.531728 0.466262" mass="0.0050397" diaginertia="9.8385e-07 9.73288e-07 9.14016e-08" />
+                          <joint name="L_middle_intermediate_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link18_L" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link18_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <body name="L_ring_proximal" pos="0.19091 0.00028533 -0.0062872" quat="0.706864 0.0185099 0.0185099 0.706864">
+                        <inertial pos="0.0012971 -0.011934 -0.0059999" quat="0.489677 0.510114 -0.489692 0.510099" mass="0.0042405" diaginertia="6.9402e-07 6.62904e-07 2.10916e-07" />
+                        <joint name="L_ring_proximal_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link19_L" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link19_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="L_ring_intermediate" pos="-0.0024229 -0.032041 -0.001">
+                          <inertial pos="0.0021753 -0.019567 -0.005" quat="0.528694 0.469556 -0.528694 0.469556" mass="0.0045682" diaginertia="7.8176e-07 7.72437e-07 8.47208e-08" />
+                          <joint name="L_ring_intermediate_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link20_L" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link20_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <body name="L_pinky_proximal" pos="0.18971 0.00028533 -0.025488" quat="0.706138 0.0370072 0.0370072 0.706138">
+                        <inertial pos="0.0012971 -0.011934 -0.0059999" quat="0.489677 0.510114 -0.489692 0.510099" mass="0.0042405" diaginertia="6.9402e-07 6.62904e-07 2.10916e-07" />
+                        <joint name="L_pinky_proximal_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link21_L" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link21_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="L_pinky_intermediate" pos="-0.0024229 -0.032041 -0.001">
+                          <inertial pos="0.0024788 -0.016208 -0.0050001" quat="0.526797 0.471683 -0.526793 0.471687" mass="0.0036036" diaginertia="4.4881e-07 4.43809e-07 6.5736e-08" />
+                          <joint name="L_pinky_intermediate_joint" pos="0 0 0" axis="0 0 -1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link22_L" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link22_L" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <site name="left_palm_site" pos="0.14 0 0" size="0.01" rgba="1 1 0 0.6" group="4" />
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+        <body name="right_shoulder_pitch_link" pos="0 -0.14806 0.42333" quat="0.991445 -0.130526 0 0">
+          <inertial pos="0.003053 -0.06042 -0.0059" quat="0.645681 0.761799 0.0363943 0.0378496" mass="1.327" diaginertia="0.000588757 0.00053309 0.000393023" />
+          <joint name="right_shoulder_pitch_joint" pos="0 0 0" axis="0 1 0" range="-3.14 1.57" actuatorfrcrange="-40 40" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_shoulder_pitch_link" />
+          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_shoulder_pitch_link" />
+          <body name="right_shoulder_roll_link" pos="0.0342 -0.061999 -0.0060011" quat="0.991445 0.130526 0 0">
+            <inertial pos="-0.030932 1e-06 -0.10609" quat="0.986055 -0.000456937 0.166408 -0.00213553" mass="1.393" diaginertia="0.00200869 0.00193464 0.000449847" />
+            <joint name="right_shoulder_roll_joint" pos="0 0 0" axis="1 0 0" range="-3.4 0.38" actuatorfrcrange="-40 40" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_shoulder_roll_link" />
+            <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_shoulder_roll_link" />
+            <body name="right_shoulder_yaw_link" pos="-0.0342 0 -0.1456">
+              <inertial pos="0.004583 -0.001128 -0.001128" quat="0.747492 -0.0267235 -0.0108866 0.663644" mass="1.505" diaginertia="0.00431782 0.00420697 0.000645658" />
+              <joint name="right_shoulder_yaw_joint" pos="0 0 0" axis="0 0 1" range="-3.01 2.66" actuatorfrcrange="-18 18" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_shoulder_yaw_link" />
+              <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_shoulder_yaw_link" />
+              <body name="right_elbow_link" pos="0.006 -0.0329 -0.182">
+                <inertial pos="0.077092 0.028751 -0.009714" quat="0.388305 0.423352 0.610781 0.544921" mass="0.691" diaginertia="0.000942091 0.000905273 0.00023025" />
+                <joint name="right_elbow_joint" pos="0 0 0" axis="0 1 0" range="-0.95 3.18" actuatorfrcrange="-18 18" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_elbow_link" />
+                <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_elbow_link" />
+                <body name="right_wrist_roll_link" pos="0.121 0.0329 -0.011">
+                  <inertial pos="0.035281 -0.00232 0.000337" quat="0.334998 0.622198 -0.240131 0.66557" mass="0.683" diaginertia="0.00034681 0.000328248 0.000294628" />
+                  <joint name="right_wrist_roll_joint" pos="0 0 0" axis="1 0 0" range="-2.75 3.01" actuatorfrcrange="-19 19" />
+                  <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_wrist_roll_link" />
+                  <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_wrist_roll_link" />
+                  <body name="right_wrist_pitch_link" pos="0.087 0 0">
+                    <inertial pos="0.020395 3.6e-05 -0.002973" quat="0.915893 -0.228405 -0.327262 -0.0432527" mass="0.484" diaginertia="7.25675e-05 7.00325e-05 6.9381e-05" />
+                    <joint name="right_wrist_pitch_joint" pos="0 0 0" axis="0 1 0" range="-0.4625 0.4625" actuatorfrcrange="-19 19" />
+                    <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="right_wrist_pitch_link" />
+                    <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="right_wrist_pitch_link" />
+                    <body name="right_wrist_yaw_link" pos="0.02 0 0">
+                      <site name="right_grasp_site" pos="0.16 0 0" size="0.012" rgba="0 0.7 1 1" />
+                      <inertial pos="0.0770303 0.0013013 -0.000699011" quat="0.482149 0.506915 0.510629 0.499827" mass="0.26543" diaginertia="0.00085381 0.000722728 0.000221145" />
+                      <joint name="right_wrist_yaw_joint" pos="0 0 0" axis="0 0 1" range="-1.27 1.27" actuatorfrcrange="-19 19" />
+                      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="wrist_yaw_link" />
+                      <geom pos="0.054 0 0" quat="0 0.707107 -0.707107 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="R_hand_base_link" />
+                      <geom pos="0.054 0 0" quat="0 0.707107 -0.707107 0" type="mesh" rgba="0.1 0.1 0.1 1" mesh="R_hand_base_link" />
+                      <body name="R_thumb_proximal_base" pos="0.1231 0.01696 0.02045" quat="-0.707107 -2.59735e-06 -0.707107 0">
+                        <inertial pos="-0.0048064 0.0009382 -0.00757" quat="0.515015 0.680854 0.408023 0.323596" mass="0.0018869" diaginertia="8.66026e-08 6.8732e-08 4.94194e-08" />
+                        <joint name="R_thumb_proximal_yaw_joint" pos="0 0 0" axis="0 0 -1" range="-0.1 1.3" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link11_R" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link11_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="R_thumb_proximal" pos="-0.0088099 0.010892 -0.00925" quat="0.0996843 0.0996847 0.700046 0.700044">
+                          <inertial pos="0.021932 0.012785 -0.0080386" quat="-0.254474 0.660716 0.251893 0.659733" mass="0.0066075" diaginertia="2.78601e-06 2.43933e-06 8.64566e-07" />
+                          <joint name="R_thumb_proximal_pitch_joint" pos="0 0 0" axis="0 0 1" range="-0.1 0.6" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link12_R" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link12_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                          <body name="R_thumb_intermediate" pos="0.04407 0.034553 -0.0008">
+                            <inertial pos="0.0095544 -0.0016282 -0.0071997" quat="0.636718 0.307389 -0.636802 0.307548" mass="0.0037847" diaginertia="4.6531e-07 4.48089e-07 2.45661e-07" />
+                            <joint name="R_thumb_intermediate_joint" pos="0 0 0" axis="0 0 1" range="0 0.8" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link13_R" />
+                            <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link13_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                            <body name="R_thumb_distal" pos="0.020248 0.010156 -0.0012">
+                              <inertial pos="0.0092888 0.0049529 -0.0060033" quat="-0.266294 0.655967 0.262806 0.655537" mass="0.0033441" diaginertia="2.0026e-07 1.95247e-07 8.1593e-08" />
+                              <joint name="R_thumb_distal_joint" pos="0 0 0" axis="0 0 1" range="0 1.2" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link14_R" />
+                              <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link14_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                      <body name="R_index_proximal" pos="0.19053 -0.00028533 0.032268" quat="0.706999 0.0123358 -0.0123358 -0.706999">
+                        <inertial pos="0.0012259 0.011942 -0.0060001" quat="0.50867 0.49121 -0.508643 0.491172" mass="0.0042403" diaginertia="6.9398e-07 6.62871e-07 2.10909e-07" />
+                        <joint name="R_index_proximal_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link15_R" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link15_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="R_index_intermediate" pos="-0.0026138 0.032026 -0.001">
+                          <inertial pos="0.0019697 0.019589 -0.005" quat="0.466773 0.531152 -0.466773 0.531153" mass="0.0045683" diaginertia="7.8179e-07 7.72465e-07 8.47212e-08" />
+                          <joint name="R_index_intermediate_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link16_R" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link16_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <body name="R_middle_proximal" pos="0.1911 -0.00028533 0.01295" quat="0.707107 -2.59735e-06 2.59735e-06 -0.707107">
+                        <inertial pos="0.001297 0.011934 -0.0060001" quat="0.510131 0.489693 -0.510105 0.489653" mass="0.0042403" diaginertia="6.9397e-07 6.62865e-07 2.10915e-07" />
+                        <joint name="R_middle_proximal_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link17_R" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link17_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="R_middle_intermediate" pos="-0.0024229 0.032041 -0.001">
+                          <inertial pos="0.001921 0.020796 -0.005" quat="0.466148 0.531627 -0.466229 0.531705" mass="0.0050396" diaginertia="9.8384e-07 9.73279e-07 9.14014e-08" />
+                          <joint name="R_middle_intermediate_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link18_R" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link18_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <body name="R_ring_proximal" pos="0.19091 -0.00028533 -0.0062872" quat="-0.706864 0.0185215 -0.0185215 0.706864">
+                        <inertial pos="0.001297 0.011934 -0.0060002" quat="0.510129 0.489691 -0.510107 0.489654" mass="0.0042403" diaginertia="6.9397e-07 6.62865e-07 2.10915e-07" />
+                        <joint name="R_ring_proximal_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link19_R" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link19_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="R_ring_intermediate" pos="-0.0024229 0.032041 -0.001">
+                          <inertial pos="0.0021753 0.019567 -0.005" quat="0.469554 0.528695 -0.469554 0.528695" mass="0.0045683" diaginertia="7.8177e-07 7.72448e-07 8.4722e-08" />
+                          <joint name="R_ring_intermediate_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link20_R" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link20_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <body name="R_pinky_proximal" pos="0.18971 -0.00028533 -0.025488" quat="-0.706138 0.0369975 -0.0369975 0.706138">
+                        <inertial pos="0.001297 0.011934 -0.0060001" quat="0.51013 0.489693 -0.510106 0.489653" mass="0.0042403" diaginertia="6.9397e-07 6.62865e-07 2.10915e-07" />
+                        <joint name="R_pinky_proximal_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link21_R" />
+                        <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link21_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        <body name="R_pinky_intermediate" pos="-0.0024229 0.032041 -0.001">
+                          <inertial pos="0.0024748 0.016203 -0.0050031" quat="0.47398 0.528862 -0.469291 0.524799" mass="0.0035996" diaginertia="4.4867e-07 4.43723e-07 6.56538e-08" />
+                          <joint name="R_pinky_intermediate_joint" pos="0 0 0" axis="0 0 1" range="0 1.7" actuatorfrcrange="-1 1" armature="0.0005" damping="0.02" />
+                          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="link22_R" />
+                          <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link22_R" contype="2" conaffinity="1" friction="1.5 0.01 0.001" condim="4" />
+                        </body>
+                      </body>
+                      <site name="right_palm_site" pos="0.14 0 0" size="0.01" rgba="1 1 0 0.6" group="4" />
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="left_hip_yaw_joint" joint="left_hip_yaw_joint" />
+    <motor name="left_hip_pitch_joint" joint="left_hip_pitch_joint" />
+    <motor name="left_hip_roll_joint" joint="left_hip_roll_joint" />
+    <motor name="left_knee_joint" joint="left_knee_joint" />
+    <motor name="left_ankle_pitch_joint" joint="left_ankle_pitch_joint" />
+    <motor name="left_ankle_roll_joint" joint="left_ankle_roll_joint" />
+    <motor name="right_hip_yaw_joint" joint="right_hip_yaw_joint" />
+    <motor name="right_hip_pitch_joint" joint="right_hip_pitch_joint" />
+    <motor name="right_hip_roll_joint" joint="right_hip_roll_joint" />
+    <motor name="right_knee_joint" joint="right_knee_joint" />
+    <motor name="right_ankle_pitch_joint" joint="right_ankle_pitch_joint" />
+    <motor name="right_ankle_roll_joint" joint="right_ankle_roll_joint" />
+    <motor name="torso_joint" joint="torso_joint" />
+    <motor name="left_shoulder_pitch_joint" joint="left_shoulder_pitch_joint" />
+    <motor name="left_shoulder_roll_joint" joint="left_shoulder_roll_joint" />
+    <motor name="left_shoulder_yaw_joint" joint="left_shoulder_yaw_joint" />
+    <motor name="left_elbow_joint" joint="left_elbow_joint" />
+    <motor name="left_wrist_roll_joint" joint="left_wrist_roll_joint" />
+    <motor name="left_wrist_pitch_joint" joint="left_wrist_pitch_joint" />
+    <motor name="left_wrist_yaw_joint" joint="left_wrist_yaw_joint" />
+    <motor name="right_shoulder_pitch_joint" joint="right_shoulder_pitch_joint" />
+    <motor name="right_shoulder_roll_joint" joint="right_shoulder_roll_joint" />
+    <motor name="right_shoulder_yaw_joint" joint="right_shoulder_yaw_joint" />
+    <motor name="right_elbow_joint" joint="right_elbow_joint" />
+    <motor name="right_wrist_roll_joint" joint="right_wrist_roll_joint" />
+    <motor name="right_wrist_pitch_joint" joint="right_wrist_pitch_joint" />
+    <motor name="right_wrist_yaw_joint" joint="right_wrist_yaw_joint" />
+  </actuator>
+  <sensor>
+    <framequat name="imu_quat" objtype="site" objname="imu" />
+    <gyro name="imu-angular-velocity" site="imu" noise="5e-4" cutoff="34.9" />
+    <accelerometer name="imu-linear-acceleration" site="imu" noise="1e-2" cutoff="157" />
+    <framepos name="pelvis_pos" objtype="body" objname="pelvis" />
+    <framelinvel name="pelvis_linvel" objtype="body" objname="pelvis" />
+  </sensor>
+  <statistic center="2.00 2.00 0.8" extent="3.50" />
+  <visual>
+    <rgba haze="0.15 0.25 0.35 1" />
+    <global azimuth="-140" elevation="-20" offwidth="1280" offheight="800" />
+    <headlight ambient="0.32 0.32 0.32" diffuse="0 0 0" specular="0 0 0" />
+    <quality shadowsize="8192" />
+    <map shadowscale="0.9" znear="0.01" />
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072" />
+  </asset>
+  <contact>
+    <exclude body1="pelvis" body2="torso_link" />
+    <exclude body1="left_wrist_yaw_link" body2="L_thumb_proximal_base" />
+    <exclude body1="left_wrist_yaw_link" body2="L_thumb_proximal" />
+    <exclude body1="left_wrist_yaw_link" body2="L_thumb_intermediate" />
+    <exclude body1="left_wrist_yaw_link" body2="L_thumb_distal" />
+    <exclude body1="left_wrist_yaw_link" body2="L_index_proximal" />
+    <exclude body1="left_wrist_yaw_link" body2="L_middle_proximal" />
+    <exclude body1="left_wrist_yaw_link" body2="L_ring_proximal" />
+    <exclude body1="left_wrist_yaw_link" body2="L_pinky_proximal" />
+    <exclude body1="right_wrist_yaw_link" body2="R_thumb_proximal_base" />
+    <exclude body1="right_wrist_yaw_link" body2="R_thumb_proximal" />
+    <exclude body1="right_wrist_yaw_link" body2="R_thumb_intermediate" />
+    <exclude body1="right_wrist_yaw_link" body2="R_thumb_distal" />
+    <exclude body1="right_wrist_yaw_link" body2="R_index_proximal" />
+    <exclude body1="right_wrist_yaw_link" body2="R_middle_proximal" />
+    <exclude body1="right_wrist_yaw_link" body2="R_ring_proximal" />
+    <exclude body1="right_wrist_yaw_link" body2="R_pinky_proximal" />
+  </contact>
+  <worldbody>
+    </worldbody>
+  <actuator>
+    <position name="L_thumb_proximal_yaw_joint" joint="L_thumb_proximal_yaw_joint" kp="2.0" forcerange="-0.6 0.6" ctrllimited="true" ctrlrange="-0.1 1.3" />
+    <position name="L_thumb_proximal_pitch_joint" joint="L_thumb_proximal_pitch_joint" kp="2.0" forcerange="-0.6 0.6" ctrllimited="true" ctrlrange="-0.1 0.6" />
+    <position name="L_index_proximal_joint" joint="L_index_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+    <position name="L_middle_proximal_joint" joint="L_middle_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+    <position name="L_ring_proximal_joint" joint="L_ring_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+    <position name="L_pinky_proximal_joint" joint="L_pinky_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+    <position name="R_thumb_proximal_yaw_joint" joint="R_thumb_proximal_yaw_joint" kp="2.0" forcerange="-0.6 0.6" ctrllimited="true" ctrlrange="-0.1 1.3" />
+    <position name="R_thumb_proximal_pitch_joint" joint="R_thumb_proximal_pitch_joint" kp="2.0" forcerange="-0.6 0.6" ctrllimited="true" ctrlrange="-0.1 0.6" />
+    <position name="R_index_proximal_joint" joint="R_index_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+    <position name="R_middle_proximal_joint" joint="R_middle_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+    <position name="R_ring_proximal_joint" joint="R_ring_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+    <position name="R_pinky_proximal_joint" joint="R_pinky_proximal_joint" kp="2.0" forcerange="-0.35 0.35" ctrllimited="true" ctrlrange="-0.1 1.7" />
+  </actuator>
+  <equality>
+    <joint joint1="L_thumb_intermediate_joint" joint2="L_thumb_proximal_pitch_joint" polycoef="0 1.6 0 0 0" solref="0.005 1" />
+    <joint joint1="L_thumb_distal_joint" joint2="L_thumb_proximal_pitch_joint" polycoef="0 2.4 0 0 0" solref="0.005 1" />
+    <joint joint1="L_index_intermediate_joint" joint2="L_index_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+    <joint joint1="L_middle_intermediate_joint" joint2="L_middle_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+    <joint joint1="L_ring_intermediate_joint" joint2="L_ring_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+    <joint joint1="L_pinky_intermediate_joint" joint2="L_pinky_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+    <joint joint1="R_thumb_intermediate_joint" joint2="R_thumb_proximal_pitch_joint" polycoef="0 1.6 0 0 0" solref="0.005 1" />
+    <joint joint1="R_thumb_distal_joint" joint2="R_thumb_proximal_pitch_joint" polycoef="0 2.4 0 0 0" solref="0.005 1" />
+    <joint joint1="R_index_intermediate_joint" joint2="R_index_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+    <joint joint1="R_middle_intermediate_joint" joint2="R_middle_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+    <joint joint1="R_ring_intermediate_joint" joint2="R_ring_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+    <joint joint1="R_pinky_intermediate_joint" joint2="R_pinky_proximal_joint" polycoef="0 1.0 0 0 0" solref="0.005 1" />
+  </equality>
+  <keyframe>
+    <key name="de_pie" qpos="0 0 1.01512 1 0 0 0 0 -0.16 0 0.36 -0.2 0 0 -0.16 0 0.36 -0.2 0 0 0 0.12 0 0.3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.12 0 0.3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" ctrl="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" />
+  </keyframe>
+  <asset>
+    <material name="suelo_blanco" rgba="0.88 0.88 0.86 1" specular="0.05" shininess="0" reflectance="0" />
+    <material name="cinta" rgba="0.05 0.05 0.05 1" specular="0" shininess="0" reflectance="0" />
+    <material name="placa" rgba="0.3 0.3 0.3 1" />
+  </asset>
+  <worldbody>
+    <geom name="suelo" type="plane" size="0 0 0.05" material="suelo_blanco" />
+    <light name="cenital" directional="true" pos="0 0 6" dir="0 0 -1" diffuse="0.62 0.62 0.62" specular="0 0 0" castshadow="true" />
+    <geom name="cinta_0" type="box" material="cinta" contype="0" conaffinity="0" pos="1.00000 0.00000 0.00050" size="1.00000 0.02500 0.00050" euler="0 0 0.000000" group="0" />
+    <geom name="cinta_1" type="box" material="cinta" contype="0" conaffinity="0" pos="2.01000 0.00005 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.005003" group="0" />
+    <geom name="cinta_2" type="box" material="cinta" contype="0" conaffinity="0" pos="2.03001 0.00025 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.015008" group="0" />
+    <geom name="cinta_3" type="box" material="cinta" contype="0" conaffinity="0" pos="2.05002 0.00065 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.025013" group="0" />
+    <geom name="cinta_4" type="box" material="cinta" contype="0" conaffinity="0" pos="2.07002 0.00125 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.035018" group="0" />
+    <geom name="cinta_5" type="box" material="cinta" contype="0" conaffinity="0" pos="2.09001 0.00205 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.045023" group="0" />
+    <geom name="cinta_6" type="box" material="cinta" contype="0" conaffinity="0" pos="2.11000 0.00305 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.055028" group="0" />
+    <geom name="cinta_7" type="box" material="cinta" contype="0" conaffinity="0" pos="2.12997 0.00425 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.065033" group="0" />
+    <geom name="cinta_8" type="box" material="cinta" contype="0" conaffinity="0" pos="2.14993 0.00565 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.075038" group="0" />
+    <geom name="cinta_9" type="box" material="cinta" contype="0" conaffinity="0" pos="2.16988 0.00725 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.085043" group="0" />
+    <geom name="cinta_10" type="box" material="cinta" contype="0" conaffinity="0" pos="2.18981 0.00905 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.095048" group="0" />
+    <geom name="cinta_11" type="box" material="cinta" contype="0" conaffinity="0" pos="2.20972 0.01105 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.105053" group="0" />
+    <geom name="cinta_12" type="box" material="cinta" contype="0" conaffinity="0" pos="2.22961 0.01325 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.115058" group="0" />
+    <geom name="cinta_13" type="box" material="cinta" contype="0" conaffinity="0" pos="2.24947 0.01565 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.125063" group="0" />
+    <geom name="cinta_14" type="box" material="cinta" contype="0" conaffinity="0" pos="2.26931 0.01824 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.135068" group="0" />
+    <geom name="cinta_15" type="box" material="cinta" contype="0" conaffinity="0" pos="2.28913 0.02103 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.145074" group="0" />
+    <geom name="cinta_16" type="box" material="cinta" contype="0" conaffinity="0" pos="2.30891 0.02403 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.155079" group="0" />
+    <geom name="cinta_17" type="box" material="cinta" contype="0" conaffinity="0" pos="2.32867 0.02722 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.165084" group="0" />
+    <geom name="cinta_18" type="box" material="cinta" contype="0" conaffinity="0" pos="2.34839 0.03060 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.175089" group="0" />
+    <geom name="cinta_19" type="box" material="cinta" contype="0" conaffinity="0" pos="2.36807 0.03419 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.185094" group="0" />
+    <geom name="cinta_20" type="box" material="cinta" contype="0" conaffinity="0" pos="2.38772 0.03797 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.195099" group="0" />
+    <geom name="cinta_21" type="box" material="cinta" contype="0" conaffinity="0" pos="2.40733 0.04194 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.205104" group="0" />
+    <geom name="cinta_22" type="box" material="cinta" contype="0" conaffinity="0" pos="2.42690 0.04612 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.215109" group="0" />
+    <geom name="cinta_23" type="box" material="cinta" contype="0" conaffinity="0" pos="2.44643 0.05049 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.225114" group="0" />
+    <geom name="cinta_24" type="box" material="cinta" contype="0" conaffinity="0" pos="2.46591 0.05505 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.235119" group="0" />
+    <geom name="cinta_25" type="box" material="cinta" contype="0" conaffinity="0" pos="2.48535 0.05981 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.245124" group="0" />
+    <geom name="cinta_26" type="box" material="cinta" contype="0" conaffinity="0" pos="2.50474 0.06476 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.255129" group="0" />
+    <geom name="cinta_27" type="box" material="cinta" contype="0" conaffinity="0" pos="2.52407 0.06991 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.265134" group="0" />
+    <geom name="cinta_28" type="box" material="cinta" contype="0" conaffinity="0" pos="2.54336 0.07525 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.275139" group="0" />
+    <geom name="cinta_29" type="box" material="cinta" contype="0" conaffinity="0" pos="2.56259 0.08078 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.285145" group="0" />
+    <geom name="cinta_30" type="box" material="cinta" contype="0" conaffinity="0" pos="2.58176 0.08651 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.295150" group="0" />
+    <geom name="cinta_31" type="box" material="cinta" contype="0" conaffinity="0" pos="2.60087 0.09242 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.305155" group="0" />
+    <geom name="cinta_32" type="box" material="cinta" contype="0" conaffinity="0" pos="2.61993 0.09853 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.315160" group="0" />
+    <geom name="cinta_33" type="box" material="cinta" contype="0" conaffinity="0" pos="2.63892 0.10483 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.325165" group="0" />
+    <geom name="cinta_34" type="box" material="cinta" contype="0" conaffinity="0" pos="2.65785 0.11131 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.335170" group="0" />
+    <geom name="cinta_35" type="box" material="cinta" contype="0" conaffinity="0" pos="2.67671 0.11799 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.345175" group="0" />
+    <geom name="cinta_36" type="box" material="cinta" contype="0" conaffinity="0" pos="2.69551 0.12486 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.355180" group="0" />
+    <geom name="cinta_37" type="box" material="cinta" contype="0" conaffinity="0" pos="2.71424 0.13191 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.365185" group="0" />
+    <geom name="cinta_38" type="box" material="cinta" contype="0" conaffinity="0" pos="2.73289 0.13915 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.375190" group="0" />
+    <geom name="cinta_39" type="box" material="cinta" contype="0" conaffinity="0" pos="2.75147 0.14657 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.385195" group="0" />
+    <geom name="cinta_40" type="box" material="cinta" contype="0" conaffinity="0" pos="2.76998 0.15418 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.395200" group="0" />
+    <geom name="cinta_41" type="box" material="cinta" contype="0" conaffinity="0" pos="2.78841 0.16198 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.405205" group="0" />
+    <geom name="cinta_42" type="box" material="cinta" contype="0" conaffinity="0" pos="2.80676 0.16996 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.415210" group="0" />
+    <geom name="cinta_43" type="box" material="cinta" contype="0" conaffinity="0" pos="2.82502 0.17812 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.425216" group="0" />
+    <geom name="cinta_44" type="box" material="cinta" contype="0" conaffinity="0" pos="2.84321 0.18647 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.435221" group="0" />
+    <geom name="cinta_45" type="box" material="cinta" contype="0" conaffinity="0" pos="2.86131 0.19500 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.445226" group="0" />
+    <geom name="cinta_46" type="box" material="cinta" contype="0" conaffinity="0" pos="2.87933 0.20370 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.455231" group="0" />
+    <geom name="cinta_47" type="box" material="cinta" contype="0" conaffinity="0" pos="2.89726 0.21259 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.465236" group="0" />
+    <geom name="cinta_48" type="box" material="cinta" contype="0" conaffinity="0" pos="2.91509 0.22166 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.475241" group="0" />
+    <geom name="cinta_49" type="box" material="cinta" contype="0" conaffinity="0" pos="2.93284 0.23090 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.485246" group="0" />
+    <geom name="cinta_50" type="box" material="cinta" contype="0" conaffinity="0" pos="2.95049 0.24032 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.495251" group="0" />
+    <geom name="cinta_51" type="box" material="cinta" contype="0" conaffinity="0" pos="2.96805 0.24992 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.505256" group="0" />
+    <geom name="cinta_52" type="box" material="cinta" contype="0" conaffinity="0" pos="2.98551 0.25969 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.515261" group="0" />
+    <geom name="cinta_53" type="box" material="cinta" contype="0" conaffinity="0" pos="3.00288 0.26964 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.525266" group="0" />
+    <geom name="cinta_54" type="box" material="cinta" contype="0" conaffinity="0" pos="3.02014 0.27976 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.535271" group="0" />
+    <geom name="cinta_55" type="box" material="cinta" contype="0" conaffinity="0" pos="3.03730 0.29005 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.545276" group="0" />
+    <geom name="cinta_56" type="box" material="cinta" contype="0" conaffinity="0" pos="3.05435 0.30052 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.555282" group="0" />
+    <geom name="cinta_57" type="box" material="cinta" contype="0" conaffinity="0" pos="3.07130 0.31115 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.565287" group="0" />
+    <geom name="cinta_58" type="box" material="cinta" contype="0" conaffinity="0" pos="3.08815 0.32195 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.575292" group="0" />
+    <geom name="cinta_59" type="box" material="cinta" contype="0" conaffinity="0" pos="3.10488 0.33292 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.585297" group="0" />
+    <geom name="cinta_60" type="box" material="cinta" contype="0" conaffinity="0" pos="3.12150 0.34406 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.595302" group="0" />
+    <geom name="cinta_61" type="box" material="cinta" contype="0" conaffinity="0" pos="3.13802 0.35537 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.605307" group="0" />
+    <geom name="cinta_62" type="box" material="cinta" contype="0" conaffinity="0" pos="3.15441 0.36683 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.615312" group="0" />
+    <geom name="cinta_63" type="box" material="cinta" contype="0" conaffinity="0" pos="3.17070 0.37847 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.625317" group="0" />
+    <geom name="cinta_64" type="box" material="cinta" contype="0" conaffinity="0" pos="3.18686 0.39026 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.635322" group="0" />
+    <geom name="cinta_65" type="box" material="cinta" contype="0" conaffinity="0" pos="3.20291 0.40221 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.645327" group="0" />
+    <geom name="cinta_66" type="box" material="cinta" contype="0" conaffinity="0" pos="3.21883 0.41433 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.655332" group="0" />
+    <geom name="cinta_67" type="box" material="cinta" contype="0" conaffinity="0" pos="3.23463 0.42660 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.665337" group="0" />
+    <geom name="cinta_68" type="box" material="cinta" contype="0" conaffinity="0" pos="3.25031 0.43903 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.675342" group="0" />
+    <geom name="cinta_69" type="box" material="cinta" contype="0" conaffinity="0" pos="3.26587 0.45162 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.685347" group="0" />
+    <geom name="cinta_70" type="box" material="cinta" contype="0" conaffinity="0" pos="3.28130 0.46436 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.695353" group="0" />
+    <geom name="cinta_71" type="box" material="cinta" contype="0" conaffinity="0" pos="3.29660 0.47726 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.705358" group="0" />
+    <geom name="cinta_72" type="box" material="cinta" contype="0" conaffinity="0" pos="3.31177 0.49031 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.715363" group="0" />
+    <geom name="cinta_73" type="box" material="cinta" contype="0" conaffinity="0" pos="3.32681 0.50351 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.725368" group="0" />
+    <geom name="cinta_74" type="box" material="cinta" contype="0" conaffinity="0" pos="3.34171 0.51686 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.735373" group="0" />
+    <geom name="cinta_75" type="box" material="cinta" contype="0" conaffinity="0" pos="3.35648 0.53036 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.745378" group="0" />
+    <geom name="cinta_76" type="box" material="cinta" contype="0" conaffinity="0" pos="3.37112 0.54400 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.755383" group="0" />
+    <geom name="cinta_77" type="box" material="cinta" contype="0" conaffinity="0" pos="3.38562 0.55779 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.765388" group="0" />
+    <geom name="cinta_78" type="box" material="cinta" contype="0" conaffinity="0" pos="3.39998 0.57173 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.775393" group="0" />
+    <geom name="cinta_79" type="box" material="cinta" contype="0" conaffinity="0" pos="3.41420 0.58580 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.785398" group="0" />
+    <geom name="cinta_80" type="box" material="cinta" contype="0" conaffinity="0" pos="3.42828 0.60002 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.795403" group="0" />
+    <geom name="cinta_81" type="box" material="cinta" contype="0" conaffinity="0" pos="3.44221 0.61438 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.805408" group="0" />
+    <geom name="cinta_82" type="box" material="cinta" contype="0" conaffinity="0" pos="3.45600 0.62888 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.815413" group="0" />
+    <geom name="cinta_83" type="box" material="cinta" contype="0" conaffinity="0" pos="3.46965 0.64352 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.825418" group="0" />
+    <geom name="cinta_84" type="box" material="cinta" contype="0" conaffinity="0" pos="3.48314 0.65829 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.835424" group="0" />
+    <geom name="cinta_85" type="box" material="cinta" contype="0" conaffinity="0" pos="3.49649 0.67320 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.845429" group="0" />
+    <geom name="cinta_86" type="box" material="cinta" contype="0" conaffinity="0" pos="3.50969 0.68823 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.855434" group="0" />
+    <geom name="cinta_87" type="box" material="cinta" contype="0" conaffinity="0" pos="3.52274 0.70340 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.865439" group="0" />
+    <geom name="cinta_88" type="box" material="cinta" contype="0" conaffinity="0" pos="3.53564 0.71870 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.875444" group="0" />
+    <geom name="cinta_89" type="box" material="cinta" contype="0" conaffinity="0" pos="3.54838 0.73413 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.885449" group="0" />
+    <geom name="cinta_90" type="box" material="cinta" contype="0" conaffinity="0" pos="3.56097 0.74969 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.895454" group="0" />
+    <geom name="cinta_91" type="box" material="cinta" contype="0" conaffinity="0" pos="3.57340 0.76537 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.905459" group="0" />
+    <geom name="cinta_92" type="box" material="cinta" contype="0" conaffinity="0" pos="3.58567 0.78117 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.915464" group="0" />
+    <geom name="cinta_93" type="box" material="cinta" contype="0" conaffinity="0" pos="3.59779 0.79710 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.925469" group="0" />
+    <geom name="cinta_94" type="box" material="cinta" contype="0" conaffinity="0" pos="3.60974 0.81314 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.935474" group="0" />
+    <geom name="cinta_95" type="box" material="cinta" contype="0" conaffinity="0" pos="3.62154 0.82931 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.945479" group="0" />
+    <geom name="cinta_96" type="box" material="cinta" contype="0" conaffinity="0" pos="3.63317 0.84559 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.955484" group="0" />
+    <geom name="cinta_97" type="box" material="cinta" contype="0" conaffinity="0" pos="3.64464 0.86199 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.965489" group="0" />
+    <geom name="cinta_98" type="box" material="cinta" contype="0" conaffinity="0" pos="3.65594 0.87850 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.975495" group="0" />
+    <geom name="cinta_99" type="box" material="cinta" contype="0" conaffinity="0" pos="3.66708 0.89512 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.985500" group="0" />
+    <geom name="cinta_100" type="box" material="cinta" contype="0" conaffinity="0" pos="3.67805 0.91186 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 0.995505" group="0" />
+    <geom name="cinta_101" type="box" material="cinta" contype="0" conaffinity="0" pos="3.68885 0.92870 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.005510" group="0" />
+    <geom name="cinta_102" type="box" material="cinta" contype="0" conaffinity="0" pos="3.69948 0.94565 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.015515" group="0" />
+    <geom name="cinta_103" type="box" material="cinta" contype="0" conaffinity="0" pos="3.70995 0.96271 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.025520" group="0" />
+    <geom name="cinta_104" type="box" material="cinta" contype="0" conaffinity="0" pos="3.72024 0.97986 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.035525" group="0" />
+    <geom name="cinta_105" type="box" material="cinta" contype="0" conaffinity="0" pos="3.73036 0.99713 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.045530" group="0" />
+    <geom name="cinta_106" type="box" material="cinta" contype="0" conaffinity="0" pos="3.74031 1.01449 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.055535" group="0" />
+    <geom name="cinta_107" type="box" material="cinta" contype="0" conaffinity="0" pos="3.75008 1.03195 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.065540" group="0" />
+    <geom name="cinta_108" type="box" material="cinta" contype="0" conaffinity="0" pos="3.75968 1.04951 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.075545" group="0" />
+    <geom name="cinta_109" type="box" material="cinta" contype="0" conaffinity="0" pos="3.76910 1.06716 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.085550" group="0" />
+    <geom name="cinta_110" type="box" material="cinta" contype="0" conaffinity="0" pos="3.77834 1.08491 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.095555" group="0" />
+    <geom name="cinta_111" type="box" material="cinta" contype="0" conaffinity="0" pos="3.78741 1.10275 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.105560" group="0" />
+    <geom name="cinta_112" type="box" material="cinta" contype="0" conaffinity="0" pos="3.79630 1.12067 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.115566" group="0" />
+    <geom name="cinta_113" type="box" material="cinta" contype="0" conaffinity="0" pos="3.80501 1.13869 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.125571" group="0" />
+    <geom name="cinta_114" type="box" material="cinta" contype="0" conaffinity="0" pos="3.81353 1.15679 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.135576" group="0" />
+    <geom name="cinta_115" type="box" material="cinta" contype="0" conaffinity="0" pos="3.82188 1.17498 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.145581" group="0" />
+    <geom name="cinta_116" type="box" material="cinta" contype="0" conaffinity="0" pos="3.83004 1.19325 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.155586" group="0" />
+    <geom name="cinta_117" type="box" material="cinta" contype="0" conaffinity="0" pos="3.83802 1.21160 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.165591" group="0" />
+    <geom name="cinta_118" type="box" material="cinta" contype="0" conaffinity="0" pos="3.84582 1.23002 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.175596" group="0" />
+    <geom name="cinta_119" type="box" material="cinta" contype="0" conaffinity="0" pos="3.85343 1.24853 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.185601" group="0" />
+    <geom name="cinta_120" type="box" material="cinta" contype="0" conaffinity="0" pos="3.86085 1.26711 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.195606" group="0" />
+    <geom name="cinta_121" type="box" material="cinta" contype="0" conaffinity="0" pos="3.86809 1.28577 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.205611" group="0" />
+    <geom name="cinta_122" type="box" material="cinta" contype="0" conaffinity="0" pos="3.87515 1.30449 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.215616" group="0" />
+    <geom name="cinta_123" type="box" material="cinta" contype="0" conaffinity="0" pos="3.88201 1.32329 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.225621" group="0" />
+    <geom name="cinta_124" type="box" material="cinta" contype="0" conaffinity="0" pos="3.88869 1.34215 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.235626" group="0" />
+    <geom name="cinta_125" type="box" material="cinta" contype="0" conaffinity="0" pos="3.89517 1.36108 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.245631" group="0" />
+    <geom name="cinta_126" type="box" material="cinta" contype="0" conaffinity="0" pos="3.90147 1.38007 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.255637" group="0" />
+    <geom name="cinta_127" type="box" material="cinta" contype="0" conaffinity="0" pos="3.90758 1.39913 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.265642" group="0" />
+    <geom name="cinta_128" type="box" material="cinta" contype="0" conaffinity="0" pos="3.91350 1.41824 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.275647" group="0" />
+    <geom name="cinta_129" type="box" material="cinta" contype="0" conaffinity="0" pos="3.91922 1.43742 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.285652" group="0" />
+    <geom name="cinta_130" type="box" material="cinta" contype="0" conaffinity="0" pos="3.92475 1.45665 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.295657" group="0" />
+    <geom name="cinta_131" type="box" material="cinta" contype="0" conaffinity="0" pos="3.93009 1.47593 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.305662" group="0" />
+    <geom name="cinta_132" type="box" material="cinta" contype="0" conaffinity="0" pos="3.93524 1.49527 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.315667" group="0" />
+    <geom name="cinta_133" type="box" material="cinta" contype="0" conaffinity="0" pos="3.94019 1.51465 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.325672" group="0" />
+    <geom name="cinta_134" type="box" material="cinta" contype="0" conaffinity="0" pos="3.94495 1.53409 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.335677" group="0" />
+    <geom name="cinta_135" type="box" material="cinta" contype="0" conaffinity="0" pos="3.94951 1.55357 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.345682" group="0" />
+    <geom name="cinta_136" type="box" material="cinta" contype="0" conaffinity="0" pos="3.95388 1.57310 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.355687" group="0" />
+    <geom name="cinta_137" type="box" material="cinta" contype="0" conaffinity="0" pos="3.95806 1.59267 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.365692" group="0" />
+    <geom name="cinta_138" type="box" material="cinta" contype="0" conaffinity="0" pos="3.96203 1.61228 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.375697" group="0" />
+    <geom name="cinta_139" type="box" material="cinta" contype="0" conaffinity="0" pos="3.96582 1.63193 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.385702" group="0" />
+    <geom name="cinta_140" type="box" material="cinta" contype="0" conaffinity="0" pos="3.96940 1.65161 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.395708" group="0" />
+    <geom name="cinta_141" type="box" material="cinta" contype="0" conaffinity="0" pos="3.97279 1.67134 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.405713" group="0" />
+    <geom name="cinta_142" type="box" material="cinta" contype="0" conaffinity="0" pos="3.97598 1.69109 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.415718" group="0" />
+    <geom name="cinta_143" type="box" material="cinta" contype="0" conaffinity="0" pos="3.97897 1.71087 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.425723" group="0" />
+    <geom name="cinta_144" type="box" material="cinta" contype="0" conaffinity="0" pos="3.98176 1.73069 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.435728" group="0" />
+    <geom name="cinta_145" type="box" material="cinta" contype="0" conaffinity="0" pos="3.98436 1.75053 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.445733" group="0" />
+    <geom name="cinta_146" type="box" material="cinta" contype="0" conaffinity="0" pos="3.98675 1.77040 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.455738" group="0" />
+    <geom name="cinta_147" type="box" material="cinta" contype="0" conaffinity="0" pos="3.98895 1.79028 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.465743" group="0" />
+    <geom name="cinta_148" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99095 1.81019 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.475748" group="0" />
+    <geom name="cinta_149" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99275 1.83012 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.485753" group="0" />
+    <geom name="cinta_150" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99435 1.85007 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.495758" group="0" />
+    <geom name="cinta_151" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99575 1.87003 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.505763" group="0" />
+    <geom name="cinta_152" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99695 1.89000 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.515768" group="0" />
+    <geom name="cinta_153" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99795 1.90999 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.525774" group="0" />
+    <geom name="cinta_154" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99875 1.92998 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.535779" group="0" />
+    <geom name="cinta_155" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99935 1.94998 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.545784" group="0" />
+    <geom name="cinta_156" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99975 1.96999 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.555789" group="0" />
+    <geom name="cinta_157" type="box" material="cinta" contype="0" conaffinity="0" pos="3.99995 1.99000 0.00050" size="0.01201 0.02500 0.00050" euler="0 0 1.565794" group="0" />
+    <geom name="cinta_158" type="box" material="cinta" contype="0" conaffinity="0" pos="4.00000 3.00000 0.00050" size="1.00000 0.02500 0.00050" euler="0 0 1.570796" group="0" />
+    <geom name="inicio_0" type="box" material="cinta" contype="0" conaffinity="0" pos="0.30000 0.00000 0.00050" size="0.32500 0.02500 0.00050" euler="0 0 1.570796" group="0" />
+    <geom name="inicio_1" type="box" material="cinta" contype="0" conaffinity="0" pos="-0.30000 0.00000 0.00050" size="0.32500 0.02500 0.00050" euler="0 0 1.570796" group="0" />
+    <geom name="inicio_2" type="box" material="cinta" contype="0" conaffinity="0" pos="0.00000 0.30000 0.00050" size="0.30000 0.02500 0.00050" euler="0 0 0.000000" group="0" />
+    <geom name="inicio_3" type="box" material="cinta" contype="0" conaffinity="0" pos="0.00000 -0.30000 0.00050" size="0.30000 0.02500 0.00050" euler="0 0 0.000000" group="0" />
+    <geom name="barra_fin" type="box" material="cinta" contype="0" conaffinity="0" pos="4.00000 4.00000 0.00050" size="0.30000 0.02500 0.00050" euler="0 0 3.141593" group="0" />
+  </worldbody>
+</mujoco>

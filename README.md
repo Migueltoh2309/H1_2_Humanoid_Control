@@ -22,6 +22,7 @@ artificial y un robot humanoide*. La captura de demostraciones humanas está en 
 | **Visión** | Detección de la mandarina (color o YOLO + profundidad), localización 3D por ajuste de esfera, filtro de Kalman y *visual servoing* para el agarre | [`h1_2_algoritms/.../vision`](h1_2_algoritms/h1_2_algoritms/vision) |
 | **Simulación** | Bridge ROS 2 ↔ MuJoCo: física y colisiones en MuJoCo, cámara RGB-D simulada, contactos y visualización en RViz2 | [`h1_2_mujoco_sim_bridge`](h1_2_mujoco_sim_bridge) |
 | **Escenas** | Escenas MuJoCo de la tesis: mesa quirúrgica, faja con la mandarina, manos Inspire y bandeja-obstáculo | [`h1_2_scenes`](h1_2_scenes) |
+| **Tareas** | Retos con el H1-2. Seguidor de línea solo con la cámara de la cabeza: percepción IR en vista cenital, pure pursuit y supervisor, 4 niveles resueltos en simulación | [`tareas`](tareas) |
 | **Robot real** | Lectura de `/lowstate` y envío de comandos de bajo nivel `/lowcmd` al H1-2 | [`h1_2_real`](h1_2_real) |
 
 ```text
@@ -66,6 +67,7 @@ Todos medidos en simulación con MuJoCo como verdad de terreno:
 │   └── videos/                  #   videos comparativos del control bimanual
 ├── h1_2_mujoco_sim_bridge/      # Bridge ROS 2 ↔ MuJoCo + RViz2
 ├── h1_2_scenes/                 # Escenas MuJoCo: mesa, faja, mandarina, manos, bandeja
+├── tareas/                      # Retos con el H1-2 (seguidor de línea)
 └── h1_2_real/                   # Nodos para el robot físico
 ```
 

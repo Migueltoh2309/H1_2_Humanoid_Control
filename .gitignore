@@ -14,3 +14,7 @@ log/
 .vscode/
 .idea/
 .DS_Store
+
+# Tareas: datos de tiradas, conjuntos de datos y calibración (no se versionan)
+tareas/*/datos/
+tareas/**/.pytest_cache/

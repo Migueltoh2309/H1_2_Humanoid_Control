@@ -1,0 +1,100 @@
+# Configuracion del seguidor de linea (reto R40-RT-H1_2-0001).
+# TODO lo ajustable esta aqui (sec. 5: "ganancias y limites en un fichero de
+# configuracion, no fijados en el codigo"). Unidades SI: m, rad, s.
+
+camara:
+  # Intrinsecos de la IR izquierda (sec. 3 del reto). Si la fuente los da
+  # (realsense o camera_info), se usan los de la fuente.
+  fx: 378.8
+  fy: 378.8
+  cx: 321.5
+  cy: 236.0
+  # Extrinsecos: MEDIRLOS con herramientas/calibrar_camara.py (plano del suelo
+  # con la profundidad). Valores de partida: los del URDF de Unitree / simulador.
+  altura: 1.703          # m del centro optico sobre el suelo, robot de pie
+  inclinacion: 0.8859    # rad bajo la horizontal (50.8 grados)
+  alabeo: 0.0            # rad (roll del montaje)
+  x: 0.111               # m, posicion de la camara delante del centro del robot
+  y: 0.0325              # m (la IR izquierda, a la izquierda del centro)
+  compensar_imu: true    # corregir cada fotograma con el roll/pitch de la IMU (balanceo de la marcha)
+
+percepcion:
+  # Vista cenital (BEV) en el marco del robot: x adelante, y a la izquierda
+  bev_x: [0.35, 3.0]     # m: desde el final de la zona ciega util hasta el alcance util
+  bev_y: [-1.2, 1.2]
+  resolucion: 0.01       # m por pixel de la vista cenital
+  mediana: 5             # px, filtro de mediana sobre la IR (quita el patron del emisor)
+  umbral: adaptativo     # adaptativo | fijo
+  contraste_min: 0.35    # adaptativo: (fondo - pixel) / fondo
+  umbral_fijo: 90        # fijo: nivel de gris por debajo del cual es cinta
+  fondo_m: 0.15          # m, nucleo del cierre morfologico que estima el fondo (> ancho de cinta)
+  ancho_cinta: 0.05
+  ancho_min: 0.025       # m: mas estrecho = junta del suelo o ruido
+  ancho_max: 0.16        # m: una linea oblicua se ve mas ancha en una franja
+  transversal_min: 0.30  # m: tramo oscuro mas ancho = barra de fin o esquina
+  franja: 0.05           # m de alto de cada franja de busqueda
+  puerta: 0.15           # m: salto lateral maximo entre franjas consecutivas
+  puntos_min: 4          # franjas con linea para ajustar
+  ventana_ajuste: 1.4    # m desde la franja mas cercana: ajuste local (desplazamiento, angulo, curvatura)
+  peso_cerca_m: 0.5      # m: el peso de cada punto del ajuste cae como exp(-(x - x_cercano) / esto)
+  # [x0, x1, y0, y1] en el robot que no son suelo: pies (centro) y manos colgando (lados).
+  # Medidas sobre la vista cenital con el robot de pie (simulador): las manos son objetos
+  # elevados y su proyeccion sobre el suelo llega a x ~ 0.9 m. En el robot real, revisarlas.
+  mascara_robot: [[0.0, 0.36, -0.45, 0.45], [0.0, 1.0, 0.38, 0.90], [0.0, 1.0, -0.90, -0.38]]
+
+estimacion:
+  memoria_m: 1.5         # m de linea recordada detras de lo visible (cubre la zona ciega y huecos)
+  confianza_min: 0.35    # por debajo, la medida no se usa
+  factor_vx: 1.0         # velocidad real / pedida (calibrar con cinta, como cuadrado.py)
+  retardo_marcha: 0.30   # s, Move -> el robot empieza a moverse (MEDIR con escalones, 6.3.1)
+  tau_marcha: 0.35       # s, constante de tiempo hasta la velocidad pedida (MEDIR)
+  tau_deriva: 3.0        # s, media de la deriva de rumbo (giroscopo - giro esperado)
+  esquina_confirmaciones: 3   # detecciones coherentes antes de creerse una esquina
+  esquina_distancia_min: 0.45 # m: mas cerca, el tramo transversal sale recortado (zona ciega)
+
+control:
+  ley: pure_pursuit      # pure_pursuit | pd
+  # Mira de pure pursuit L = mirada + mirada_por_vx * vx. Con L grande el robot recorta
+  # las curvas por dentro (con R = 1.2 m y L = 1.15 m el pie se salio 0.33 m en el nivel 3);
+  # con L pequena reacciona al ruido y al balanceo. La memoria cubre la zona ciega, asi
+  # que L puede bajar del metro.
+  mirada: 0.55           # m, a vx = 0
+  mirada_por_vx: 0.8     # s
+  k_y: 0.8               # pd: rad/s por m de desplazamiento lateral
+  k_psi: 1.2             # pd: rad/s por rad de angulo
+  compensar_deriva: true # restar a vyaw la deriva de rumbo estimada con el giroscopo
+  usar_vy: false         # corregir tambien con desplazamiento lateral
+  k_vy: 0.5
+  vx_max: 0.30           # m/s (reto: tope 0.4; primeras tiradas a la mitad -> escala)
+  vx_min: 0.10
+  k_curvatura: 1.2       # vx = vx_max / (1 + k * |curvatura|)
+  vy_max: 0.20
+  vyaw_max: 0.50
+  escala: 1.0            # multiplica todos los topes (0.5 en las primeras tiradas de cada nivel)
+  acel_vx: 0.4           # m/s2 de cambio maximo de la orden (suavidad)
+  acel_vyaw: 1.5         # rad/s2
+
+supervisor:
+  hz: 20.0               # envio de Move (duration = 1 s: si el programa muere, para solo)
+  palabra: SEGUIR        # hay que teclearla antes de andar (sec. 10)
+  frames_listo: 5        # fotogramas con confianza antes de arrancar
+  perdida_max_m: 0.80    # m sin linea antes de parar (el hueco del nivel 3 es de 0.40)
+  perdida_max_s: 4.0
+  vx_perdida: 0.12       # m/s mientras se busca, rumbo sostenido con la IMU
+  ignorar_barra_m: 0.6   # m al principio: el borde del cuadro de inicio parece una barra
+  llegada_m: 1.2         # m: con la barra mas cerca que esto, fase de llegada (frenar y parar sobre ella)
+  pie_delante: 0.10      # m del centro del robot a la punta del pie (parar con el pie en la barra)
+  adelanto_esquina: 0.0  # m: empezar el giro cuando la esquina esta a esto del centro del robot
+  esquina_cerca_m: 1.0   # m: con la esquina confirmada mas cerca, quedarse sin linea no es "perdida"
+  vyaw_giro_max: 0.40
+  giro_esquina:          # nivel 4: giro sobre el eje con la IMU (constantes de cuadrado.py)
+    kp: 1.2
+    vyaw_min: 0.15
+    tolerancia_deg: 3.0
+    estable_s: 0.6
+    pausa_s: 0.8
+    max_s: 20.0
+  vigilante:
+    camara_s: 0.5        # sin fotogramas
+    imu_s: 0.5           # sin rt/lowstate
+    inclinacion_deg: 20.0
