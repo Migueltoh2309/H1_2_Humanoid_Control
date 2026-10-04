@@ -5,9 +5,9 @@ movimiento de cuerpo completo, manipulación bimanual con evasión de colisiones
 y visión RGB-D para agarrar fruta en movimiento, todo validado en **MuJoCo**
 con visualización en **RViz2** antes de pasar al robot real.
 
-Es la parte robótica de mi tesis de maestría en UTEC: *picking bimanual de
-mandarinas sobre faja transportadora*. La captura de demostraciones humanas
-está en [Multiview_Demo_Capture](https://github.com/Migueltoh2309/Multiview_Demo_Capture).
+Es la parte robótica de mi tesis de maestría en UTEC, *Desarrollo de un algoritmo de aprendizaje por demostración para asistencia
+robótica en el picking de frutas sobre faja transportadora mediante visión
+artificial y un robot humanoide*. La captura de demostraciones humanas está en [Multiview_Demo_Capture](https://github.com/Migueltoh2309/Multiview_Demo_Capture).
 
 <p align="center">
   <a href="h1_2_algoritms/videos"><b>▶ Ver los videos del control bimanual</b></a>
