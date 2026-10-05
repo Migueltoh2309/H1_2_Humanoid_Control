@@ -1,0 +1,6 @@
+# regenerables: scripts/instalar.sh (SDK de Unitree + cyclonedds) y scripts/exportar_politica.py
+terceros/
+build/
+install/
+log/
+__pycache__/
