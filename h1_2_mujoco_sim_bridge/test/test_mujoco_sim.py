@@ -29,7 +29,11 @@ def sim(mjcf_path):
 
 
 def test_world_offset_is_pelvis_position(sim):
-    assert np.allclose(sim.world_offset, [0.0, 0.0, 1.03], atol=1e-6)
+    # Contra la pose de la pelvis en el propio MJCF y no un 1.03 fijo: las escenas
+    # de la faja la tienen en z=1.0282 (pies al ras del suelo) y las qp_* en 1.03.
+    pelvis = sim.model.body("pelvis").pos
+    assert np.allclose(sim.world_offset, pelvis, atol=1e-6)
+    assert 1.0 < sim.world_offset[2] < 1.05
 
 
 def test_camera_resolution_from_mjcf(sim):

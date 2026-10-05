@@ -13,6 +13,7 @@ modelo ya cargado por quien la llama — así este módulo sigue siendo liviano
 para quien solo use el Método A (color_depth_detector_node no necesita
 cargar torch nunca).
 """
+import array
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -84,7 +85,9 @@ def array_to_rgb_msg(rgb: np.ndarray, frame_id: str, stamp) -> Image:
     msg.encoding = "rgb8"
     msg.is_bigendian = 0
     msg.step = msg.width * 3
-    msg.data = np.ascontiguousarray(rgb, dtype=np.uint8).tobytes()
+    # array.array('B') y no bytes: con bytes el setter de rclpy (Humble) valida
+    # byte a byte (~120 ms una imagen 640x480 RGB); asi, ~0.2 ms
+    msg.data = array.array("B", np.ascontiguousarray(rgb, dtype=np.uint8).tobytes())
     return msg
 
 
