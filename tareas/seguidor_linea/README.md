@@ -47,19 +47,20 @@ python3 seguidor.py --sim --simulacro      # hito 3: calcula y registra, NO mand
 ./scripts/bateria_sim.sh                   # 4 niveles × 3 semillas de deriva -> tabla (12/12 con éxito)
 ```
 
-**Qué es el robot en esta simulación.** Es la escena del suelo de `h1_2_sim2real` (base flotante,
-manos Inspire, D435 con RGB, profundidad y 2 IR) con la **marcha cinemática**: la base sigue a
-`LocoClient.Move` como un sólido rígido, con el retardo, la respuesta de primer orden, la deriva
-de ~2°/s y el balanceo a 1.43 Hz que describe el reto. **No camina** (las piernas quedan quietas
-en la postura de pie) y **no puede caerse**: hace de arnés. Sirve para cerrar el lazo y probar
-percepción, estimación, control y supervisor. La política de marcha queda para más adelante.
+**Qué es el robot en esta simulación.** La escena del suelo de `h1_2_sim2real` (base flotante,
+manos Inspire, D435 con RGB, profundidad y 2 IR) y, por defecto, **caminando de verdad** con la
+política de marcha del H1-2 que publica Unitree (`unitree_rl_gym`): `LocoClient.Move` → servicio
+`loco` del simulador → política → piernas, con física completa (puede tropezar y caerse; la deriva
+y el balanceo salen solos). Con `MARCHA=cinematica` la base se desplaza como un sólido rígido con
+retardo, deriva y balanceo supuestos (no camina, no se cae); con `MARCHA=ninguna`, quieto.
 
 Las herramientas, con el simulador corriendo:
 
 ```bash
 python3 herramientas/geometria_camara.py           # 6.1.1 y 6.1.3: FOV, zona ciega, alcance
 python3 herramientas/calibrar_camara.py --sim      # 6.1.2: altura e inclinación por el plano del suelo
-python3 herramientas/escalon_vyaw.py --sim         # 6.3.1: retardo y constante de tiempo de la marcha
+python3 herramientas/escalon_vyaw.py --sim         # 6.3.1: retardo, constante de tiempo y ganancia del giro
+python3 herramientas/calibrar_vx.py --sim          # factor_vx: velocidad real / pedida (en el robot, con cinta)
 python3 herramientas/teleop.py --sim               # llevar el robot con el teclado (w s a d q e, espacio, x)
 python3 herramientas/grabar_dataset.py --sim --nivel 3
 python3 herramientas/evaluar_percepcion.py datos/dataset_n3_XXXX --video   # fijo vs adaptativo, verdad
@@ -81,6 +82,7 @@ sudo -E PYTHONNOUSERSITE=1 ~/teleop_venv/bin/python herramientas/calibrar_camara
 # Conjunto de datos: un operador con wasd.py en otra terminal y, a la vez:
 sudo -E PYTHONNOUSERSITE=1 ~/teleop_venv/bin/python herramientas/grabar_dataset.py --iface eth0 --nivel 1
 ~/teleop_venv/bin/python herramientas/escalon_vyaw.py --iface eth0      # 6.3.1 -> retardo_marcha, tau_marcha
+~/teleop_venv/bin/python herramientas/calibrar_vx.py --iface eth0       # factor_vx (mide con cinta)
 # Hito 2 — percepción sobre los datos REALES, en el PC (traer datos/ con rsync)
 # Hito 3 — simulacro: cámara en vivo, el robot lo lleva el operador, Move NO se manda
 ./scripts/seguidor_robot.sh --simulacro            # desde el PC

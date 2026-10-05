@@ -204,3 +204,12 @@ def test_llegada_a_la_barra(cfg):
     assert not o.parar and o.vx <= 0.3
     est.barra = 0.05
     assert s.paso(2.0, est, True, Orden(0.3), _salud(2.0)).parar and s.estado == FIN
+
+
+def test_se_recupera_de_una_prediccion_vieja(cfg):
+    """Con la marcha real, una medida mala dejo la prediccion a -0.42 m y la linea real (en
+    0) nunca volvia a entrar en la puerta: la percepcion quedaba bloqueada."""
+    per = Percepcion(cfg)
+    per.ultimo_y0 = -0.42
+    m = per.procesar(Fotograma(0.0, S.imagen(S.camara(), [S.recta(-0.5, 0.0, 0.0, 4.0)]), K))
+    assert m.valida and abs(m.desplazamiento) < 0.02

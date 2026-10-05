@@ -48,6 +48,9 @@ def main():
     ap.add_argument("--vyaw", type=float, default=0.3)
     ap.add_argument("--segundos", type=float, default=4.0)
     ap.add_argument("--repeticiones", type=int, default=3)
+    ap.add_argument("--suavizar", type=float, default=0.8,
+                    help="s de media movil CENTRADA (sin retardo) sobre el giroscopo: un periodo de la marcha "
+                         "(0.8 s en la politica de unitree_rl_gym) quita la oscilacion de cada paso; 0 = sin suavizar")
     a = ap.parse_args()
     iniciar_dds(a.sim, a.iface)
     imu = FuenteImu()
@@ -81,6 +84,14 @@ def main():
         vivo["si"] = False
         hilo.join()
         M = np.array(muestras)
+        if a.suavizar > 0:
+            # media movil centrada en el tiempo (muestras irregulares): con los pasos el
+            # giroscopo oscila y el ajuste de primer orden salia con tau de 0.05 s
+            t_, w_ = M[:, 0], M[:, 1]
+            cs = np.concatenate([[0.0], np.cumsum(w_)])
+            i0 = np.searchsorted(t_, t_ - a.suavizar / 2)
+            i1 = np.searchsorted(t_, t_ + a.suavizar / 2)
+            M[:, 1] = (cs[i1] - cs[i0]) / np.maximum(i1 - i0, 1)
         sel = (M[:, 0] >= t0) & (M[:, 0] <= t0 + a.segundos)
         T, tau, K = ajustar(M[sel, 0] - t0, signo * M[sel, 1], a.vyaw)
         resultados.append((T, tau, K))

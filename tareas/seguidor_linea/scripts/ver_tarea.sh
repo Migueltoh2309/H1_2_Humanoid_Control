@@ -21,5 +21,6 @@ trap 'pkill -INT -P $SIM 2>/dev/null; wait $SIM 2>/dev/null' EXIT
 echo "abriendo MuJoCo y RViz (log: $LOG)..."
 until grep -q "D435 simulada" "$LOG"; do sleep 0.5; kill -0 $SIM 2>/dev/null || { cat "$LOG"; exit 1; }; done
 sleep 3
-python3 "$AQUI/seguidor.py" --sim --rviz --nivel "$N" "$@" 2>&1 | grep -v multicast
+EXTRA=(); [ "${MARCHA:-politica}" = cinematica ] && EXTRA=(--config-extra "$AQUI/config/planta_cinematica.yaml")
+python3 "$AQUI/seguidor.py" --sim "${EXTRA[@]}" --rviz --nivel "$N" "$@" 2>&1 | grep -v multicast
 read -r -p "Enter para cerrar el simulador y las ventanas " _

@@ -52,7 +52,12 @@ def verdad_linea(pista, x, y, yaw):
     ang = (th - yaw + math.pi) % (2 * math.pi) - math.pi
     fwd = dx * math.cos(yaw) + dy * math.sin(yaw)
     desp = lat - fwd * math.tan(ang) if abs(ang) < 1.3 else lat
-    return desp, ang, s, float(d[i])
+    dist = float(d[i])
+    if i == 0 or i == len(L) - 1:
+        # antes del inicio de la linea (al marcar el paso en ESPERA el robot deriva unos cm
+        # hacia atras) o pasado el final: distancia LATERAL a su prolongacion, no al extremo
+        dist = abs(-(x - lx) * math.sin(th) + (y - ly) * math.cos(th))
+    return desp, ang, s, dist
 
 
 def main():
@@ -99,10 +104,10 @@ def main():
     py = gy[i_fin] + PIE_DELANTE * math.sin(gyaw[i_fin])
     paso = (px - b["x"]) * math.cos(b["rumbo_linea"]) + (py - b["y"]) * math.sin(b["rumbo_linea"])
     print(f"  parada: punta del pie a {paso:+.3f} m de la barra ({'se paso' if paso > 0 else 'antes'}; "
-          f"el reto exige no pasarse mas de 0.30)  -> {'OK' if paso <= 0.30 else 'FALLA'}")
+          f"el reto exige no pasarse mas de 0.30 y llegar)  -> {'OK' if -0.30 <= paso <= 0.30 else 'FALLA'}")
     llego = res["motivo_fin"].startswith("FIN: pie sobre la barra")
     verdad.update(parada_m=round(paso, 3), llego=llego,
-                  exito=bool(llego and verdad.get("pie_max_m", 9) <= 0.30 and paso <= 0.30))
+                  exito=bool(llego and verdad.get("pie_max_m", 9) <= 0.30 and -0.30 <= paso <= 0.30))
     for nombre, col_d, col_a in (("percepcion", "med_desp", "med_ang"), ("estimacion", "est_desp", "est_ang")):
         conf_min = res.get("config", {}).get("estimacion", {}).get("confianza_min", 0.35)
         col_c = "med_conf" if nombre == "percepcion" else "est_conf"

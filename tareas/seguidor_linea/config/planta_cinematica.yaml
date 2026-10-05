@@ -1,0 +1,8 @@
+# Superpuesto a seguidor.yaml cuando el simulador usa la marcha CINEMATICA (MARCHA=cinematica):
+# esa "planta" tiene sus propios parametros (los que se le ponen en sim_node.py). La config
+# principal esta calibrada para la marcha de la politica; cada planta, sus numeros (reto 6.3).
+estimacion:
+  factor_vx: 1.0
+  factor_vyaw: 1.0
+  retardo_marcha: 0.30
+  tau_marcha: 0.35

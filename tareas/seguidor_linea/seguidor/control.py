@@ -24,6 +24,8 @@ def saturar(v, tope):
 class Control:
     def __init__(self, cfg):
         self.c = cfg["control"]
+        # la marcha solo da factor_vyaw del giro pedido: se pide de mas para conseguir el deseado
+        self.factor_w = cfg.get("estimacion", {}).get("factor_vyaw", 1.0)
         self.ultima = Orden()
 
     def mirada(self):
@@ -52,6 +54,8 @@ class Control:
             w = vx * kappa
         if c.get("compensar_deriva", True):
             w -= est.sesgo_yaw               # la deriva medida por el giroscopo, fuera
+        if c.get("compensar_ganancia_giro", True):
+            w /= max(self.factor_w, 0.2)
         vy = c["k_vy"] * est.desplazamiento if c.get("usar_vy") else 0.0
         o = Orden(saturar(vx, vx_max), saturar(vy, vy_max), saturar(w, w_max), motivo=c["ley"])
         return self._suavizar(o, dt)

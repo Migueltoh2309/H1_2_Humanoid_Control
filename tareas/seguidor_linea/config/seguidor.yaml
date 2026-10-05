@@ -32,6 +32,7 @@ percepcion:
   ancho_min: 0.025       # m: mas estrecho = junta del suelo o ruido
   ancho_max: 0.16        # m: una linea oblicua se ve mas ancha en una franja
   transversal_min: 0.30  # m: tramo oscuro mas ancho = barra de fin o esquina
+  barra_ancho: [0.45, 0.85]  # m: tramo transversal de este ancho = barra (60 cm); mas ancho = esquina
   franja: 0.05           # m de alto de cada franja de busqueda
   puerta: 0.15           # m: salto lateral maximo entre franjas consecutivas
   puntos_min: 4          # franjas con linea para ajustar
@@ -45,9 +46,17 @@ percepcion:
 estimacion:
   memoria_m: 1.5         # m de linea recordada detras de lo visible (cubre la zona ciega y huecos)
   confianza_min: 0.35    # por debajo, la medida no se usa
-  factor_vx: 1.0         # velocidad real / pedida (calibrar con cinta, como cuadrado.py)
-  retardo_marcha: 0.30   # s, Move -> el robot empieza a moverse (MEDIR con escalones, 6.3.1)
-  tau_marcha: 0.35       # s, constante de tiempo hasta la velocidad pedida (MEDIR)
+  # Planta = la marcha. Valores MEDIDOS EN EL SIMULADOR con la politica de unitree_rl_gym
+  # (herramientas/calibrar_vx.py y escalon_vyaw.py, 2026-10-05). En el robot real hay que
+  # volver a medirlos con las mismas herramientas: la marcha de Unitree no es esta politica.
+  factor_vx: 0.886       # velocidad real / pedida (calibrar_vx.py; en el robot, con cinta)
+  # giro real / pedido. Girando sobre el sitio la politica da ~0.72 (escalon_vyaw.py), pero
+  # andando cambia; con 1.0 el termino de deriva (giroscopo - giro esperado, tau_deriva) hace
+  # de accion INTEGRAL y corrige el giro que falte en las curvas. Con 0.72 fijo, el nivel 3
+  # se salia de la linea (2026-10-05).
+  factor_vyaw: 1.0
+  retardo_marcha: 0.05   # s, Move -> empieza a moverse (escalon_vyaw.py)
+  tau_marcha: 0.15       # s, constante de tiempo (escalon_vyaw.py)
   tau_deriva: 3.0        # s, media de la deriva de rumbo (giroscopo - giro esperado)
   esquina_confirmaciones: 3   # detecciones coherentes antes de creerse una esquina
   esquina_distancia_min: 0.45 # m: mas cerca, el tramo transversal sale recortado (zona ciega)
@@ -63,6 +72,8 @@ control:
   k_y: 0.8               # pd: rad/s por m de desplazamiento lateral
   k_psi: 1.2             # pd: rad/s por rad de angulo
   compensar_deriva: true # restar a vyaw la deriva de rumbo estimada con el giroscopo
+  compensar_ganancia_giro: false   # pedir vyaw / factor_vyaw (la marcha da menos giro del pedido)
+
   usar_vy: false         # corregir tambien con desplazamiento lateral
   k_vy: 0.5
   vx_max: 0.30           # m/s (reto: tope 0.4; primeras tiradas a la mitad -> escala)
@@ -79,7 +90,7 @@ supervisor:
   palabra: SEGUIR        # hay que teclearla antes de andar (sec. 10)
   frames_listo: 5        # fotogramas con confianza antes de arrancar
   perdida_max_m: 0.80    # m sin linea antes de parar (el hueco del nivel 3 es de 0.40)
-  perdida_max_s: 4.0
+  perdida_max_s: 8.0     # con la marcha real, buscando a ~0.1 m/s, 4 s eran solo 0.4 m: menos que el hueco + zona ciega
   vx_perdida: 0.12       # m/s mientras se busca, rumbo sostenido con la IMU
   ignorar_barra_m: 0.6   # m al principio: el borde del cuadro de inicio parece una barra
   llegada_m: 1.2         # m: con la barra mas cerca que esto, fase de llegada (frenar y parar sobre ella)

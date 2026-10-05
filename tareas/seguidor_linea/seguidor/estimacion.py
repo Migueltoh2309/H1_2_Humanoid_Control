@@ -53,6 +53,7 @@ class Estimador:
         self.conf_min = e["confianza_min"]
         self.memoria_m = e["memoria_m"]
         self.factor = e.get("factor_vx", 1.0)
+        self.factor_w = e.get("factor_vyaw", 1.0)
         self.marcha = ModeloMarcha(e.get("retardo_marcha", 0.3), e.get("tau_marcha", 0.35))
         self.tau_deriva = e.get("tau_deriva", 3.0)
         self.esquina_n = e.get("esquina_confirmaciones", 3)
@@ -87,6 +88,7 @@ class Estimador:
         self.recorrido = 0.0
         self._mira_ang = None
         self._esq_cand = None
+        self._barra_cand = None
         self.mem = {}                 # celda -> (x, y, t)  en el marco fijo
         self.t_buena = None
         self.rec_buena = 0.0
@@ -109,7 +111,7 @@ class Estimador:
     def actualizar(self, t, yaw_imu, v_pedida, medida: MedidaLinea = None, gyro_z=None) -> EstadoLinea:
         dt = 0.0 if self.t is None else max(0.0, t - self.t)
         self.t = t
-        v = self.marcha.paso(t, v_pedida, dt) * np.array([self.factor, self.factor, 1.0])
+        v = self.marcha.paso(t, v_pedida, dt) * np.array([self.factor, self.factor, self.factor_w])
         # Deriva de rumbo (reto: ~2 grados/s andando, signo distinto entre tiradas): lo que
         # gira el robot (giroscopo) menos lo que deberia girar con la orden (modelo de la
         # marcha). Media exponencial, solo andando: el control la resta de vyaw.
@@ -128,7 +130,12 @@ class Estimador:
             for (qx, qy) in Q:
                 self.mem[(int(qx // self.celda), int(qy // self.celda))] = (qx, qy, t)
             self.t_buena, self.rec_buena = t, self.recorrido
-        if medida is not None and medida.barra is not None:
+        # la barra solo con una linea valida detras (con la marcha real, un fotograma sin
+        # linea vio una "barra" en la esquina del nivel 4 y el robot paro 2 m antes)
+        # (valida = hay linea ajustada detras; NO se pide confianza: al acercarse al final la
+        # linea visible se acorta, la confianza baja y la barra no se llegaba a registrar)
+        if (medida is not None and medida.barra is not None and medida.valida
+                and not self._es_la_esquina(medida.barra)):
             self._recordar_barra(medida)
         if medida is not None and medida.esquina is not None and medida.esquina[0] > self.esquina_min_d:
             self._recordar_esquina(medida)
@@ -153,17 +160,31 @@ class Estimador:
         if c["n"] >= self.esquina_n:
             self.esquina = (c["x"], c["y"], 1 if c["votos"] > 0 else -1)
 
+    def _es_la_esquina(self, d):
+        """Una "barra" donde ya hay una esquina CONFIRMADA es la esquina. (Con una candidata
+        no basta: al llegar a la barra con el robot algo desplazado, la barra a veces parece
+        "de un solo lado", crea una candidata y la barra no se registraba nunca.)"""
+        if self.esquina is None:
+            return False
+        p = self.a_robot(np.array([self.esquina[:2]]))[0]
+        return abs(p[0] - d) < 0.3
+
     def _recordar_barra(self, medida):
+        """Barra confirmada: esquina_confirmaciones detecciones coherentes (+-20 cm),
+        posicion promediada (la barra se ve varias veces al acercarse)."""
         y = 0.0
         if medida.coef is not None:
             cc = medida.coef
             y = cc[0] + cc[1] * medida.barra + cc[2] * medida.barra ** 2
         q = self.a_fijo(np.array([[medida.barra, y]]))[0]
-        if self.barra is None:
-            self.barra = q
-        else:                          # promedio: la barra se ve varias veces al acercarse
-            self.barra = (self.barra * self.n_barra + q) / (self.n_barra + 1)
-        self.n_barra = min(self.n_barra + 1, 10)
+        c = self._barra_cand
+        if c is None or math.hypot(q[0] - c[0], q[1] - c[1]) > 0.20:
+            self._barra_cand, self.n_barra = q, 1
+        else:
+            self._barra_cand = (c * self.n_barra + q) / (self.n_barra + 1)
+            self.n_barra = min(self.n_barra + 1, 10)
+        if self.n_barra >= self.esquina_n:
+            self.barra = self._barra_cand
 
     def _podar(self):
         if not self.mem:

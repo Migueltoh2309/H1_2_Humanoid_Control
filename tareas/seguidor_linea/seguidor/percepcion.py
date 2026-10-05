@@ -103,6 +103,30 @@ class Percepcion:
         self.ultimo_bev = (img, valido, m)
         return med
 
+    def _asociar(self, candidatos, bandas_c, y0, puerta0):
+        """Sigue la linea franja a franja: la primera con `puerta0` alrededor de y0, las
+        siguientes con la puerta normal alrededor de lo extrapolado."""
+        puerta = self.p["puerta"]
+        puntos, contrastes = [], []
+        y_pred, pend, x_ant = y0, None, None
+        for x, k, cand in candidatos:
+            yp = y_pred if pend is None or x_ant is None else y_pred + pend * (x - x_ant)
+            g = puerta if puntos else puerta0
+            mejor, d_mejor = None, g
+            for y_c, c0, c1 in cand:
+                d = abs(y_c - yp)
+                if d < d_mejor:
+                    mejor, d_mejor = (y_c, c0, c1), d
+            if mejor is None:
+                continue
+            y_c, c0, c1 = mejor
+            if puntos:
+                pend = (y_c - puntos[-1][1]) / (x - puntos[-1][0])
+            puntos.append((x, y_c))
+            contrastes.append(float(bandas_c[k, c0:c1].mean()))
+            y_pred, x_ant = y_c, x
+        return puntos, contrastes
+
     def _tramos(self, fila_bool):
         """[(col0, col1)] de tramos True contiguos."""
         d = np.diff(np.concatenate([[0], fila_bool.astype(np.int8), [0]]))
@@ -122,9 +146,8 @@ class Percepcion:
         bandas_m = m[r0:].reshape(n_b, alto_franja, n_c).mean(1) > 0.4
         bandas_v = valido[r0:].reshape(n_b, alto_franja, n_c).mean((1, 2))
         bandas_c = contraste[r0:].reshape(n_b, alto_franja, n_c).mean(1)
-        puntos, transversales, visibles, x_visibles = [], [], 0, []
-        y_pred, pend, x_ant = self.ultimo_y0, None, None
-        contrastes = []
+        # 1) candidatos de cada franja (de cerca a lejos) y tramos transversales
+        transversales, visibles, x_visibles, candidatos = [], 0, [], []
         for k in range(n_b - 1, -1, -1):              # de cerca (abajo) a lejos
             f0 = r0 + k * alto_franja
             x = rej.x1 - (f0 + alto_franja / 2) * res
@@ -135,29 +158,23 @@ class Percepcion:
             perfil = bandas_m[k]
             if not perfil.any():
                 continue
-            mejor, d_mejor = None, p["puerta"]
+            cand = []
             for c0, c1 in self._tramos(perfil):
                 ancho = (c1 - c0) * res
-                y_c = rej.y1 - (c0 + c1 - 1) / 2 * res
                 ya, yb = rej.y1 - (c1 - 1) * res, rej.y1 - c0 * res      # extremos en y
                 if ancho >= p["transversal_min"]:
                     transversales.append((x, ya, yb))
-                    continue
-                if not (p["ancho_min"] <= ancho <= p["ancho_max"]):
-                    continue
-                # prediccion: la ultima medida si es la primera franja, si no extrapolacion
-                yp = y_pred if pend is None or x_ant is None else y_pred + pend * (x - x_ant)
-                dist = abs(y_c - yp)
-                puerta = p["puerta"] if puntos else max(p["puerta"], 0.35)
-                if dist < puerta and (mejor is None or dist < d_mejor):
-                    mejor, d_mejor = (x, y_c, c0, c1), dist
-            if mejor is not None:
-                x, y_c, c0, c1 = mejor
-                if puntos:
-                    pend = (y_c - puntos[-1][1]) / (x - puntos[-1][0])
-                puntos.append((x, y_c))
-                contrastes.append(float(bandas_c[k, c0:c1].mean()))
-                y_pred, x_ant = y_c, x
+                elif p["ancho_min"] <= ancho <= p["ancho_max"]:
+                    cand.append((rej.y1 - (c0 + c1 - 1) / 2 * res, c0, c1))
+            if cand:
+                candidatos.append((x, k, cand))
+        # 2) asociacion desde la ultima posicion buena; si no sale linea, otra vez desde el
+        #    centro del robot con puerta amplia. (Sin ese segundo intento, una medida mala
+        #    -con la marcha real, el robot enganchado a otra cinta junto al cuadro de inicio-
+        #    dejaba la prediccion a 0.42 m y la linea real nunca entraba en la puerta.)
+        puntos, contrastes = self._asociar(candidatos, bandas_c, self.ultimo_y0, max(p["puerta"], 0.35))
+        if len(puntos) < p["puntos_min"] and abs(self.ultimo_y0) > 0.05:
+            puntos, contrastes = self._asociar(candidatos, bandas_c, 0.0, 0.6)
         P = np.array(puntos) if puntos else np.zeros((0, 2))
         x_vis = (rej.x0, rej.x1)
         if len(P) < p["puntos_min"]:
@@ -179,7 +196,12 @@ class Percepcion:
         entre = int(((xv >= P[:, 0].min() - 1e-6) & (xv <= P[:, 0].max() + 1e-6)).sum())
         continuidad = len(P) / max(1, entre)
         largo = min(1.0, (P[:, 0].max() - P[:, 0].min()) / 0.8)
-        calidad = math.exp(-(resid / 0.02) ** 2)
+        # calidad: ¿forman los puntos una curva coherente? (no: ¿caben en una parabola?). Con la
+        # marcha real, en la S del nivel 3 el robot va oblicuo a una curva de R 1.2 m que gira
+        # ~90 grados dentro de la vista: la parabola y(x) dejaba residuos de > 5 cm, la confianza
+        # caia a ~0 con la linea bien vista y el robot se perdia. Residuo de una CUBICA.
+        resid_q = self._residuo_cubico(local) if len(local) >= 8 else resid
+        calidad = math.exp(-(resid_q / 0.03) ** 2)
         cont = float(np.clip(np.median(contrastes) / 0.8, 0.0, 1.0)) if self.p["umbral"] != "fijo" else 1.0
         conf = float(np.clip(continuidad * 1.2, 0.0, 1.0) * largo * calidad * (0.5 + 0.5 * cont))
         med = MedidaLinea(t=t, valida=True, desplazamiento=float(c0_), angulo=float(math.atan(c1_)),
@@ -189,6 +211,17 @@ class Percepcion:
         if conf > self.cfg["estimacion"]["confianza_min"]:
             self.ultimo_y0 = float(np.polyval(coef[::-1], P[0, 0]))
         return med
+
+    @staticmethod
+    def _residuo_cubico(P):
+        """RMS del ajuste cubico x -> y (sigue S y arcos oblicuos), con un paso de rechazo."""
+        c = np.polyfit(P[:, 0], P[:, 1], 3)
+        r = np.abs(np.polyval(c, P[:, 0]) - P[:, 1])
+        ok = r < max(0.03, 2.5 * np.median(r))
+        if ok.sum() >= 6:
+            c = np.polyfit(P[ok, 0], P[ok, 1], 3)
+            r = np.abs(np.polyval(c, P[ok, 0]) - P[ok, 1])
+        return float(np.sqrt(np.mean(r ** 2)))
 
     @staticmethod
     def _punto_a_distancia(P, L):
@@ -252,16 +285,23 @@ class Percepcion:
             y_ref = lambda x: cc[0] + cc[1] * x + cc[2] * x * x      # noqa: E731
             x_fin = P[:, 0].max() if len(P) else -math.inf
         barra = esquina = None
+        p_b0, p_b1 = self.p.get("barra_ancho", [0.45, 0.85])
         for x, ya, yb in sorted(transversales):
             if x < x_fin - 0.15:
                 continue                               # la linea sigue mas alla: no es un final
             yl = y_ref(x)
-            if not (ya - 0.06 <= yl <= yb + 0.06):
+            if not (ya - 0.10 <= yl <= yb + 0.10):
                 continue
+            # Barra o esquina por el ANCHO TOTAL del tramo transversal, que no depende de
+            # donde se estime la linea: la barra mide 60 cm; en la esquina la cinta sigue
+            # 2 m hacia un lado (hasta el borde de la vista). Con la marcha real, el criterio
+            # anterior ("sale +-15 cm por los dos lados de la linea") alternaba barra y
+            # esquina en la barra de fin del nivel 2 segun bailaba la estimacion de la linea.
+            ancho = yb - ya
             izq, der = yb - yl, yl - ya                # cuanto sale hacia cada lado
-            if izq > 0.15 and der > 0.15:
+            if p_b0 <= ancho <= p_b1 and min(izq, der) > 0.05:
                 barra = x if barra is None else min(barra, x)
-            elif max(izq, der) > 0.25 and min(izq, der) < 0.10 and self._recta_al_final(P):
+            elif ancho > p_b1 and min(izq, der) < 0.12 and self._recta_al_final(P):
                 if esquina is None or x < esquina[0]:
                     esquina = (x, 1 if izq > der else -1)
         return barra, esquina

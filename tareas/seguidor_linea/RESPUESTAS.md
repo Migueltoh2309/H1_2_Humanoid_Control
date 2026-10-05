@@ -61,11 +61,56 @@ de 30 cm de la línea y no se pasa más de 30 cm), vx máx 0.30 m/s, emisor IR e
 Percepción frente a la verdad (puntos detectados, nivel 3): 1.5 cm de error medio, p95 3.4 cm.
 Estimación (desplazamiento en x = 0): RMS 0.4–3.2 cm según el nivel.
 
+## Con la marcha REAL: la política de unitree_rl_gym (2026-10-05)
+
+Desde esta fecha el simulador camina por defecto con la política pública de Unitree para el
+H1-2: pasos de verdad, física completa, la deriva y el balanceo salen solos. La planta medida
+con las herramientas del reto (en el simulador; **en el robot hay que repetirlo**):
+
+| Medida | Herramienta | Valor (política) | Antes (supuesto) |
+|---|---|---|---|
+| velocidad real / pedida | `calibrar_vx.py --sim` | **0.886** a 0.3 m/s | 1.0 |
+| giro sobre el sitio | `escalon_vyaw.py --sim` (giróscopo suavizado 0.8 s) | retardo ~0, τ ≈ 0.12 s, **ganancia ~0.72** | 0.3 s, 0.35 s, 1.0 |
+| deriva andando recto | — | 0.5–1.5 °/s | 2 °/s |
+
+`factor_vyaw` se deja en 1.0 a propósito: andando, la ganancia del giro no es la de girar
+sobre el sitio, y con 1.0 la compensación de deriva (giróscopo − giro esperado) actúa como
+acción integral y corrige lo que falte (con 0.72 fijo, el nivel 3 se salía).
+
+**Batería caminando: 12 de 12 tiradas con éxito** (`./scripts/bateria_sim.sh`):
+
+| Nivel | Error lateral real medio | Máximo | Pie fuera (máx) | Parada vs. barra | Tiempo |
+|---|---|---|---|---|---|
+| 1 | 2.4–3.8 cm | ≤ 9.2 cm | ≤ 0.21 m | +1.9 a +2.1 cm | 20.7 s |
+| 2 | 2.7–3.0 cm | ≤ 9.2 cm | ≤ 0.21 m | −1.1 a +0.3 cm | 40.2 s |
+| 3 | 2.4–2.9 cm | ≤ 8.7 cm | ≤ 0.21 m | −2.9 a −6.4 cm | 45.1 s |
+| 4 | 3.2–4.8 cm | ≤ 11.0 cm | ≤ 0.23 m | +1.5 a +3.2 cm | 35.1 s |
+
+Lo que la marcha real destapó (y ya está corregido; lo que el sim cinemático no mostraba):
+
+* **Barra frente a esquina por el ancho total** del tramo transversal (barra 0.45–0.85 m,
+  esquina > 0.85 m), no por "cuánto sale a cada lado de la línea": con el balanceo, la estimación
+  de la línea baila y la barra de fin alternaba entre barra y esquina.
+* **La barra necesita una línea válida y 3 confirmaciones**: un solo fotograma sin línea vio una
+  "barra" en la esquina del nivel 4 y el robot paró 2 m antes.
+* **Calidad de la confianza con un ajuste cúbico**: en la S del nivel 3, con el robot oblicuo a una
+  curva de R 1.2 m, la parábola daba residuos > 5 cm con la línea bien vista; la confianza caía a
+  ~0 y el robot se perdía.
+* **Recuperación de la asociación**: una medida mala (junto al cuadro de inicio) dejaba la
+  predicción a 0.42 m y la línea real ya no entraba nunca en la puerta. Ahora se reintenta desde
+  el centro del robot.
+* **8 s de tiempo máximo sin línea**: buscando a ~0.1 m/s, 4 s eran 0.4 m, menos que el hueco más
+  la zona ciega.
+* **Cada planta, su configuración**: `config/seguidor.yaml` está calibrado para la marcha de la
+  política; la cinemática usa `config/planta_cinematica.yaml` encima (los scripts lo hacen solos con
+  `MARCHA=cinematica`). Con los números de una planta en la otra, el cinemático pasaba de 4/4 a 1/4.
+
 ## Lo que el simulador NO reproduce (y por qué los números del robot serán peores)
 
-* **No camina**: la base se desplaza como un sólido rígido con retardo, primer orden, deriva y
-  balanceo supuestos. La marcha real tiene pasos, golpes al apoyar y un balanceo que no es una
-  sinusoide.
+* **La marcha es la política PÚBLICA de Unitree** (unitree_rl_gym), no necesariamente la del
+  firmware del robot: sus números (factor de velocidad, ganancia y respuesta del giro, deriva)
+  hay que volver a medirlos en el robot. Y la física de MuJoCo (contacto del pie, rozamiento) no
+  es la del suelo real.
 * **La IR es la luminancia del render**, sin ruido de sensor real, sin desenfoque de movimiento
   ni luz IR ambiente. El emisor solo se modela como puntos que multiplican la reflectancia.
 * **Intrínsecos perfectos** y sin distorsión. **Inclinación de la cámara**: la del URDF de

@@ -18,6 +18,7 @@ SIM=$!
 trap 'pkill -INT -P $SIM 2>/dev/null; wait $SIM 2>/dev/null' EXIT
 until grep -q "D435 simulada" "$LOG"; do sleep 0.5; kill -0 $SIM 2>/dev/null || { cat "$LOG"; exit 1; }; done
 sleep 2
-python3 "$AQUI/seguidor.py" --sim --sin-confirmacion --nivel "$N" "$@" 2>&1 | grep -v "multicast"
+EXTRA=(); [ "${MARCHA:-politica}" = cinematica ] && EXTRA=(--config-extra "$AQUI/config/planta_cinematica.yaml")
+python3 "$AQUI/seguidor.py" --sim "${EXTRA[@]}" --sin-confirmacion --nivel "$N" "$@" 2>&1 | grep -v "multicast"
 CSV=$(ls -t "$AQUI"/datos/tiradas/nivel"$N"_*.csv | head -1)
 python3 "$AQUI/herramientas/metricas.py" "$CSV" --png

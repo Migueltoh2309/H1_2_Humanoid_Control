@@ -36,7 +36,21 @@ import numpy as np
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 SALIDA = os.path.join(AQUI, "pistas")
-S2R = os.path.normpath(os.path.join(AQUI, "..", "..", "..", "h1_2_sim2real", "src", "h1_2_sim2real"))
+def _raiz_s2r():
+    """h1_2_sim2real/src/h1_2_sim2real. tareas/ puede ser un enlace simbolico al repo de
+    GitHub: se usa la variable de entorno.sh y, si no, las rutas conocidas."""
+    candidatos = []
+    if os.environ.get("H12_S2R_COMUN"):
+        candidatos.append(os.path.join(os.path.dirname(os.environ["H12_S2R_COMUN"]), "src", "h1_2_sim2real"))
+    candidatos += [os.path.normpath(os.path.join(AQUI, "..", "..", "..", "h1_2_sim2real", "src", "h1_2_sim2real")),
+                   os.path.expanduser("~/humanoid_ws/src/h1_2_sim2real/src/h1_2_sim2real")]
+    for c in candidatos:
+        if os.path.isfile(os.path.join(c, "mjcf", "h1_2_escena_suelo.xml")):
+            return c
+    raise SystemExit("no encuentro h1_2_sim2real: source scripts/entorno.sh")
+
+
+S2R = _raiz_s2r()
 ESCENA_ROBOT = os.path.join(S2R, "mjcf", "h1_2_escena_suelo.xml")
 MALLAS = os.path.join(S2R, "meshes")
 

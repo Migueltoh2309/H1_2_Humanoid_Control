@@ -48,6 +48,8 @@ def main():
     ap.add_argument("--iface", default="eth0")
     ap.add_argument("--simulacro", action="store_true", help="calcula y registra, pero no manda Move")
     ap.add_argument("--config", default=None)
+    ap.add_argument("--config-extra", action="append", default=[],
+                    help="yaml superpuesto (p.ej. config/planta_cinematica.yaml); se puede repetir")
     ap.add_argument("--escala", type=float, default=None, help="multiplica los topes de velocidad (0.5 al empezar)")
     ap.add_argument("--nivel", default="?", help="para el registro")
     ap.add_argument("--emisor", choices=["on", "off"], default="on", help="emisor IR de la D435i (robot real)")
@@ -58,7 +60,7 @@ def main():
     a = ap.parse_args()
     if a.sin_confirmacion and not a.sim:
         sys.exit("--sin-confirmacion solo vale en el simulador")
-    cfg = config.cargar(a.config)
+    cfg = config.cargar(a.config, a.config_extra)
     if a.escala is not None:
         cfg["control"]["escala"] = a.escala
     s = cfg["supervisor"]
