@@ -1,0 +1,5 @@
+alcance (agarrar->cierra)                        n= 56  mediana  2.90 s  p90  3.05 s
+cerrar+levantar+mostrar (cierra->verificado)     n= 47  mediana  2.00 s  p90  2.15 s
+depositar (verificado->suelta)                   n= 47  mediana  1.35 s  p90  1.47 s
+volver (suelta->libre)                           n= 47  mediana  0.90 s  p90  0.90 s
+TIMING actual: {'reach_extra': 0.5, 'close_lift': 1.2, 'show_verify': 0.85, 'deposit': 1.3, 'home': 0.9}

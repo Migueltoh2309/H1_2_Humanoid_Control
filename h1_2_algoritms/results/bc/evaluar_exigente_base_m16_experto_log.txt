@@ -1,0 +1,4 @@
+30 episodios en 629 s -> results/bc/evaluacion_exigente_base_m16_experto.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+experto    30   173/300      0.58       126       1       193       0         3        32

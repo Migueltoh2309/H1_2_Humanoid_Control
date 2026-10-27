@@ -1,0 +1,40 @@
+192 ensayos en 709 s -> results/dmp/evaluacion.csv
+
+real = la fruta terminó levantada (verdad de terreno); verif = además lo confirmó la cámara
+config                 escenario    real   verif t alcance  t ciclo err cierre    jerk  camino d brazos
+                                                       [s]      [s]       [mm]  [m/s³]     [m]     [mm]
+fsm                    static     25/30   21/30       3.92     8.02       13.1     7.5   0.215      265
+fsm                    moving     16/18   14/18       3.47     7.40       12.7    14.0   0.348      280
+fsm                    todos      41/48   35/48       3.75     7.77       12.9    10.0   0.265      271
+dmp_param_tau1.0       static     25/30   23/30       4.54     8.82       13.5     6.4   0.282      265
+dmp_param_tau1.0       moving     18/18   10/18       4.38     8.70       15.6    14.1   0.497      239
+dmp_param_tau1.0       todos      43/48   33/48       4.48     8.78       14.3     9.3   0.363      255
+dmp_param_tau0.7       static     25/30   24/30       3.34     7.15       12.6    11.6   0.293      266
+dmp_param_tau0.7       moving     18/18   13/18       3.25     7.09       18.4    29.2   0.514      294
+dmp_param_tau0.7       todos      43/48   37/48       3.30     7.13       14.8    18.2   0.376      276
+dmp_param_tau0.5       static     27/30   25/30       3.09     7.05       13.4    15.9   0.272      267
+dmp_param_tau0.5       moving     15/18   10/18       2.97     6.03       18.8    38.2   0.527      296
+dmp_param_tau0.5       todos      42/48   35/48       3.04     6.76       15.4    24.3   0.368      278
+  sin agarre: {'config': 'fsm', 'scenario': 'static', 'fruit_x': 0.32, 'param': 0.15, 'seed': 0, 'final_phase': 'FAILED', 'err_close_mm': 23.0, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'fsm', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.0, 'seed': 0, 'final_phase': 'RETREAT', 'err_close_mm': 20.8, 'why': ''}
+  sin agarre: {'config': 'fsm', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.15, 'seed': 0, 'final_phase': 'FAILED', 'err_close_mm': 23.6, 'why': 'la fruta sigue en la faja'}
+  sin agarre: {'config': 'fsm', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.15, 'seed': 1, 'final_phase': 'FAILED', 'err_close_mm': 18.4, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'fsm', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.25, 'seed': 2, 'final_phase': 'MISSED', 'err_close_mm': nan, 'why': 'la bajada no llegó al agarre (23 mm)'}
+  sin agarre: {'config': 'fsm', 'scenario': 'moving', 'fruit_x': 0.32, 'param': 0.04, 'seed': 2, 'final_phase': 'RETREAT', 'err_close_mm': 20.5, 'why': ''}
+  sin agarre: {'config': 'fsm', 'scenario': 'moving', 'fruit_x': 0.37, 'param': 0.08, 'seed': 2, 'final_phase': 'FAILED', 'err_close_mm': 18.2, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau1.0', 'scenario': 'static', 'fruit_x': 0.32, 'param': -0.1, 'seed': 0, 'final_phase': 'FAILED', 'err_close_mm': 23.7, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau1.0', 'scenario': 'static', 'fruit_x': 0.32, 'param': 0.15, 'seed': 0, 'final_phase': 'FAILED', 'err_close_mm': 24.1, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau1.0', 'scenario': 'static', 'fruit_x': 0.37, 'param': -0.1, 'seed': 1, 'final_phase': 'RETREAT', 'err_close_mm': 17.0, 'why': ''}
+  sin agarre: {'config': 'dmp_param_tau1.0', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.15, 'seed': 1, 'final_phase': 'FAILED', 'err_close_mm': 23.1, 'why': 'la fruta sigue en la faja'}
+  sin agarre: {'config': 'dmp_param_tau1.0', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.25, 'seed': 2, 'final_phase': 'RETREAT', 'err_close_mm': 26.8, 'why': ''}
+  sin agarre: {'config': 'dmp_param_tau0.7', 'scenario': 'static', 'fruit_x': 0.32, 'param': 0.15, 'seed': 0, 'final_phase': 'FAILED', 'err_close_mm': 16.8, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau0.7', 'scenario': 'static', 'fruit_x': 0.37, 'param': -0.2, 'seed': 2, 'final_phase': 'RETREAT', 'err_close_mm': 20.5, 'why': ''}
+  sin agarre: {'config': 'dmp_param_tau0.7', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.0, 'seed': 1, 'final_phase': 'RETREAT', 'err_close_mm': 20.4, 'why': ''}
+  sin agarre: {'config': 'dmp_param_tau0.7', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.25, 'seed': 1, 'final_phase': 'FAILED', 'err_close_mm': 26.0, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau0.7', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.25, 'seed': 2, 'final_phase': 'MISSED', 'err_close_mm': nan, 'why': 'la bajada no llegó al agarre (21 mm)'}
+  sin agarre: {'config': 'dmp_param_tau0.5', 'scenario': 'static', 'fruit_x': 0.32, 'param': -0.1, 'seed': 1, 'final_phase': 'RETREAT', 'err_close_mm': 23.8, 'why': ''}
+  sin agarre: {'config': 'dmp_param_tau0.5', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.25, 'seed': 0, 'final_phase': 'FAILED', 'err_close_mm': 30.3, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau0.5', 'scenario': 'static', 'fruit_x': 0.37, 'param': 0.25, 'seed': 1, 'final_phase': 'FAILED', 'err_close_mm': 21.9, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau0.5', 'scenario': 'moving', 'fruit_x': 0.37, 'param': 0.06, 'seed': 1, 'final_phase': 'FAILED', 'err_close_mm': 30.6, 'why': 'no se ve la fruta ni en la mano ni en la faja (¿se cayó?)'}
+  sin agarre: {'config': 'dmp_param_tau0.5', 'scenario': 'moving', 'fruit_x': 0.37, 'param': 0.08, 'seed': 1, 'final_phase': 'RETREAT', 'err_close_mm': 11.6, 'why': ''}
+  sin agarre: {'config': 'dmp_param_tau0.5', 'scenario': 'moving', 'fruit_x': 0.37, 'param': 0.08, 'seed': 2, 'final_phase': 'RETREAT', 'err_close_mm': 23.0, 'why': ''}

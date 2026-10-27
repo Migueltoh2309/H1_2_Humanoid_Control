@@ -1,0 +1,8 @@
+Sun Oct 25 01:18:46 PM -05 2026
+generar --episodios 40
+Sun Oct 25 01:33:58 PM -05 2026
+entrenar --dagger 2
+Sun Oct 25 02:08:55 PM -05 2026
+evaluar --episodios 30 --out evaluacion_exigente_dx5.csv
+Sun Oct 25 02:47:41 PM -05 2026
+FIN

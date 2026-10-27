@@ -1,0 +1,4 @@
+30 episodios en 567 s -> results/bc/evaluacion_exigente_base_mapa_experto.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+experto    30   160/300      0.53       139       1       180       0         2        26

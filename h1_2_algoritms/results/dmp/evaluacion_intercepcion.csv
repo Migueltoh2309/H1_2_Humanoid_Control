@@ -1,0 +1,145 @@
+config,scenario,method,param,fruit_x,reach,assist,noise,seed,side,success,t_grasp,err_close_mm,est_err_mm_mean,lift_mm,welded,dropped,d_arms_min_mm,final_phase,held,why,t_cycle,jerk_rms,path_m
+fsm,static,sphere,-0.2,0.32,fsm,True,True,0,right,True,3.6,7.4,2.5,158.9,True,False,307.0,DONE,True,,6.7,7.01,0.167
+fsm,static,sphere,-0.2,0.32,fsm,True,True,1,right,True,3.6,13.6,3.6,147.4,True,False,307.0,DONE,True,,6.6,6.54,0.161
+fsm,static,sphere,-0.2,0.32,fsm,True,True,2,right,True,3.6,6.6,3.3,189.9,True,False,307.0,DONE,True,,6.9,6.86,0.176
+fsm,static,sphere,-0.1,0.32,fsm,True,True,0,right,True,3.55,18.0,4.7,142.1,True,False,251.3,DONE,True,,6.4,6.88,0.194
+fsm,static,sphere,-0.1,0.32,fsm,True,True,1,right,True,3.6,13.9,4.0,144.4,True,False,249.5,DONE,True,,6.45,6.69,0.202
+fsm,static,sphere,-0.1,0.32,fsm,True,True,2,right,True,3.55,16.6,4.6,145.8,True,False,250.5,DONE,True,,6.45,6.79,0.196
+fsm,static,sphere,0.0,0.32,fsm,True,True,0,right,True,3.6,12.9,3.4,149.8,True,False,159.0,DONE,True,,6.5,9.53,0.289
+fsm,static,sphere,0.0,0.32,fsm,True,True,1,left,True,3.6,13.2,4.7,143.2,True,False,162.8,DONE,True,,6.45,9.11,0.281
+fsm,static,sphere,0.0,0.32,fsm,True,True,2,right,True,3.6,7.2,3.1,194.8,True,False,160.1,DONE,True,,6.85,9.21,0.294
+fsm,static,sphere,0.15,0.32,fsm,True,True,0,left,False,3.55,22.9,7.7,-0.3,False,False,303.7,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,6.39,0.167
+fsm,static,sphere,0.15,0.32,fsm,True,True,1,left,True,3.6,9.7,4.5,171.5,True,False,302.7,DONE,True,,6.7,6.51,0.168
+fsm,static,sphere,0.15,0.32,fsm,True,True,2,left,True,3.55,11.9,3.7,157.5,True,False,297.8,DONE,True,,6.6,6.52,0.172
+fsm,static,sphere,0.25,0.32,fsm,True,True,0,left,True,3.6,10.2,4.0,141.3,True,False,306.9,DONE,True,,6.45,8.09,0.208
+fsm,static,sphere,0.25,0.32,fsm,True,True,1,left,False,3.6,17.6,5.6,-0.3,False,False,307.0,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,8.21,0.203
+fsm,static,sphere,0.25,0.32,fsm,True,True,2,left,True,3.6,14.6,5.2,154.7,True,False,306.9,DONE,True,,6.65,8.32,0.215
+fsm,static,sphere,-0.2,0.37,fsm,True,True,0,right,True,3.6,9.7,2.5,177.6,True,False,306.8,DONE,True,,6.7,7.52,0.173
+fsm,static,sphere,-0.2,0.37,fsm,True,True,1,right,True,3.6,11.6,3.4,180.5,True,False,306.9,DONE,True,,6.7,7.55,0.175
+fsm,static,sphere,-0.2,0.37,fsm,True,True,2,right,True,3.75,8.7,3.7,183.1,True,False,306.9,DONE,True,,7.0,7.78,0.183
+fsm,static,sphere,-0.1,0.37,fsm,True,True,0,right,True,3.65,9.0,3.3,174.1,True,False,250.8,DONE,True,,6.8,7.89,0.22
+fsm,static,sphere,-0.1,0.37,fsm,True,True,1,right,True,3.8,8.8,2.7,160.9,True,False,249.3,DONE,True,,6.8,7.3,0.216
+fsm,static,sphere,-0.1,0.37,fsm,True,True,2,right,True,3.55,8.2,2.3,170.8,True,False,251.8,DONE,True,,6.65,7.22,0.215
+fsm,static,sphere,0.0,0.37,fsm,True,True,0,right,False,5.35,20.8,8.1,-1.3,False,False,156.0,RETREAT,False,,nan,7.35,0.321
+fsm,static,sphere,0.0,0.37,fsm,True,True,1,left,True,5.4,12.3,4.4,137.8,True,False,159.3,DONE,True,,8.35,7.35,0.307
+fsm,static,sphere,0.0,0.37,fsm,True,True,2,right,True,4.35,15.8,5.3,165.2,True,False,160.5,DONE,True,,7.35,8.31,0.313
+fsm,static,sphere,0.15,0.37,fsm,True,True,0,left,False,3.6,23.7,9.4,-0.3,False,False,304.5,FAILED,False,la fruta sigue en la faja,nan,7.2,0.182
+fsm,static,sphere,0.15,0.37,fsm,True,True,1,left,False,3.6,18.4,5.7,-1.3,False,False,301.6,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,7.38,0.173
+fsm,static,sphere,0.15,0.37,fsm,True,True,2,left,True,3.6,16.1,6.0,136.9,True,False,304.4,DONE,True,,6.4,7.26,0.175
+fsm,static,sphere,0.25,0.37,fsm,True,True,0,left,True,5.35,11.6,2.5,160.0,True,False,306.8,DONE,True,,8.45,8.71,0.233
+fsm,static,sphere,0.25,0.37,fsm,True,True,1,left,True,5.4,12.0,2.8,177.7,True,False,306.8,DONE,True,,8.65,7.6,0.226
+fsm,static,sphere,0.25,0.37,fsm,True,True,2,left,False,nan,nan,15.1,-0.4,False,False,306.8,MISSED,False,la bajada no llegó al agarre (23 mm),nan,8.43,0.246
+fsm,moving,sphere,0.04,0.32,fsm,True,True,0,right,True,3.4,8.5,5.4,163.9,True,False,307.0,DONE,True,,6.55,13.77,0.32
+fsm,moving,sphere,0.04,0.32,fsm,True,True,1,right,True,3.5,10.8,4.1,147.4,True,False,307.0,DONE,True,,6.55,12.24,0.318
+fsm,moving,sphere,0.04,0.32,fsm,True,True,2,right,True,3.4,13.2,6.1,147.8,True,False,306.9,DONE,True,,6.45,12.35,0.319
+fsm,moving,sphere,0.06,0.32,fsm,True,True,0,right,True,3.4,5.9,2.1,172.2,True,False,290.4,DONE,True,,6.55,12.32,0.337
+fsm,moving,sphere,0.06,0.32,fsm,True,True,1,right,True,3.45,15.7,5.8,142.0,True,False,275.6,DONE,True,,6.35,13.05,0.356
+fsm,moving,sphere,0.06,0.32,fsm,True,True,2,right,True,3.4,14.0,5.5,145.3,True,False,307.0,DONE,True,,6.35,12.64,0.337
+fsm,moving,sphere,0.08,0.32,fsm,True,True,0,right,True,3.4,10.3,4.2,154.1,True,False,247.1,DONE,True,,6.4,14.19,0.386
+fsm,moving,sphere,0.08,0.32,fsm,True,True,1,right,True,3.4,13.5,5.2,147.8,True,False,229.1,DONE,True,,6.35,13.01,0.373
+fsm,moving,sphere,0.08,0.32,fsm,True,True,2,right,True,3.45,4.7,4.3,200.3,True,False,240.6,DONE,True,,6.8,13.11,0.389
+fsm,moving,sphere,0.04,0.37,fsm,True,True,0,right,True,3.55,8.7,2.9,183.1,True,False,306.8,DONE,True,,6.75,12.41,0.298
+fsm,moving,sphere,0.04,0.37,fsm,True,True,1,right,True,4.1,11.3,5.4,166.7,True,False,306.7,DONE,True,,7.0,12.14,0.325
+fsm,moving,sphere,0.04,0.37,fsm,True,True,2,right,True,3.6,19.0,6.0,157.8,True,False,306.8,DONE,True,,6.5,12.7,0.299
+fsm,moving,sphere,0.06,0.37,fsm,True,True,0,right,True,3.45,14.1,4.7,141.5,True,False,263.5,DONE,True,,6.4,12.82,0.336
+fsm,moving,sphere,0.06,0.37,fsm,True,True,1,right,True,3.45,11.2,4.2,157.9,True,False,298.4,DONE,True,,6.4,13.29,0.335
+fsm,moving,sphere,0.06,0.37,fsm,True,True,2,right,True,3.45,12.7,4.1,152.7,True,False,298.0,DONE,True,,6.45,15.86,0.356
+fsm,moving,sphere,0.08,0.37,fsm,True,True,0,right,True,3.5,10.0,4.8,203.8,True,False,251.5,DONE,True,,7.0,17.43,0.388
+fsm,moving,sphere,0.08,0.37,fsm,True,True,1,right,True,3.4,19.8,6.0,147.6,True,False,229.1,DONE,True,,6.4,17.92,0.399
+fsm,moving,sphere,0.08,0.37,fsm,True,True,2,right,False,3.25,18.2,6.4,-1.3,False,False,262.1,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,20.02,0.386
+dmp_param_tau0.7,static,sphere,-0.2,0.32,dmp_param_0.7,True,True,0,right,True,3.2,13.7,nan,129.4,True,False,307.0,DONE,True,,6.05,8.71,0.277
+dmp_param_tau0.7,static,sphere,-0.2,0.32,dmp_param_0.7,True,True,1,right,True,3.15,12.1,nan,152.8,True,False,307.0,DONE,True,,6.2,8.34,0.217
+dmp_param_tau0.7,static,sphere,-0.2,0.32,dmp_param_0.7,True,True,2,right,True,3.2,10.8,nan,148.4,True,False,307.0,DONE,True,,6.2,9.71,0.253
+dmp_param_tau0.7,static,sphere,-0.1,0.32,dmp_param_0.7,True,True,0,right,True,3.15,10.9,nan,150.4,True,False,260.2,DONE,True,,6.1,12.05,0.291
+dmp_param_tau0.7,static,sphere,-0.1,0.32,dmp_param_0.7,True,True,1,right,True,3.1,8.2,nan,154.0,True,False,250.5,DONE,True,,6.05,10.03,0.29
+dmp_param_tau0.7,static,sphere,-0.1,0.32,dmp_param_0.7,True,True,2,right,True,3.15,10.3,nan,162.8,True,False,263.0,DONE,True,,6.2,10.1,0.265
+dmp_param_tau0.7,static,sphere,0.0,0.32,dmp_param_0.7,True,True,0,right,True,3.15,9.9,nan,150.6,True,False,154.2,DONE,True,,6.05,20.42,0.47
+dmp_param_tau0.7,static,sphere,0.0,0.32,dmp_param_0.7,True,True,1,left,True,3.1,5.7,nan,150.6,True,False,150.7,DONE,True,,6.0,20.4,0.474
+dmp_param_tau0.7,static,sphere,0.0,0.32,dmp_param_0.7,True,True,2,right,True,3.1,8.7,nan,169.5,True,False,158.7,DONE,True,,6.25,20.49,0.473
+dmp_param_tau0.7,static,sphere,0.15,0.32,dmp_param_0.7,True,True,0,left,False,3.1,13.8,nan,-368.7,False,True,285.9,RETREAT,False,,nan,13.06,0.385
+dmp_param_tau0.7,static,sphere,0.15,0.32,dmp_param_0.7,True,True,1,left,True,3.25,7.5,nan,143.4,True,False,299.5,DONE,True,,6.2,7.04,0.208
+dmp_param_tau0.7,static,sphere,0.15,0.32,dmp_param_0.7,True,True,2,left,True,3.2,11.7,nan,151.8,True,False,302.5,DONE,True,,6.2,8.78,0.229
+dmp_param_tau0.7,static,sphere,0.25,0.32,dmp_param_0.7,True,True,0,left,True,3.1,16.1,nan,149.3,True,False,306.9,DONE,True,,6.05,14.99,0.448
+dmp_param_tau0.7,static,sphere,0.25,0.32,dmp_param_0.7,True,True,1,left,True,3.1,14.0,nan,146.5,True,False,306.9,DONE,True,,6.0,14.59,0.348
+dmp_param_tau0.7,static,sphere,0.25,0.32,dmp_param_0.7,True,True,2,left,False,3.2,24.7,nan,-825.6,False,True,306.9,RETREAT,False,,nan,15.08,0.332
+dmp_param_tau0.7,static,sphere,-0.2,0.37,dmp_param_0.7,True,True,0,right,True,3.25,7.8,nan,148.7,True,False,306.8,DONE,True,,6.3,8.93,0.24
+dmp_param_tau0.7,static,sphere,-0.2,0.37,dmp_param_0.7,True,True,1,right,True,3.25,13.5,nan,133.6,True,False,306.9,DONE,True,,6.1,5.95,0.211
+dmp_param_tau0.7,static,sphere,-0.2,0.37,dmp_param_0.7,True,True,2,right,True,3.45,16.8,nan,149.5,True,False,306.9,DONE,True,,6.45,11.19,0.257
+dmp_param_tau0.7,static,sphere,-0.1,0.37,dmp_param_0.7,True,True,0,right,True,3.75,7.1,nan,182.1,True,False,238.2,DONE,True,,6.9,11.62,0.403
+dmp_param_tau0.7,static,sphere,-0.1,0.37,dmp_param_0.7,True,True,1,right,True,3.25,10.9,nan,153.5,True,False,251.5,DONE,True,,6.25,10.5,0.291
+dmp_param_tau0.7,static,sphere,-0.1,0.37,dmp_param_0.7,True,True,2,right,True,3.2,7.3,nan,175.8,True,False,254.8,DONE,True,,6.25,10.97,0.32
+dmp_param_tau0.7,static,sphere,0.0,0.37,dmp_param_0.7,True,True,0,right,True,3.7,12.2,nan,201.1,True,False,163.3,DONE,True,,7.05,16.8,0.463
+dmp_param_tau0.7,static,sphere,0.0,0.37,dmp_param_0.7,True,True,1,left,False,3.9,21.2,nan,-825.7,False,True,153.0,RETREAT,False,,nan,17.86,0.457
+dmp_param_tau0.7,static,sphere,0.0,0.37,dmp_param_0.7,True,True,2,right,True,3.9,14.8,nan,178.9,True,False,147.2,DONE,True,,7.0,15.43,0.479
+dmp_param_tau0.7,static,sphere,0.15,0.37,dmp_param_0.7,True,True,0,left,False,3.4,25.0,nan,-0.3,False,False,306.9,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,13.98,0.266
+dmp_param_tau0.7,static,sphere,0.15,0.37,dmp_param_0.7,True,True,1,left,True,3.3,12.5,nan,139.9,True,False,297.2,DONE,True,,6.1,6.87,0.227
+dmp_param_tau0.7,static,sphere,0.15,0.37,dmp_param_0.7,True,True,2,left,True,3.3,12.2,nan,132.8,True,False,303.8,DONE,True,,6.1,7.91,0.215
+dmp_param_tau0.7,static,sphere,0.25,0.37,dmp_param_0.7,True,True,0,left,True,3.9,13.5,nan,153.5,True,False,306.8,DONE,True,,6.85,12.96,0.392
+dmp_param_tau0.7,static,sphere,0.25,0.37,dmp_param_0.7,True,True,1,left,True,3.9,14.0,nan,150.2,True,False,306.8,DONE,True,,6.85,13.07,0.351
+dmp_param_tau0.7,static,sphere,0.25,0.37,dmp_param_0.7,True,True,2,left,True,3.9,19.7,nan,143.4,True,False,306.6,DONE,True,,7.05,14.01,0.443
+dmp_param_tau0.7,moving,sphere,0.04,0.32,dmp_param_0.7,True,True,0,right,True,3.15,27.6,nan,137.1,True,False,307.0,DONE,True,,6.15,11.93,0.348
+dmp_param_tau0.7,moving,sphere,0.04,0.32,dmp_param_0.7,True,True,1,right,False,3.05,24.5,nan,-825.6,False,True,306.9,RETREAT,False,,nan,12.38,0.307
+dmp_param_tau0.7,moving,sphere,0.04,0.32,dmp_param_0.7,True,True,2,right,False,3.1,34.4,nan,-825.7,False,True,307.0,RETREAT,False,,nan,10.54,0.282
+dmp_param_tau0.7,moving,sphere,0.06,0.32,dmp_param_0.7,True,True,0,right,True,3.1,11.3,nan,188.0,True,False,307.0,DONE,True,,6.4,8.46,0.239
+dmp_param_tau0.7,moving,sphere,0.06,0.32,dmp_param_0.7,True,True,1,right,True,3.05,10.5,nan,156.4,True,False,297.6,DONE,True,,6.15,8.46,0.232
+dmp_param_tau0.7,moving,sphere,0.06,0.32,dmp_param_0.7,True,True,2,right,True,3.05,10.0,nan,150.6,True,False,307.0,DONE,True,,6.15,8.87,0.249
+dmp_param_tau0.7,moving,sphere,0.08,0.32,dmp_param_0.7,True,True,0,right,False,3.1,13.2,nan,-825.7,False,True,265.4,RETREAT,False,,nan,7.14,0.213
+dmp_param_tau0.7,moving,sphere,0.08,0.32,dmp_param_0.7,True,True,1,right,False,3.1,10.0,nan,-825.8,False,True,234.9,RETREAT,False,,nan,8.27,0.236
+dmp_param_tau0.7,moving,sphere,0.08,0.32,dmp_param_0.7,True,True,2,right,False,3.05,24.7,nan,-1.3,False,False,273.0,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,7.75,0.222
+dmp_param_tau0.7,moving,sphere,0.04,0.37,dmp_param_0.7,True,True,0,right,False,nan,nan,nan,-0.3,False,False,306.8,MISSED,False,la bajada no llegó al agarre (23 mm),nan,12.32,0.37
+dmp_param_tau0.7,moving,sphere,0.04,0.37,dmp_param_0.7,True,True,1,right,True,3.75,13.8,nan,163.4,True,False,306.8,DONE,True,,7.0,13.93,0.312
+dmp_param_tau0.7,moving,sphere,0.04,0.37,dmp_param_0.7,True,True,2,right,True,3.3,20.7,nan,177.7,True,False,306.9,DONE,True,,6.35,14.44,0.296
+dmp_param_tau0.7,moving,sphere,0.06,0.37,dmp_param_0.7,True,True,0,right,False,3.2,37.8,nan,-825.6,False,True,276.7,RETREAT,False,,nan,11.38,0.244
+dmp_param_tau0.7,moving,sphere,0.06,0.37,dmp_param_0.7,True,True,1,right,True,3.55,23.6,nan,151.0,True,False,279.6,DONE,True,,6.45,10.12,0.255
+dmp_param_tau0.7,moving,sphere,0.06,0.37,dmp_param_0.7,True,True,2,right,False,3.25,19.9,nan,-825.7,False,True,297.5,RETREAT,False,,nan,10.0,0.23
+dmp_param_tau0.7,moving,sphere,0.08,0.37,dmp_param_0.7,True,True,0,right,True,3.2,14.1,nan,143.0,True,False,255.3,DONE,True,,6.1,9.11,0.205
+dmp_param_tau0.7,moving,sphere,0.08,0.37,dmp_param_0.7,True,True,1,right,False,3.2,19.7,nan,-825.7,False,True,245.7,RETREAT,False,,nan,9.13,0.206
+dmp_param_tau0.7,moving,sphere,0.08,0.37,dmp_param_0.7,True,True,2,right,True,3.9,18.1,nan,171.0,True,False,198.7,DONE,True,,7.15,7.33,0.274
+dmp_param_tau0.5,static,sphere,-0.2,0.32,dmp_param_0.5,True,True,0,right,True,2.7,6.9,nan,147.7,True,False,307.0,DONE,True,,5.7,14.61,0.259
+dmp_param_tau0.5,static,sphere,-0.2,0.32,dmp_param_0.5,True,True,1,right,True,3.05,9.4,nan,146.7,True,False,307.0,DONE,True,,6.05,10.49,0.191
+dmp_param_tau0.5,static,sphere,-0.2,0.32,dmp_param_0.5,True,True,2,right,True,2.95,10.0,nan,166.8,True,False,307.0,DONE,True,,6.05,14.1,0.231
+dmp_param_tau0.5,static,sphere,-0.1,0.32,dmp_param_0.5,True,True,0,right,True,3.05,8.4,nan,161.3,True,False,262.3,DONE,True,,6.1,14.86,0.26
+dmp_param_tau0.5,static,sphere,-0.1,0.32,dmp_param_0.5,True,True,1,right,True,3.15,19.1,nan,144.6,True,False,250.5,DONE,True,,6.05,13.65,0.269
+dmp_param_tau0.5,static,sphere,-0.1,0.32,dmp_param_0.5,True,True,2,right,True,3.0,19.1,nan,137.5,True,False,255.2,DONE,True,,5.85,13.87,0.235
+dmp_param_tau0.5,static,sphere,0.0,0.32,dmp_param_0.5,True,True,0,right,True,3.1,11.0,nan,158.1,True,False,160.3,DONE,True,,6.05,20.56,0.377
+dmp_param_tau0.5,static,sphere,0.0,0.32,dmp_param_0.5,True,True,1,left,True,3.15,16.0,nan,149.2,True,False,156.3,DONE,True,,6.1,20.66,0.401
+dmp_param_tau0.5,static,sphere,0.0,0.32,dmp_param_0.5,True,True,2,right,True,3.1,11.4,nan,154.8,True,False,159.9,DONE,True,,6.05,20.94,0.395
+dmp_param_tau0.5,static,sphere,0.15,0.32,dmp_param_0.5,True,True,0,left,False,2.55,14.5,nan,-825.7,False,True,294.0,RETREAT,False,,nan,17.77,0.324
+dmp_param_tau0.5,static,sphere,0.15,0.32,dmp_param_0.5,True,True,1,left,True,3.1,7.0,nan,167.9,True,False,307.0,DONE,True,,6.2,10.19,0.208
+dmp_param_tau0.5,static,sphere,0.15,0.32,dmp_param_0.5,True,True,2,left,False,3.1,18.9,nan,-0.3,False,False,307.0,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,11.95,0.217
+dmp_param_tau0.5,static,sphere,0.25,0.32,dmp_param_0.5,True,True,0,left,True,2.6,10.3,nan,149.8,True,False,306.9,DONE,True,,5.6,22.64,0.35
+dmp_param_tau0.5,static,sphere,0.25,0.32,dmp_param_0.5,True,True,1,left,True,2.85,17.5,nan,134.4,True,False,306.9,DONE,True,,5.7,20.77,0.286
+dmp_param_tau0.5,static,sphere,0.25,0.32,dmp_param_0.5,True,True,2,left,True,2.9,7.1,nan,177.6,True,False,306.9,DONE,True,,6.05,20.42,0.274
+dmp_param_tau0.5,static,sphere,-0.2,0.37,dmp_param_0.5,True,True,0,right,True,3.15,9.0,nan,161.4,True,False,306.8,DONE,True,,6.1,12.99,0.213
+dmp_param_tau0.5,static,sphere,-0.2,0.37,dmp_param_0.5,True,True,1,right,True,2.9,18.8,nan,141.3,True,False,306.9,DONE,True,,5.8,12.12,0.198
+dmp_param_tau0.5,static,sphere,-0.2,0.37,dmp_param_0.5,True,True,2,right,True,3.15,7.2,nan,154.7,True,False,306.8,DONE,True,,6.1,15.54,0.217
+dmp_param_tau0.5,static,sphere,-0.1,0.37,dmp_param_0.5,True,True,0,right,True,3.05,13.8,nan,150.2,True,False,253.1,DONE,True,,6.05,16.81,0.338
+dmp_param_tau0.5,static,sphere,-0.1,0.37,dmp_param_0.5,True,True,1,right,True,3.1,3.6,nan,182.9,True,False,265.9,DONE,True,,6.25,14.51,0.271
+dmp_param_tau0.5,static,sphere,-0.1,0.37,dmp_param_0.5,True,True,2,right,True,3.1,10.3,nan,157.2,True,False,261.3,DONE,True,,6.05,13.95,0.265
+dmp_param_tau0.5,static,sphere,0.0,0.37,dmp_param_0.5,True,True,0,right,False,3.15,37.6,nan,-418.0,False,True,131.0,RETREAT,False,,nan,20.87,0.403
+dmp_param_tau0.5,static,sphere,0.0,0.37,dmp_param_0.5,True,True,1,left,True,3.15,17.7,nan,137.6,True,False,157.7,DONE,True,,6.05,21.38,0.401
+dmp_param_tau0.5,static,sphere,0.0,0.37,dmp_param_0.5,True,True,2,right,True,3.15,14.2,nan,161.9,True,False,166.9,DONE,True,,6.2,19.99,0.408
+dmp_param_tau0.5,static,sphere,0.15,0.37,dmp_param_0.5,True,True,0,left,True,3.0,14.0,nan,144.7,True,False,302.5,DONE,True,,5.9,15.95,0.221
+dmp_param_tau0.5,static,sphere,0.15,0.37,dmp_param_0.5,True,True,1,left,True,3.15,11.1,nan,152.0,True,False,306.6,DONE,True,,6.1,9.87,0.205
+dmp_param_tau0.5,static,sphere,0.15,0.37,dmp_param_0.5,True,True,2,left,True,3.0,7.8,nan,146.0,True,False,306.9,DONE,True,,5.9,12.47,0.201
+dmp_param_tau0.5,static,sphere,0.25,0.37,dmp_param_0.5,True,True,0,left,False,3.15,26.9,nan,-825.6,False,True,306.5,RETREAT,False,,nan,20.26,0.309
+dmp_param_tau0.5,static,sphere,0.25,0.37,dmp_param_0.5,True,True,1,left,False,3.15,27.6,nan,-825.6,False,True,306.5,RETREAT,False,,nan,19.14,0.28
+dmp_param_tau0.5,static,sphere,0.25,0.37,dmp_param_0.5,True,True,2,left,False,nan,nan,nan,-0.3,False,False,306.8,MISSED,False,la bajada no llegó al agarre (23 mm),nan,18.76,0.293
+dmp_param_tau0.5,moving,sphere,0.04,0.32,dmp_param_0.5,True,True,0,right,False,2.85,31.7,nan,-1.3,False,False,306.9,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,22.69,0.375
+dmp_param_tau0.5,moving,sphere,0.04,0.32,dmp_param_0.5,True,True,1,right,False,2.9,24.1,nan,-825.7,False,True,306.9,RETREAT,False,,nan,23.32,0.364
+dmp_param_tau0.5,moving,sphere,0.04,0.32,dmp_param_0.5,True,True,2,right,True,3.0,17.5,nan,156.9,True,False,306.6,DONE,True,,6.0,23.04,0.366
+dmp_param_tau0.5,moving,sphere,0.06,0.32,dmp_param_0.5,True,True,0,right,False,2.9,21.4,nan,-367.8,False,True,306.9,RETREAT,False,,nan,20.58,0.334
+dmp_param_tau0.5,moving,sphere,0.06,0.32,dmp_param_0.5,True,True,1,right,False,2.9,16.9,nan,-825.7,False,True,301.8,RETREAT,False,,nan,20.6,0.302
+dmp_param_tau0.5,moving,sphere,0.06,0.32,dmp_param_0.5,True,True,2,right,False,2.8,22.7,nan,-825.7,False,True,306.9,RETREAT,False,,nan,21.62,0.331
+dmp_param_tau0.5,moving,sphere,0.08,0.32,dmp_param_0.5,True,True,0,right,False,3.15,14.4,nan,-825.6,False,True,243.0,RETREAT,False,,nan,20.55,0.403
+dmp_param_tau0.5,moving,sphere,0.08,0.32,dmp_param_0.5,True,True,1,right,False,2.9,24.8,nan,-825.8,False,True,235.9,RETREAT,False,,nan,18.92,0.341
+dmp_param_tau0.5,moving,sphere,0.08,0.32,dmp_param_0.5,True,True,2,right,False,3.15,60.9,nan,-1.3,False,False,202.0,FAILED,False,no se ve la fruta ni en la mano ni en la faja (¿se cayó?),nan,18.76,0.389
+dmp_param_tau0.5,moving,sphere,0.04,0.37,dmp_param_0.5,True,True,0,right,True,3.15,13.1,nan,153.0,True,False,306.4,DONE,True,,6.05,20.66,0.307
+dmp_param_tau0.5,moving,sphere,0.04,0.37,dmp_param_0.5,True,True,1,right,True,3.15,12.0,nan,159.7,True,False,306.4,DONE,True,,6.35,20.14,0.31
+dmp_param_tau0.5,moving,sphere,0.04,0.37,dmp_param_0.5,True,True,2,right,True,3.15,14.7,nan,168.1,True,False,306.4,DONE,True,,6.4,19.75,0.296
+dmp_param_tau0.5,moving,sphere,0.06,0.37,dmp_param_0.5,True,True,0,right,False,3.15,22.6,nan,-825.6,False,True,271.4,RETREAT,False,,nan,19.73,0.332
+dmp_param_tau0.5,moving,sphere,0.06,0.37,dmp_param_0.5,True,True,1,right,True,3.1,10.4,nan,156.9,True,False,306.5,DONE,True,,6.15,18.84,0.293
+dmp_param_tau0.5,moving,sphere,0.06,0.37,dmp_param_0.5,True,True,2,right,False,nan,nan,nan,-0.3,False,False,306.8,MISSED,False,la bajada no llegó al agarre (23 mm),nan,19.39,0.326
+dmp_param_tau0.5,moving,sphere,0.08,0.37,dmp_param_0.5,True,True,0,right,False,3.15,25.3,nan,-825.6,False,True,238.9,RETREAT,False,,nan,18.53,0.363
+dmp_param_tau0.5,moving,sphere,0.08,0.37,dmp_param_0.5,True,True,1,right,False,3.0,18.6,nan,-825.7,False,True,262.7,RETREAT,False,,nan,18.1,0.293
+dmp_param_tau0.5,moving,sphere,0.08,0.37,dmp_param_0.5,True,True,2,right,True,3.1,15.0,nan,157.1,True,False,264.3,DONE,True,,6.25,18.02,0.309

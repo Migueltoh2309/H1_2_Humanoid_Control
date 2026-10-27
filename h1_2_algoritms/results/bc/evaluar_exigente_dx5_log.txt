@@ -1,0 +1,6 @@
+90 episodios en 2324 s -> results/bc/evaluacion_exigente_dx5.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       30   102/300      0.34       185      13       199       6        60        25
+experto    30   110/300      0.37       172      18       162      13        12        31
+bc         30   118/300      0.39       166      16       171      13        12        31

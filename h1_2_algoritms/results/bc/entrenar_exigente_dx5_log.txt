@@ -1,0 +1,7 @@
+[ronda 0] 2621 muestras de entrenamiento, 462 de validación: acierto 99.1% (agarrar: 88.2%, esperar: 100.0%)
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+bc         40   151/400      0.38       228      21       230      20        19        31
+[ronda 1] 4987 muestras de entrenamiento, 880 de validación: acierto 99.1% (agarrar: 96.1%, esperar: 99.4%)
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+bc         40   154/400      0.39       227      19       226      14        16        30
+[ronda 2] 7140 muestras de entrenamiento, 1259 de validación: acierto 99.0% (agarrar: 92.9%, esperar: 99.6%)

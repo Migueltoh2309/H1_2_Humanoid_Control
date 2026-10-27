@@ -69,7 +69,9 @@ def _nodes(context):
     )
     servo = Node(
         package='h1_2_algoritms', executable='QP_bimanual_avoidance', output='screen',
-        parameters=[{'scenario': 'grasp', 't_home': 2.0}],
+        parameters=[{'scenario': 'grasp', 't_home': 2.0,
+                     'reach_dmp': _reach_path(LaunchConfiguration('reach').perform(context)),
+                     'reach_tau_scale': float(LaunchConfiguration('reach_tau_scale').perform(context))}],
     )
     rviz = Node(
         package='rviz2', executable='rviz2', output='screen',
@@ -79,6 +81,16 @@ def _nodes(context):
     return [bridge, rsp, perception, servo, rviz]
 
 
+def _reach_path(reach):
+    if reach == 'fsm':
+        return ''
+    if reach == 'dmp':
+        # setup.py instala results/dmp/*.npz en share/h1_2_algoritms/dmp
+        # (reentrenar -> colcon build).
+        return os.path.join(get_package_share_directory('h1_2_algoritms'), 'dmp', 'dmp_alcance.npz')
+    return reach
+
+
 def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('belt', default_value='static'),
@@ -86,5 +98,8 @@ def generate_launch_description():
         DeclareLaunchArgument('use_rviz', default_value='false'),
         DeclareLaunchArgument('grasp_assist', default_value='true'),
         DeclareLaunchArgument('localization', default_value='sphere'),
+        # reach:=fsm (máquina de estados) | dmp (results/dmp/dmp_alcance.npz) | <ruta .npz>
+        DeclareLaunchArgument('reach', default_value='fsm'),
+        DeclareLaunchArgument('reach_tau_scale', default_value='0.7'),
         OpaqueFunction(function=_nodes),
     ])

@@ -85,6 +85,28 @@ def segment_orange(rgb, hue_range=(0, 22), sat_min=210, val_min=170, min_area=40
     return out
 
 
+def segment_orange_all(rgb, hue_range=(0, 22), sat_min=210, val_min=170, min_area=40):
+    """Como `segment_orange`, pero una máscara por CADA blob naranja (varias
+    frutas en la faja, fase B del LfD). Dos frutas que se tocan en la
+    imagen salen como un solo blob; con la separación mínima de la faja
+    (≥ 12 cm) no pasa."""
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    mask = cv2.inRange(hsv, np.array([hue_range[0], sat_min, val_min], np.uint8),
+                       np.array([hue_range[1], 255, 255], np.uint8))
+    k = np.ones((5, 5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, k)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, k)
+    cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    out = []
+    for c in cnts:
+        if cv2.contourArea(c) < min_area:
+            continue
+        mi = np.zeros(mask.shape, np.uint8)
+        cv2.drawContours(mi, [c], -1, 255, cv2.FILLED)
+        out.append(mi)
+    return out
+
+
 def _centroid(mask):
     m = cv2.moments(mask, binaryImage=True)
     if m["m00"] == 0:

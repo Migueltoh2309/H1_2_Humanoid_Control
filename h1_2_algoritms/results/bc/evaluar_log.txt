@@ -1,0 +1,6 @@
+90 episodios en 1623 s -> results/bc/evaluacion.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       30   183/240      0.76        57       0       243       0        52        27
+experto    30   192/240      0.80        48       0       208       0         9        31
+bc         30   188/240      0.78        52       0       206       0         8        28

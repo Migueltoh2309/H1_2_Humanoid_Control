@@ -64,6 +64,6 @@ ros2 launch h1_2_algoritms visual_servoing_sim.launch.py use_rviz:=true belt:=mo
 | Carpeta | Contenido |
 |---|---|
 | [`demos/`](demos) | Evaluaciones reproducibles contra MuJoCo, sin ROS |
-| [`docs/`](docs) | Teoría y planes: bimanualidad, percepción, visual servoing y referencias |
+| [`docs/`](docs) | Teoría y planes: bimanualidad, percepción, visual servoing, LfD (DMP de alcance: `LFD_DMP.md`) y referencias |
 | [`results/`](results) | CSV y gráficas que generan los demos (`bimanual/`, `percepcion/`, `servoing/`, `trayectorias/`) |
 | [`videos/`](videos) | Videos comparativos del control bimanual |

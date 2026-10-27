@@ -1,0 +1,4 @@
+30 episodios en 563 s -> results/bc/evaluacion_exigente_base_m12_experto.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+experto    30   166/300      0.55       133       1       181       0         2        32

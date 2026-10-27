@@ -1,0 +1,6 @@
+90 episodios en 1763 s -> results/bc/evaluacion_alcanzable.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       30   151/300      0.50       118      31       251      16        63        24
+experto    30   151/300      0.50       118      31       189      10         2        33
+bc         30   140/300      0.47       127      33       186      13         2        37

@@ -1,0 +1,6 @@
+270 episodios en 5172 s -> results/bc/evaluacion_exigente_espera.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       90   527/900      0.59       373       0       875      20       248        24
+experto    90   558/900      0.62       342       0       731      25        48        28
+bc         90   579/900      0.64       321       0       736      29        42        28

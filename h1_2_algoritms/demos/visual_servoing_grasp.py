@@ -165,10 +165,12 @@ def measure(cams, method, rgb, depth, irL, irR, gt_torso):
 # Ensayo
 # =====================================================================
 def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=None,
-              t_max=None, log_dir=None):
-    """scenario 'static': param = y de la fruta (mundo, x = 0.34).
+              t_max=None, log_dir=None, fruit_x=0.34, reach=None, reach_tau=None, tag="", fsm_kwargs=None):
+    """scenario 'static': param = y de la fruta (mundo, x = `fruit_x`).
     scenario 'moving': param = velocidad de la faja [m/s] (+y), la fruta
-    arranca en y = -0.50."""
+    arranca en y = -0.50.
+    reach: None = máquina de estados a mano (APPROACH/DESCEND); una DMP
+    (aprendizaje.dmp.DMP) = alcance aprendido, con duración `reach_tau`."""
     sim = MujocoSim(MJCF, DEFAULT_JOINT_NAMES, joint_armature=0.01, joint_damping=0.05)
     m, d = sim.model, sim.data
     kp = np.array([DEFAULT_GAINS[n][0] for n in DEFAULT_JOINT_NAMES])
@@ -190,7 +192,7 @@ def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=No
         y0, v_belt = float(param), 0.0
     else:
         y0, v_belt = -0.50, float(param)
-    d.qpos[fj:fj + 3] = [0.34, y0, FRUIT_Z_WORLD]
+    d.qpos[fj:fj + 3] = [fruit_x, y0, FRUIT_Z_WORLD]
     d.qpos[fj + 3:fj + 7] = [1, 0, 0, 0]
     d.qpos[cj] = y0 - CARRIER_Y0
     d.qvel[cv] = v_belt
@@ -217,7 +219,7 @@ def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=No
     t_max = t_max or (12.0 if scenario == "static" else 22.0)
     n_steps = int(t_max / dt_phys)
 
-    fsm = GraspServoing(HOME)
+    fsm = GraspServoing(HOME, reach_dmp=reach, reach_tau=reach_tau, **(fsm_kwargs or {}))
     phase, side = fsm.phase, None
     obstacles = np.zeros((0, 3))
     pending = []        # (t_disponible, medida, t_captura)
@@ -305,6 +307,7 @@ def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=No
                    zip("xyz", TF2xyzquat(GG.FK[s](q_meas[:7] if s == "left" else q_meas[7:]))[0:3])},
                 "n_obs": len(obstacles), "d_env_min": diag["d_env_min"],
                 "d_arms_min": diag["d_arms_min"], "welded": int(welded),
+                **{f"ref_{a}": (targets[side][k] if side else np.nan) for k, a in enumerate("xyz")},
             })
             if phase == "DONE":
                 break
@@ -333,7 +336,8 @@ def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=No
     est_err = [np.linalg.norm([r["est_x"] - r["gt_x"], r["est_y"] - r["gt_y"], r["est_z"] - r["gt_z"]])
                for r in rows if r["phase"] in ("APPROACH", "DESCEND") and np.isfinite(r["est_x"])]
     res = {
-        "scenario": scenario, "method": method, "param": param, "assist": assist, "noise": noise,
+        "scenario": scenario, "method": method, "param": param, "fruit_x": fruit_x,
+        "reach": "fsm" if reach is None else f"dmp{tag}", "assist": assist, "noise": noise,
         "seed": seed, "side": side or "", "success": success,
         "t_grasp": round(fsm.events.get("t_close", np.nan) - fsm.events.get("t_start", np.nan), 2),
         "err_close_mm": round(events.get("err_close_mm", np.nan), 1),
@@ -342,10 +346,20 @@ def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=No
         "welded": welded, "dropped": bool(events.get("dropped", False)),
         "d_arms_min_mm": round(1e3 * min(r["d_arms_min"] for r in rows), 1) if rows else np.nan,
         "final_phase": phase,
+        # Agarre REAL (verdad de terreno): la fruta terminó levantada, lo
+        # haya confirmado o no la cámara (el verificador puede dar falsos
+        # negativos si la fruta en la mano queda al borde de la imagen).
+        "held": bool(lift > 0.08),
+        "why": fsm.events.get("why", ""),
+        "t_cycle": round(fsm.events.get("t_done", np.nan) - fsm.events.get("t_start", np.nan), 2),
+        "jerk_rms": _jerk_rms(rows, side),
+        "path_m": _path_len(rows, side),
     }
     if log_dir:
         os.makedirs(log_dir, exist_ok=True)
-        name = f"{scenario}_{method}_{param}_s{seed}{'' if assist else '_noassist'}.csv"
+        xs = "" if fruit_x == 0.34 else f"_x{fruit_x}"
+        rs = "" if reach is None else f"_dmp{tag}"
+        name = f"{scenario}_{method}_{param}{xs}{rs}_s{seed}{'' if assist else '_noassist'}.csv"
         with open(os.path.join(log_dir, name), "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
             w.writeheader()
@@ -356,6 +370,35 @@ def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=No
             vw.write(fr_[:, :, ::-1])
         vw.release()
     return res
+
+
+def _reach_rows(rows, side):
+    """Posición medida de la muñeca que agarra, del inicio del alcance al
+    cierre."""
+    if not side:
+        return np.zeros((0, 3))
+    k = side[0]
+    seg, on = [], False
+    for r in rows:
+        on = on or r["phase"] in ("APPROACH", "REACH")
+        if r["phase"] == "CLOSE":
+            break
+        if on:
+            seg.append([r[f"wr_{k}_{a}"] for a in "xyz"])
+    return np.array(seg)
+
+
+def _jerk_rms(rows, side, dt=0.05):
+    """Jerk RMS [m/s³] de la muñeca durante el alcance (suavidad)."""
+    X = _reach_rows(rows, side)
+    if len(X) < 8:
+        return np.nan
+    return round(float(np.sqrt((np.linalg.norm(np.diff(X, 3, axis=0), axis=1) ** 2).mean()) / dt ** 3), 2)
+
+
+def _path_len(rows, side):
+    X = _reach_rows(rows, side)
+    return round(float(np.linalg.norm(np.diff(X, axis=0), axis=1).sum()), 3) if len(X) > 1 else np.nan
 
 
 def _T(Rp):

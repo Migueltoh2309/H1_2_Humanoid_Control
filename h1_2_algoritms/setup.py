@@ -14,6 +14,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        # DMP de alcance entrenada (demos/dmp_alcance.py entrenar)
+        (os.path.join('share', package_name, 'dmp'), glob('results/dmp/*.npz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

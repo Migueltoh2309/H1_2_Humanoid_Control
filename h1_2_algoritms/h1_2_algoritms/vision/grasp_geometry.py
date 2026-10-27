@@ -96,6 +96,23 @@ def pregrasp_wrist_target(side, fruit_torso, approach=0.08, R=None):
     return xd
 
 
+# Pose de "mostrar" para verificar el agarre con la cámara de la cabeza:
+# palma ARRIBA (agarre girado 180° sobre el eje de los dedos), fruta a 26 cm
+# sobre la faja y hacia afuera. Con la mano cerrada en la orientación del
+# agarre (o en home) los dedos tapan la fruta: medido 0-13% del área visible,
+# y la verificación daba falsos negativos con la fruta en la mano. Palma
+# arriba: 55-64% visible y 1.3-1.5 mm de error de la esfera, aunque la fruta
+# haya quedado ±3 cm corrida en la mano (barrido en docs/LFD_DMP.md §4.2).
+SHOW_FRUIT = {"left": np.array([0.36, 0.18, 0.10]), "right": np.array([0.36, -0.18, 0.10])}
+
+
+def show_wrist_target(side, fruit_torso=None):
+    """[x y z qw qx qy qz] de la muñeca con la fruta en la pose de mostrar."""
+    R = grasp_rotation(side, elev=0.0) @ np.diag([1.0, -1.0, -1.0])    # Rx(180°)
+    fruit_torso = SHOW_FRUIT[side] if fruit_torso is None else fruit_torso
+    return grasp_wrist_target(side, fruit_torso, R)
+
+
 def solve_arm_ik(side, xd, q0=None):
     lo, hi = JL.get_limits(side)
     q0 = JL.center(side) if q0 is None else q0

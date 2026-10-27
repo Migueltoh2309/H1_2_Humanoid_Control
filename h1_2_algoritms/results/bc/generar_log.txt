@@ -1,0 +1,3 @@
+40 episodios en 671 s
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+experto    40   250/320      0.78        70       0       281       1        21        31

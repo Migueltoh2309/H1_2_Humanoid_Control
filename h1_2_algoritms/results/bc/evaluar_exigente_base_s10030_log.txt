@@ -1,0 +1,6 @@
+180 episodios en 3222 s -> results/bc/evaluacion_exigente_base_s10030.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       60   278/600      0.46       316       6       534       3       226        30
+experto    60   358/600      0.60       238       4       417       3        31        30
+bc         60   374/600      0.62       222       4       427       2        29        31

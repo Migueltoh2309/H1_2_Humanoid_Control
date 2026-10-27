@@ -77,6 +77,7 @@ from h1_2_algoritms.bimanual.depth_obstacles import (
     obstacles_from_depth, camera_pose_from_mjcf_xyaxes, ObstacleMemory)
 from h1_2_algoritms.movimiento.joint_limits import ARM_JOINT_NAMES
 from h1_2_algoritms.vision.visual_servoing import FruitTracker, GraspServoing
+from h1_2_algoritms.aprendizaje.dmp import DMP
 from h1_2_algoritms.vision import grasp_geometry as GG
 from geometry_msgs.msg import PointStamped
 from tf2_geometry_msgs import do_transform_point
@@ -140,6 +141,8 @@ class BimanualAvoidanceNode(Node):
         dp("hand_cmd_topic", "/joint_cmd")
         dp("fruit_exclude_radius", 0.12)   # m: la nube no ve obstáculos alrededor de la fruta
         dp("rearm_after_missed", 2.0)      # s; < 0 = no rearmar
+        dp("reach_dmp", "")                # .npz de la DMP de alcance; "" = máquina de estados
+        dp("reach_tau_scale", 0.7)         # τ = escala × duración demostrada (docs/LFD_DMP.md)
         gp = lambda n: self.get_parameter(n).value  # noqa: E731
 
         self.scenario = gp("scenario")
@@ -205,7 +208,12 @@ class BimanualAvoidanceNode(Node):
             self.fruit_exclude_radius = float(gp("fruit_exclude_radius"))
             self.rearm_after_missed = float(gp("rearm_after_missed"))
             self.tracker = FruitTracker()
-            self.fsm = GraspServoing(GRASP_HOME)
+            reach, tau = None, None
+            if gp("reach_dmp"):
+                reach = DMP.load(gp("reach_dmp"))
+                tau = reach.tau_demo * float(gp("reach_tau_scale"))
+                self.get_logger().info(f"[grasp] alcance con DMP {gp('reach_dmp')} (τ = {tau:.2f} s)")
+            self.fsm = GraspServoing(GRASP_HOME, reach_dmp=reach, reach_tau=tau)
             self._fsm_phase = self.fsm.phase
             self._t_phase_wall = None
             self.hand_names = {s: GG.hand_actuator_names(s) for s in ("left", "right")}
@@ -334,7 +342,7 @@ class BimanualAvoidanceNode(Node):
     def _on_phase_change(self, out, now):
         ev = self.fsm.events
         msg = f"[grasp] {self._fsm_phase} -> {out['phase']}"
-        if out["phase"] == "APPROACH":
+        if out["phase"] in ("APPROACH", "REACH"):
             msg += f": brazo {out['side']}, fruta en y={self.tracker.predict(now)[0][1]:+.3f} m"
         elif out["phase"] == "CLOSE":
             msg += (f" ({ev['t_close'] - ev['t_start']:.1f} s desde el inicio, punto de agarre a "

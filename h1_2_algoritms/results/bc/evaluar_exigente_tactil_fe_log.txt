@@ -1,0 +1,5 @@
+60 episodios en 1150 s -> results/bc/evaluacion_exigente_tactil_fe.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       30   141/300      0.47       158       1       295      11       139        27
+experto    30   183/300      0.61       112       5       225      23        14        31

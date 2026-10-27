@@ -1,0 +1,5 @@
+24 episodios en 599 s -> results/bc/prueba_experto.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       12    50/96       0.52        46       0        91       9        27        25
+experto    12    40/96       0.42        56       0        89      13        28        28
