@@ -13,6 +13,9 @@ artificial y un robot humanoide*. La captura de demostraciones humanas está en 
   <a href="h1_2_algoritms/videos"><b>▶ Ver los videos del control bimanual</b></a>
 </p>
 
+> **¿Cómo lo ejecuto?** Comandos, carpetas y orden para el simulador `h1_2_sim2real` y las
+> tareas: [**GUIA_COMANDOS.md**](GUIA_COMANDOS.md).
+
 ## Qué incluye
 
 | Área | Qué hace | Dónde |
