@@ -184,8 +184,10 @@ A partir de ahí, **el mismo** `/joint_cmd` que movía el simulador mueve el rob
 | `/h1_2/soltar` | `std_msgs/Empty` | tú → puente | rampa de salida y fin del agente |
 | `/camera/color/image_raw` + `camera_info` | `Image rgb8` | sim | D435 RGB 640x480 |
 | `/camera/depth/image_raw` + `camera_info` | `Image 32FC1` (m) | sim | alineada al RGB (mismos tópicos que tus nodos de percepción) |
+| `/camera/depth/image_rect_raw` + `.../camera_info` | `Image 32FC1` (m) | sim | profundidad **nativa** en el marco de IR1, con su campo (~80x65 grados frente a 56x43 del color): la de `rs.stream.depth` en el robot. Con una mesa cerca y abajo ve mucho más (reto de manipulación) |
 | `/camera/infra1/image_rect_raw`, `/camera/infra2/...` + `camera_info` | `Image mono8` | sim | par IR 848x480, línea de base 50 mm (`P[3] = -fx·0.05` en infra2), nombres de `realsense2_camera` |
-| `/sim/joint_states`, `/sim/fuente`, `/contacts`, `/sim/ground_truth/mandarina` | | sim | solo simulación: verdad de terreno, quién manda, contactos |
+| `/sim/joint_states`, `/sim/fuente`, `/contacts`, `/sim/ground_truth/<cuerpo>` | | sim | solo simulación: verdad de terreno (con base flotante, además de `ground_truth`: pelvis, los dos pies y todos los cuerpos sueltos), quién manda, contactos |
+| `/sim/tapar_camara` (`Bool`), `/sim/poner_cuerpo` (`PoseStamped`, `frame_id` = cuerpo suelto) | | tú → sim | solo simulación: tapar la cámara con la mano; el instructor que mueve o gira un objeto |
 
 TF estático `torso_link → camera_{color,depth,infra1,infra2}_optical_frame` desde el MJCF; el resto, de
 `robot_state_publisher` con `urdf/h1_2_manos.urdf` (el `h1_2.urdf` con manos, dedos *mimic* incluidos).
@@ -224,7 +226,11 @@ TF estático `torso_link → camera_{color,depth,infra1,infra2}_optical_frame` d
   motores reales. Sin compensación de gravedad (a diferencia de tu `h1_2_mujoco_sim_bridge`): con kp 100 el
   hombro se queda ~5° corto con el brazo adelante, del orden de lo medido en el robot (prueba 043621).
 * Manos: Modbus TCP en `127.0.1.211:6000` (izq) y `127.0.1.210:6000` (der) con ANGLE_SET/ACT, FORCE_ACT,
-  SPEED_SET (recorrido completo en 0.6 s a velocidad 1000)...
+  SPEED_SET (recorrido completo en 0.6 s a velocidad 1000). **FORCE_SET limita de verdad** el par de cada dedo
+  (de fábrica 2000 = el máximo: 10 N por dedo, 15 N el pulgar); STATUS (0 abriendo, 1 cerrando, 2 en posición,
+  3 parado por fuerza, 6 calado), ERR y TEMP empaquetados como los lee `manos/mano.py`; 1004 aceptado; táctil
+  aproximado en los registros de `inspire_hand_defaut.py` (~150 cuentas/N en un tercio de la zona, reposo 0-3);
+  y leer de un bloque registros de grupos distintos (1546..1620) devuelve basura, como la mano real...
 * Escenas: `escena:=faja` (base soldada: equivale al robot colgado o de pie sin dar pasos; IMU constante) y
   `escena:=suelo` (base flotante, ver 1b).
 * **Tres procesos** unidos por memoria compartida (`compartido.py`): física a 500 Hz, DDS (`rt/lowstate` a

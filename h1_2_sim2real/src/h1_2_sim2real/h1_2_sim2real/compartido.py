@@ -34,6 +34,7 @@ def campos(nq):
         ("loco_t_fin", 1),                    # monotonic hasta el que vale (duration de Move)
         ("loco_n", 1),                        # SetVelocity recibidos
         ("fsm", 1),                           # FSM simulada (201 = andar, como con L2+UP en el mando)
+        ("tapa", 1),                          # 1 = camara tapada con la mano (/sim/tapar_camara)
     ]
 
 

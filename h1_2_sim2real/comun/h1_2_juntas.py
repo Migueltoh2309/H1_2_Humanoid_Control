@@ -69,7 +69,13 @@ MANO_IP = {"izq": "192.168.124.211", "der": "192.168.124.210"}   # al reves que 
 MANO_IP_SIM = {"izq": "127.0.1.211", "der": "127.0.1.210"}       # el simulador escucha aqui
 MANO_PUERTO = 6000
 ANGLE_SET, FORCE_SET, SPEED_SET, ANGLE_ACT, FORCE_ACT = 1486, 1498, 1522, 1546, 1582
-ERR, STATUS, TEMP = 1606, 1612, 1618
+CURRENT, ERR, STATUS, TEMP = 1594, 1606, 1612, 1618   # ERR/STATUS/TEMP: 2 dedos por registro (un byte cada uno)
+BORRAR_ERROR = 1004
+# Tactil (inspire_hand_defaut.py): por dedo [menique, anular, medio, indice] punta (9 reg) en
+# la base, yema (96) en +18 y falange proximal (80) en +210; pulgar: punta, yema (+18),
+# medio (9, +210) y base (96, +228); palma 112 registros.
+TACTIL_DEDOS = (3000, 3370, 3740, 4110)
+TACTIL_PULGAR, TACTIL_PALMA = 4480, 4900
 
 # Junta del URDF/MJCF (sin el prefijo L_/R_) de cada DOF y su recorrido en rad:
 # angulo 1000 (abierto) -> 0 rad; angulo 0 (cerrado) -> q_cerrado.

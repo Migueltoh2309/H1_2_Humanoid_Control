@@ -1,6 +1,7 @@
 """Procesos hijos del simulador (ver compartido.py). Se lanzan con multiprocessing
 'spawn': cada uno arranca limpio, sin heredar el estado de rclpy ni el contexto GL."""
 import faulthandler
+import os
 import signal
 import sys
 import time
@@ -23,6 +24,16 @@ def _preparar_hijo():
     except AttributeError:
         pass
     faulthandler.register(signal.SIGUSR1, all_threads=True)
+    # si el nodo principal muere de golpe (kill -9), el hijo NO debe quedarse: un proceso dds
+    # huerfano sigue publicando un rt/lowstate congelado (paso el 2026-10-12: el agente veia
+    # estados mezclados y un "error de seguimiento" falso de 15 grados)
+    try:
+        import ctypes
+        ctypes.CDLL("libc.so.6", use_errno=True).prctl(1, signal.SIGTERM)    # PR_SET_PDEATHSIG
+        if os.getppid() == 1:
+            os._exit(0)
+    except Exception:
+        pass
 
 
 def _ritmo(periodo):
@@ -208,6 +219,13 @@ def proceso_camaras(nombre_shm, nq, cerrojo, modelo, con_ir, hz, linea_base, emi
         if tipo == "color":
             c["pub_depth"] = nodo.create_publisher(Image, "/camera/depth/image_raw", 5)
             c["pub_depth_info"] = nodo.create_publisher(CameraInfo, "/camera/depth/camera_info", 5)
+        elif frame == "camera_infra1_optical_frame":
+            # profundidad NATIVA de la D435 (sin alinear al color): se mide en el marco de
+            # IR1 y tiene su campo de vision (~80x65 grados frente a 56x43 del color). Es la
+            # que da pyrealsense2 con rs.stream.depth (Codigos/camara.py) y realsense-ros
+            # en /camera/depth/image_rect_raw. Con la mesa cerca y abajo, ve mas mesa.
+            c["pub_depth"] = nodo.create_publisher(Image, "/camera/depth/image_rect_raw", 5)
+            c["pub_depth_info"] = nodo.create_publisher(CameraInfo, "/camera/depth/image_rect_raw/camera_info", 5)
         cams.append(c)
         for f in [frame] + (["camera_depth_optical_frame"] if tipo == "color" else []):
             t = TransformStamped()
@@ -240,6 +258,7 @@ def proceso_camaras(nombre_shm, nq, cerrojo, modelo, con_ir, hz, linea_base, emi
             if v["qpos_n"][0] == 0:
                 continue
             d.qpos[:] = v["qpos"]
+            tapada = v["tapa"][0] > 0.5
         mujoco.mj_forward(m, d)
         stamp = nodo.get_clock().now().to_msg()
         for c in cams:
@@ -247,6 +266,8 @@ def proceso_camaras(nombre_shm, nq, cerrojo, modelo, con_ir, hz, linea_base, emi
             r.disable_depth_rendering()
             r.update_scene(d, camera=c["id"])
             rgb = r.render()
+            if tapada:      # una mano sobre el objetivo: casi negro y sin textura (la camara sigue dando fotogramas)
+                rgb = np.clip(12 + 3 * np.random.randn(*rgb.shape), 0, 255).astype(np.uint8)
             info = mensajes.camera_info(c["w"], c["h"], c["fovy"], c["frame"], stamp, c["tx"])
             if c["tipo"] == "color":
                 c["pub_img"].publish(mensajes.imagen(rgb, "rgb8", c["frame"], stamp))
@@ -254,6 +275,8 @@ def proceso_camaras(nombre_shm, nq, cerrojo, modelo, con_ir, hz, linea_base, emi
                 r.enable_depth_rendering()
                 r.update_scene(d, camera=c["id"])
                 depth = r.render()
+                if tapada:
+                    depth = np.zeros_like(depth)          # sin profundidad valida
                 c["pub_depth"].publish(mensajes.imagen(depth, "32FC1", "camera_depth_optical_frame", stamp))
                 c["pub_depth_info"].publish(mensajes.camera_info(
                     c["w"], c["h"], c["fovy"], "camera_depth_optical_frame", stamp))
@@ -264,6 +287,14 @@ def proceso_camaras(nombre_shm, nq, cerrojo, modelo, con_ir, hz, linea_base, emi
                     gris = np.clip(gris * c["emisor"], 0, 255).astype(np.uint8)
                 c["pub_img"].publish(mensajes.imagen(gris, "mono8", c["frame"], stamp))
                 c["pub_info"].publish(info)
+                if "pub_depth" in c:
+                    r.enable_depth_rendering()
+                    r.update_scene(d, camera=c["id"])
+                    depth = r.render()
+                    if tapada:
+                        depth = np.zeros_like(depth)
+                    c["pub_depth"].publish(mensajes.imagen(depth, "32FC1", c["frame"], stamp))
+                    c["pub_depth_info"].publish(info)
         n_frames += 1
         if time.monotonic() - t_log > 30.0:
             log.info(f"camaras a {n_frames / (time.monotonic() - t_log):.1f} Hz")

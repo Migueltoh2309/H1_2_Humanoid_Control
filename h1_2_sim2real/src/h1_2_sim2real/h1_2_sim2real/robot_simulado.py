@@ -184,12 +184,36 @@ def info_camara(m, nombre):
 
 
 class ManoSim:
-    """Mapa de registros Modbus de una Inspire, respaldado por los actuadores del MJCF."""
+    """Mapa de registros Modbus de una Inspire, respaldado por los actuadores del MJCF.
+
+    Como la mano real (R40-RT-H1_2-0002, sec. 3 y 7):
+      * FORCE_SET (gf por dedo) LIMITA de verdad el par del dedo: el actuador de
+        posicion del MJCF se satura en FORCE_SET (de fabrica 2000 = el maximo del
+        dedo: sin limite util). Con la consigna cerrada y un objeto delante, el dedo
+        se queda apretando con esa fuerza (lo que hace caja_cuadrado.py);
+      * ERR, STATUS y TEMP empaquetados de dos en dos bytes (como los lee mano.py):
+        STATUS 0 abriendo, 1 cerrando, 2 en posicion, 3 parado por fuerza, 6 calado;
+      * 1004 (borrar error) se acepta (en el sim no hay errores que borrar);
+      * tactil: las zonas de inspire_hand_defaut.py (las mismas de caja_cuadrado.py),
+        con la fuerza normal de contacto del eslabon de cada zona contra lo que no
+        sea la propia mano. APROXIMADO: ~TACTIL_POR_N cuentas por N repartidas en un
+        tercio de los taxeles de la zona, reposo 0-3. Sirve para la logica de
+        contacto (umbral sobre el reposo), no para calibrar umbrales del robot;
+      * leer de un bloque registros de grupos distintos (p. ej. 1546..1620) devuelve
+        basura (11000 / 0xFFFF), como la mano real (sesion 12 de caja_cuadrado).
+    """
 
     # tiempo de recorrido completo (0 -> 1000) a SPEED_SET = 1000. La RH56 tarda
     # del orden de 0.5-1 s en cerrar del todo a velocidad maxima.
     T_RECORRIDO = 0.6
     BRAZO_PALANCA = 0.055    # m: par del dedo (N·m) -> fuerza en la yema (1 N·m ~ 18 N)
+    GF_POR_N = 101.97
+    # Par maximo del dedo (N·m) con FORCE_SET de fabrica: 10 N en la yema por dedo y
+    # 15 N en el pulgar (hoja de datos RH56); la rotacion del pulgar, la del MJCF.
+    PAR_MAX = [10.0 * 0.055] * 4 + [15.0 * 0.055, 0.6]
+    TACTIL_POR_N = 150.0
+    # grupos de registros de solo lectura que la mano sirve por separado
+    GRUPOS = [(J.ANGLE_ACT, 6), (J.FORCE_ACT, 6), (J.CURRENT, 6), (J.ERR, 3), (J.STATUS, 3), (J.TEMP, 3)]
 
     def __init__(self, sim, lado):
         self.sim, self.lado = sim, lado
@@ -198,24 +222,102 @@ class ManoSim:
         self.act = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, pre + j) for j, _ in J.DOF_MANO]
         self.qadr = [int(m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, pre + j)])
                      for j, _ in J.DOF_MANO]
+        self.vadr = [int(m.jnt_dofadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, pre + j)])
+                     for j, _ in J.DOF_MANO]
         if min(self.act) < 0:
             raise RuntimeError(f"el modelo no tiene la mano {lado} ({pre}*_proximal_joint)")
+        self.par_max = [max(float(m.actuator_forcerange[a][1]), p) for a, p in zip(self.act, self.PAR_MAX)]
         self.regs = {}
         self.objetivo = [1000.0] * 6         # abierta
         self.actual = [1000.0] * 6           # consigna que se va moviendo a SPEED_SET
         self._escribir_bloque(J.SPEED_SET, [1000] * 6)
         self._escribir_bloque(J.FORCE_SET, [2000] * 6)   # de fabrica: sin limite
         self._escribir_bloque(J.ANGLE_SET, [1000] * 6)
-        self._escribir_bloque(J.TEMP, [32, 32, 32])
+        self._escribir_bloque(J.ERR, [0, 0, 0])
+        self._escribir_bloque(J.TEMP, [32 * 257] * 3)     # 32 grados en cada byte
+        self._aplicar_fuerza()
+        self._zonas_tactiles(m, pre)
+        self.rng = np.random.default_rng()
         self.cerrojo = threading.Lock()
+
+    def _zonas_tactiles(self, m, pre):
+        """zona -> (direccion, n registros) y cuerpo del MJCF -> zonas que siente."""
+        def cuerpo(n):
+            return mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, n)
+        self.zonas = []                  # (direccion, n, peso)
+        self.cuerpo_zonas = {}           # body id -> [(indice de zona, peso)]
+
+        def zona(dire, n, nombre_cuerpo, peso=1.0):
+            b = cuerpo(nombre_cuerpo)
+            self.zonas.append((dire, n))
+            if b >= 0:
+                self.cuerpo_zonas.setdefault(b, []).append((len(self.zonas) - 1, peso))
+        for k, dedo in enumerate(("pinky", "ring", "middle", "index")):
+            base = J.TACTIL_DEDOS[k]
+            zona(base, 9, f"{pre}{dedo}_intermediate", 0.3)          # punta
+            zona(base + 18, 96, f"{pre}{dedo}_intermediate")         # yema
+            zona(base + 210, 80, f"{pre}{dedo}_proximal")            # falange proximal
+        zona(J.TACTIL_PULGAR, 9, f"{pre}thumb_distal", 0.3)          # punta
+        zona(J.TACTIL_PULGAR + 18, 96, f"{pre}thumb_distal")         # yema
+        zona(J.TACTIL_PULGAR + 210, 9, f"{pre}thumb_intermediate")   # medio
+        zona(J.TACTIL_PULGAR + 228, 96, f"{pre}thumb_proximal")      # base
+        zona(J.TACTIL_PALMA, 112, ("left" if self.lado == "izq" else "right") + "_wrist_yaw_link")
+        # cuerpos de la propia mano: su contacto entre si no cuenta
+        self.cuerpos_mano = set(self.cuerpo_zonas)
+        for b in range(m.nbody):
+            if (mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, b) or "").startswith(pre):
+                self.cuerpos_mano.add(b)
 
     def _escribir_bloque(self, d, vals):
         for k, v in enumerate(vals):
             self.regs[d + k] = int(v) & 0xFFFF
 
+    def _aplicar_fuerza(self):
+        """FORCE_SET (gf en la yema) -> limite de par del actuador de cada dedo."""
+        m = self.sim.model
+        for k, a in enumerate(self.act):
+            gf = self.regs.get(J.FORCE_SET + k, 2000)
+            par = min(self.par_max[k], max(gf, 0) / self.GF_POR_N * self.BRAZO_PALANCA)
+            m.actuator_forcerange[a] = (-par, par)
+
+    def _tactil(self):
+        """Fuerza normal (N) que siente cada zona, de los contactos del paso actual."""
+        m, d = self.sim.model, self.sim.data
+        f = np.zeros(len(self.zonas))
+        f6 = np.zeros(6)
+        with self.sim.cerrojo:
+            for i in range(d.ncon):
+                c = d.contact[i]
+                b1, b2 = int(m.geom_bodyid[c.geom1]), int(m.geom_bodyid[c.geom2])
+                for b, otro in ((b1, b2), (b2, b1)):
+                    if b in self.cuerpo_zonas and otro not in self.cuerpos_mano:
+                        mujoco.mj_contactForce(m, d, i, f6)
+                        for z, peso in self.cuerpo_zonas[b]:
+                            f[z] += peso * abs(f6[0])
+        return f
+
+    def _estado(self, k):
+        """STATUS de un dedo: 0 abriendo, 1 cerrando, 2 en posicion, 3 parado por fuerza."""
+        if abs(self.objetivo[k] - self.actual[k]) > 1.0:
+            return 1 if self.objetivo[k] < self.actual[k] else 0
+        medido = J.rad_a_angulo(k, float(self.sim.data.qpos[self.qadr[k]]))
+        if abs(medido - self.objetivo[k]) <= 15:
+            return 2
+        par = abs(float(self.sim.data.actuator_force[self.act[k]]))
+        if par >= 0.95 * float(self.sim.model.actuator_forcerange[self.act[k]][1]):
+            return 3
+        if abs(float(self.sim.data.qvel[self.vadr[k]])) < 0.05:
+            return 6                     # parado sin llegar ni apretar: calado (tope o acople)
+        return 1 if self.objetivo[k] < medido else 0
+
     # --- interfaz de modbus_mini
     def leer(self, d, n):
         with self.cerrojo:
+            # la mano real no sirve de un bloque registros de grupos distintos
+            if d < J.TEMP + 3 and d + n > J.ANGLE_ACT and \
+                    not any(g <= d and d + n <= g + k for g, k in self.GRUPOS):
+                return [11000] * n
+            tactil = None
             out = []
             for a in range(d, d + n):
                 if J.ANGLE_ACT <= a < J.ANGLE_ACT + 6:
@@ -224,7 +326,20 @@ class ManoSim:
                 elif J.FORCE_ACT <= a < J.FORCE_ACT + 6:
                     k = a - J.FORCE_ACT
                     f = abs(float(self.sim.data.actuator_force[self.act[k]])) / self.BRAZO_PALANCA
-                    out.append(int(min(f * 101.97, 3000)))          # gramos-fuerza
+                    out.append(int(min(f * self.GF_POR_N, 3000)))     # gramos-fuerza
+                elif J.STATUS <= a < J.STATUS + 3:
+                    i = 2 * (a - J.STATUS)
+                    out.append((self._estado(i) << 8) | self._estado(i + 1))
+                elif J.TACTIL_DEDOS[0] <= a < J.TACTIL_PALMA + 112:
+                    if tactil is None:
+                        tactil = self._tactil()
+                    v = int(self.rng.integers(0, 4))
+                    for z, (dz, nz) in enumerate(self.zonas):
+                        if dz <= a < dz + nz:
+                            if (a - dz) < max(1, nz // 3):        # un tercio de la zona se aprieta
+                                v += int(min(self.TACTIL_POR_N * tactil[z], 4000))
+                            break
+                    out.append(v)
                 else:
                     v = self.regs.get(a, 0)
                     out.append(v - 0x10000 if v >= 0x8000 else v)
@@ -243,6 +358,7 @@ class ManoSim:
     # --- en el hilo de fisica
     def paso(self, dt):
         with self.cerrojo:
+            self._aplicar_fuerza()
             for k in range(6):
                 vel = max(1, self.regs.get(J.SPEED_SET + k, 1000)) / 1000.0 * 1000.0 / self.T_RECORRIDO
                 d = self.objetivo[k] - self.actual[k]
@@ -489,6 +605,29 @@ class RobotSimulado:
             return None
         with self.cerrojo:
             return self.data.xpos[b] - self.origen, self.data.xquat[b].copy()
+
+    def cuerpos_libres(self):
+        """Nombres de los cuerpos sueltos de la escena (con freejoint), sin la pelvis."""
+        m = self.model
+        return [mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, int(m.jnt_bodyid[j]))
+                for j in range(m.njnt)
+                if m.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE and m.jnt_bodyid[j] != self.pelvis]
+
+    def poner_cuerpo(self, nombre, pos, quat_wxyz):
+        """Coloca un cuerpo suelto en una pose (mundo) y lo deja quieto: el instructor
+        que desplaza o gira un objeto (reto de manipulacion, nivel 3)."""
+        m = self.model
+        b = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, nombre)
+        js = [j for j in range(m.njnt) if m.jnt_bodyid[j] == b and m.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE]
+        if b < 0 or not js:
+            return False
+        a, v = int(m.jnt_qposadr[js[0]]), int(m.jnt_dofadr[js[0]])
+        q = np.asarray(quat_wxyz, dtype=float)
+        with self.cerrojo:
+            self.data.qpos[a:a + 3] = np.asarray(pos, dtype=float) + self.origen
+            self.data.qpos[a + 3:a + 7] = q / (np.linalg.norm(q) + 1e-12)
+            self.data.qvel[v:v + 6] = 0.0
+        return True
 
     # --------------------------------------------- asistencia de agarre (solo sim)
     def _activar_assist(self, objeto="mandarina", junta="index_proximal_joint", on=0.6, off=0.3):

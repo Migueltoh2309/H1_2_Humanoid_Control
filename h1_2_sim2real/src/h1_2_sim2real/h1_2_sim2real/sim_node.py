@@ -10,7 +10,8 @@ Lo que ve el resto del mundo (igual que el robot real):
                         /camera/infra2/image_rect_raw + camera_info    IR derecha, mono8, P[3] = -fx*0.05
   ROS 2 (solo sim)      /sim/joint_states  verdad de terreno (27 + 12 dedos), NO la del robot
                         /sim/fuente        quien manda: interno | interno+arm_sdk | lowcmd
-                        /contacts, /sim/ground_truth/<cuerpo>
+                        /contacts, /sim/ground_truth/<cuerpo> (pelvis, pies y cuerpos sueltos)
+                        /sim/tapar_camara (Bool), /sim/poner_cuerpo (PoseStamped, frame_id = cuerpo)
 Los /joint_states "de verdad" los publica el puente a partir de rt/lowstate,
 igual con el robot real que con el simulador.
 
@@ -27,7 +28,7 @@ import rclpy
 from geometry_msgs.msg import PoseStamped, TransformStamped
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 from tf2_ros import TransformBroadcaster
 from visualization_msgs.msg import MarkerArray
 
@@ -160,13 +161,21 @@ class SimNode(Node):
         if self.contactos:
             self.pub_con = self.create_publisher(MarkerArray, "/contacts", 10)
         cuerpos_gt = [b for b in g("ground_truth") if b]
-        if self.sim.flotante and "pelvis" not in cuerpos_gt:
+        if self.sim.flotante:
             # pose de la base en el mundo en un topico ligero: leerla de /tf obliga a
-            # procesar en Python la TF de todo el robot (con RViz abierto, miles/s)
-            cuerpos_gt.append("pelvis")
+            # procesar en Python la TF de todo el robot (con RViz abierto, miles/s).
+            # Y los pies (pasos dados, reto de manipulacion) y los objetos sueltos.
+            for b in ["pelvis", "left_ankle_roll_link", "right_ankle_roll_link"] + self.sim.cuerpos_libres():
+                if b not in cuerpos_gt:
+                    cuerpos_gt.append(b)
         self.gt = [(b, self.create_publisher(PoseStamped, f"/sim/ground_truth/{b}", 10))
                    for b in cuerpos_gt if self.sim.pose_cuerpo(b) is not None]
         self.tf = TransformBroadcaster(self) if self.sim.flotante else None
+        # tapar la camara con la mano (reto, hito 3: el vigilante tiene que parar)
+        self.create_subscription(Bool, "/sim/tapar_camara", self._al_tapar, 10)
+        # el instructor desplaza o gira un objeto (reto de manipulacion, nivel 3):
+        # header.frame_id = nombre del cuerpo suelto, pose en el mundo
+        self.create_subscription(PoseStamped, "/sim/poner_cuerpo", self._al_poner, 10)
         self.create_timer(1.0 / g("hz_joint_states"), self._publicar_lento)
         self.k_con = max(1, int(round(g("hz_joint_states") / g("hz_contactos"))))
         self.n_lento = 0
@@ -195,6 +204,16 @@ class SimNode(Node):
         self.hilo = threading.Thread(target=self._fisica, daemon=True, name="fisica")
         self.hilo.start()
         log.info("H1-2 simulado listo. Agente: robot/agente_sdk.py --sim · scripts del SDK con la interfaz 'lo'")
+
+    def _al_tapar(self, m):
+        self.sh.v["tapa"][0] = 1.0 if m.data else 0.0
+        self.get_logger().info("camara TAPADA" if m.data else "camara destapada")
+
+    def _al_poner(self, m):
+        p, o = m.pose.position, m.pose.orientation
+        ok = self.sim.poner_cuerpo(m.header.frame_id, (p.x, p.y, p.z), (o.w, o.x, o.y, o.z))
+        self.get_logger().info(f"{m.header.frame_id} -> ({p.x:.3f}, {p.y:.3f}, {p.z:.3f})" if ok
+                               else f"/sim/poner_cuerpo: '{m.header.frame_id}' no es un cuerpo suelto")
 
     # ------------------------------------------------------------ fisica
     def _escribir_estado(self, tick, qpos=False):
