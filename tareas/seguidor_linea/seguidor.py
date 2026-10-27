@@ -13,8 +13,8 @@ y el dominio DDS:
     python3 seguidor.py --sim --simulacro
 
 Seguridad (sec. 10): palabra de confirmacion antes de andar, topes de velocidad
-del config (con --escala 0.5 en las primeras tiradas), vigilante (camara, IMU,
-inclinacion > 20 grados, motores, excepcion, Ctrl+C) y StopMove al salir.
+del config (con --escala 0.5 en las primeras tiradas), vigilante (camara sin
+fotogramas o tapada, IMU, inclinacion > 20 grados, motores, excepcion, Ctrl+C) y StopMove al salir.
 L2 + B en el mando sigue siendo la parada de emergencia del robot real.
 """
 import argparse
@@ -63,6 +63,11 @@ def main():
     cfg = config.cargar(a.config, a.config_extra)
     if a.escala is not None:
         cfg["control"]["escala"] = a.escala
+    if a.simulacro:
+        # la deriva se estima como giroscopo - vyaw pedido; en simulacro lo pedido NO se ejecuta
+        # (el robot lo lleva el operador) y la "deriva" se comeria los giros del operador:
+        # con la compensacion activa, el signo de vyaw salia bien solo en el 54 % de los ciclos
+        cfg["control"]["compensar_deriva"] = False
     s = cfg["supervisor"]
 
     iniciar_dds(a.sim, a.iface)
@@ -85,7 +90,7 @@ def main():
     f = fuente.leer(5.0)
     if f is None:
         salir("La camara no da fotogramas")
-    print(f"camara OK: {f.ir.shape[1]}x{f.ir.shape[0]}, K = {tuple(round(k, 1) for k in f.K)}")
+    print(f"camara OK: {f.ir.shape[1]}x{f.ir.shape[0]}, K = {tuple(round(float(k), 1) for k in f.K)}")
 
     marcadores = None
     if a.rviz and a.sim:
@@ -129,7 +134,8 @@ def main():
 
     periodo = 1.0 / s["hz"]
     t0 = t_ant = time.monotonic()
-    t_cam = f.t
+    t_cam = t_textura = f.t
+    tapada_std = cfg["supervisor"]["vigilante"].get("tapada_std", 8.0)
     aplicada = Orden()
     medida = None
     excepcion = None
@@ -146,6 +152,8 @@ def main():
             med_ciclo = None
             if nueva is not None:
                 t_cam = nueva.t
+                if float(nueva.ir[::8, ::8].std()) >= tapada_std:
+                    t_textura = nueva.t
                 medida = per.procesar(nueva, u.roll - ref_r, u.pitch - ref_p, mira=ctl.mirada())
                 med_ciclo = medida
                 medida_buena = medida.valida and medida.confianza >= cfg["estimacion"]["confianza_min"]
@@ -154,7 +162,7 @@ def main():
             e = est.actualizar(t, u.yaw, (aplicada.vx, aplicada.vy, aplicada.vyaw), med_ciclo, gyro_z=u.gyro[2])
             objetivo = est.punto_a_distancia(ctl.mirada())
             o_ctl = ctl.calcular(e, objetivo, dt)
-            salud = {"t_camara": t_cam, "t_imu": u.t, "roll": u.roll, "pitch": u.pitch,
+            salud = {"t_camara": t_cam, "t_textura": t_textura, "t_imu": u.t, "roll": u.roll, "pitch": u.pitch,
                      "motores_ok": u.motores_ok, "excepcion": excepcion}
             o = sup.paso(t, e, medida_buena, o_ctl, salud)
             marcha.aplicar(o)
@@ -179,10 +187,13 @@ def main():
                      vx=o.vx, vy=o.vy, vyaw=o.vyaw, parar=o.parar, edad_camara=t - t_cam,
                      gt_x=gt[0] if gt else None, gt_y=gt[1] if gt else None, gt_yaw=gt[2] if gt else None)
             if marcadores is not None:
-                marcadores.publicar(med_ciclo or medida, est.puntos_robot(), objetivo, sup.estado, o, e.confianza)
+                marcadores.publicar(med_ciclo or medida, est.puntos_robot(), objetivo, sup.estado, o, e.confianza,
+                                    {"modo": modo, "desp": round(e.desplazamiento, 3), "ang": round(e.angulo, 3),
+                                     "edad_camara": round(t - t_cam, 2), "sin_textura": round(t - t_textura, 2)})
             if sup.estado in (FIN, PARADA):
                 if marcadores is not None:
-                    marcadores.publicar(medida, est.puntos_robot(), None, sup.estado, o, e.confianza)
+                    marcadores.publicar(medida, est.puntos_robot(), None, sup.estado, o, e.confianza,
+                                        {"modo": modo, "motivo": sup.motivo})
                 break
             time.sleep(max(0.0, periodo - (time.monotonic() - t)))
     except Exception as ex:                                   # vigilante: excepcion no controlada

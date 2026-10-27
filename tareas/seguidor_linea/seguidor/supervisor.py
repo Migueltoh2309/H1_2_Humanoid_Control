@@ -12,8 +12,8 @@ UNICO bloque que decide Move / StopMove.
                  sobre ella segun la estimacion (la barra entra en la zona ciega
                  antes: 6.4.4) y StopMove
   FIN            parado al terminar (llegada o linea perdida)
-  PARADA         parada de emergencia del vigilante: camara o IMU sin datos,
-                 roll/pitch > 20 grados, motor en fallo, excepcion o Ctrl+C
+  PARADA         parada de emergencia del vigilante: camara o IMU sin datos, camara
+                 tapada (imagen sin textura), roll/pitch > 20 grados, motor en fallo, excepcion o Ctrl+C
 """
 import math
 
@@ -51,6 +51,8 @@ class Supervisor:
             return f"excepcion: {salud['excepcion']}"
         if t - salud.get("t_camara", t) > v["camara_s"]:
             return f"camara sin fotogramas {t - salud['t_camara']:.2f} s"
+        if t - salud.get("t_textura", t) > v.get("tapada_s", 0.5):
+            return f"camara tapada (imagen sin textura {t - salud['t_textura']:.2f} s)"
         if t - salud.get("t_imu", t) > v["imu_s"]:
             return f"rt/lowstate sin datos {t - salud['t_imu']:.2f} s"
         if not salud.get("motores_ok", True):

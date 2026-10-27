@@ -27,15 +27,34 @@ sys.path.insert(0, os.path.join(AQUI, ".."))
 from seguidor.robot_io import FuenteImu, iniciar_dds   # noqa: E402
 
 
-def ajustar(t, w, wc):
+def media_centrada(t, w, ventana):
+    """Media movil centrada en el tiempo (muestras irregulares)."""
+    cs = np.concatenate([[0.0], np.cumsum(w)])
+    i0 = np.searchsorted(t, t - ventana / 2)
+    i1 = np.searchsorted(t, t + ventana / 2)
+    return (cs[i1] - cs[i0]) / np.maximum(i1 - i0, 1)
+
+
+def ajustar(t, w, wc, ventana=0.0, t_fin=None):
     """(retardo, tau, ganancia) por busqueda en rejilla del retardo y minimos
-    cuadrados en tau (pocos parametros y robusto al ruido del balanceo)."""
+    cuadrados en tau (pocos parametros y robusto al ruido del balanceo).
+
+    `w` puede venir suavizado con una media centrada de `ventana` s: entonces el modelo
+    se suaviza IGUAL antes de comparar. Si no, la media (que adelanta la subida
+    ventana/2) sesgaba el retardo hacia 0. Se ajusta en [0, t_fin - ventana/2]: mas
+    alla, la media ya incluye la frenada tras el StopMove."""
+    t_fin = t[-1] if t_fin is None else t_fin
+    sel = (t >= 0.0) & (t <= t_fin - ventana / 2)
+    ws = w[sel]
     mejor = None
     for T in np.arange(0.0, 1.0, 0.01):
         for tau in np.arange(0.05, 1.5, 0.01):
-            m = np.where(t > T, 1 - np.exp(-(t - T) / tau), 0.0)
-            K = float(np.dot(m, w) / max(np.dot(m, m), 1e-9)) / wc
-            e = float(np.mean((K * wc * m - w) ** 2))
+            m = np.where(t > T, 1 - np.exp(-np.maximum(t - T, 0.0) / tau), 0.0)
+            if ventana > 0:
+                m = media_centrada(t, m, ventana)
+            m = m[sel]
+            K = float(np.dot(m, ws) / max(np.dot(m, m), 1e-9)) / wc
+            e = float(np.mean((K * wc * m - ws) ** 2))
             if mejor is None or e < mejor[0]:
                 mejor = (e, T, tau, K)
     return mejor[1:]
@@ -51,6 +70,7 @@ def main():
     ap.add_argument("--suavizar", type=float, default=0.8,
                     help="s de media movil CENTRADA (sin retardo) sobre el giroscopo: un periodo de la marcha "
                          "(0.8 s en la politica de unitree_rl_gym) quita la oscilacion de cada paso; 0 = sin suavizar")
+    ap.add_argument("--png", action="store_true", help="grafica de la respuesta medida y del modelo ajustado")
     a = ap.parse_args()
     iniciar_dds(a.sim, a.iface)
     imu = FuenteImu()
@@ -62,7 +82,7 @@ def main():
     c.Init()
     if not a.sim and input("Gira sobre el sitio. Escribe GIRAR: ").strip() != "GIRAR":
         sys.exit("no confirmado")
-    resultados = []
+    resultados, curvas = [], []
     for rep in range(a.repeticiones):
         signo = 1 if rep % 2 == 0 else -1
         muestras, vivo = [], {"si": True}
@@ -84,17 +104,13 @@ def main():
         vivo["si"] = False
         hilo.join()
         M = np.array(muestras)
+        crudo = M.copy()
         if a.suavizar > 0:
-            # media movil centrada en el tiempo (muestras irregulares): con los pasos el
-            # giroscopo oscila y el ajuste de primer orden salia con tau de 0.05 s
-            t_, w_ = M[:, 0], M[:, 1]
-            cs = np.concatenate([[0.0], np.cumsum(w_)])
-            i0 = np.searchsorted(t_, t_ - a.suavizar / 2)
-            i1 = np.searchsorted(t_, t_ + a.suavizar / 2)
-            M[:, 1] = (cs[i1] - cs[i0]) / np.maximum(i1 - i0, 1)
-        sel = (M[:, 0] >= t0) & (M[:, 0] <= t0 + a.segundos)
-        T, tau, K = ajustar(M[sel, 0] - t0, signo * M[sel, 1], a.vyaw)
+            # con los pasos el giroscopo oscila y el ajuste de primer orden salia con tau de 0.05 s
+            M[:, 1] = media_centrada(M[:, 0], M[:, 1], a.suavizar)
+        T, tau, K = ajustar(M[:, 0] - t0, signo * M[:, 1], a.vyaw, a.suavizar, a.segundos)
         resultados.append((T, tau, K))
+        curvas.append((M[:, 0] - t0, signo * M[:, 1], T, tau, K, signo, signo * crudo[:, 1]))
         print(f"  escalon {rep + 1} ({'+' if signo > 0 else '-'}{a.vyaw} rad/s): retardo {T:.2f} s, tau {tau:.2f} s, "
               f"ganancia {K:.2f} (al 95 % en {T + 3 * tau:.2f} s)")
     R = np.array(resultados)
@@ -105,6 +121,32 @@ def main():
     json.dump(out, open(ruta, "w"), indent=2)
     print(f"\nmedia: retardo {out['retardo_s']} s, tau {out['tau_s']} s, ganancia {out['ganancia']} -> {ruta}")
     print(f"config/seguidor.yaml (estimacion:):\n  retardo_marcha: {out['retardo_s']}\n  tau_marcha: {out['tau_s']}")
+    if a.png:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(figsize=(10, 5.2))
+        for k, (t, w, T, tau, K, signo, w_crudo) in enumerate(curvas):
+            c_ = f"C{k}"
+            ax.plot(t, w_crudo, c_, alpha=0.18, lw=0.8)
+            ax.plot(t, w, c_, alpha=0.85, label=f"escalon {k + 1} ({'+' if signo > 0 else '-'}{a.vyaw}): giroscopo "
+                    f"(signo corregido; claro = crudo, oscuro = media de {a.suavizar} s centrada)")
+            tm = np.linspace(0, a.segundos, 200)
+            ax.plot(tm, np.where(tm > T, K * a.vyaw * (1 - np.exp(-(tm - T) / max(tau, 1e-3))), 0.0), c_ + "--",
+                    label=f"modelo: retardo {T:.2f} s, tau {tau:.2f} s, ganancia {K:.2f}")
+        ax.step([-0.5, 0, a.segundos, a.segundos + 1.5], [0, a.vyaw, 0, 0], "k", where="post", lw=1.2,
+                label=f"vyaw pedido ({a.vyaw} rad/s)")
+        ax.set_xlabel("t desde el Move (s)")
+        ax.set_ylabel("vyaw (rad/s)")
+        ax.set_title(f"Respuesta a escalones de vyaw ({'simulador' if a.sim else 'robot'}): retardo "
+                     f"{out['retardo_s']:.2f} s, tau {out['tau_s']:.2f} s, ganancia {out['ganancia']:.2f}\n"
+                     f"(modelo y medida con la misma media centrada de {a.suavizar} s)", fontsize=10)
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=8, loc="lower right")
+        fig.tight_layout()
+        png = ruta[:-5] + ".png"
+        fig.savefig(png, dpi=100)
+        print(f"grafica: {png}")
 
 
 if __name__ == "__main__":

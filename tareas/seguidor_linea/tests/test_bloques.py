@@ -186,6 +186,9 @@ def test_vigilante(cfg):
     assert s.paso(1.0, est, True, Orden(0.2), _salud(1.0, roll=math.radians(25))).parar and s.estado == PARADA
     s = _sup(cfg)
     assert s.paso(1.0, est, True, Orden(0.2), _salud(1.0, motores_ok=False)).parar and s.estado == PARADA
+    s = _sup(cfg)                                        # camara tapada: hay fotogramas, sin textura
+    assert s.paso(1.0, est, True, Orden(0.2), _salud(1.0, t_textura=0.3)).parar and s.estado == PARADA
+    assert "tapada" in s.motivo
 
 
 def test_linea_perdida_para(cfg):
@@ -213,3 +216,20 @@ def test_se_recupera_de_una_prediccion_vieja(cfg):
     per.ultimo_y0 = -0.42
     m = per.procesar(Fotograma(0.0, S.imagen(S.camara(), [S.recta(-0.5, 0.0, 0.0, 4.0)]), K))
     assert m.valida and abs(m.desplazamiento) < 0.02
+
+
+# ------------------------------------------------------------------ herramientas
+def test_escalon_vyaw_retardo_sin_sesgo():
+    """El ajuste del escalon sobre el giroscopo suavizado con media centrada: antes el
+    modelo no se suavizaba y un retardo de 0.25 s salia de 0.11 s (tau el doble)."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "herramientas"))
+    import escalon_vyaw as E
+    rng = np.random.default_rng(0)
+    t = np.arange(-0.5, 5.5, 0.005)
+    def resp(T, tau, K):
+        on = np.where(t > T, 1 - np.exp(-np.maximum(t - T, 0) / tau), 0)
+        off = np.where(t > 4 + T, 1 - np.exp(-np.maximum(t - 4 - T, 0) / tau), 0)
+        return K * 0.3 * (on - off)
+    w = resp(0.25, 0.2, 0.75) + 0.05 * np.sin(2 * np.pi * 1.25 * t) + 0.01 * rng.standard_normal(len(t))
+    T, tau, K = E.ajustar(t, E.media_centrada(t, w, 0.8), 0.3, 0.8, 4.0)
+    assert T == pytest.approx(0.25, abs=0.03) and tau == pytest.approx(0.2, abs=0.04) and K == pytest.approx(0.75, abs=0.03)

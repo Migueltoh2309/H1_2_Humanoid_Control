@@ -7,6 +7,9 @@ seguidor ve y piensa, encima del robot simulado.
   mira        (pelvis)  el punto de pure pursuit y la recta hasta el, en rojo
   texto       (pelvis)  estado del supervisor y ordenes
 
+Y en /seguidor/estado (std_msgs/String, JSON) lo mismo en compacto, para
+herramientas/grabar_video.py.
+
 Los puntos del seguidor estan en el marco del robot (suelo bajo la pelvis): se
 publican en `pelvis` con z = -altura de la pelvis.
 """
@@ -15,7 +18,7 @@ import math
 
 from builtin_interfaces.msg import Duration
 from geometry_msgs.msg import Point
-from std_msgs.msg import ColorRGBA
+from std_msgs.msg import ColorRGBA, String
 from visualization_msgs.msg import Marker, MarkerArray
 
 Z_PELVIS = 1.019     # pelvis sobre el suelo en la escena de la pista (de pie + 4 mm de la marcha cinematica)
@@ -29,6 +32,7 @@ class MarcadoresRviz:
     def __init__(self, nodo, ruta_pista=None):
         self.nodo = nodo
         self.pub = nodo.create_publisher(MarkerArray, "/seguidor/marcadores", 5)
+        self.pub_estado = nodo.create_publisher(String, "/seguidor/estado", 5)
         self.pista = None
         if ruta_pista:
             try:
@@ -74,8 +78,9 @@ class MarcadoresRviz:
         out.append(m)
         return out
 
-    def publicar(self, medida, est_puntos, objetivo, estado, orden, confianza):
+    def publicar(self, medida, est_puntos, objetivo, estado, orden, confianza, extra=None):
         self.n += 1
+        self._estado(medida, est_puntos, objetivo, estado, orden, confianza, extra or {})
         stamp = self.nodo.get_clock().now().to_msg()
         arr = MarkerArray()
         if self.n % 10 == 1:
@@ -102,3 +107,19 @@ class MarcadoresRviz:
                   f"vx {orden.vx:+.2f} m/s  vyaw {orden.vyaw:+.2f} rad/s" if not orden.parar else f"{estado}  (parado)")
         arr.markers.append(t)
         self.pub.publish(arr)
+
+    def _estado(self, medida, est_puntos, objetivo, estado, orden, confianza, extra):
+        def pts(P, n=80):
+            P = list(P) if P is not None else []
+            paso = max(1, len(P) // n)
+            return [[round(float(x), 3), round(float(y), 3)] for x, y in P[::paso]]
+        d = {"estado": estado, "motivo": orden.motivo, "parar": bool(orden.parar),
+             "vx": round(orden.vx, 3), "vy": round(orden.vy, 3), "vyaw": round(orden.vyaw, 3),
+             "conf": round(float(confianza), 3),
+             "detectados": pts(medida.puntos) if medida is not None and len(medida.puntos) else [],
+             "memoria": pts(est_puntos),
+             "mira": [round(float(objetivo[0]), 3), round(float(objetivo[1]), 3)] if objetivo is not None else None,
+             "barra": medida.barra if medida is not None else None,
+             "esquina": list(medida.esquina) if medida is not None and medida.esquina is not None else None}
+        d.update(extra)
+        self.pub_estado.publish(String(data=json.dumps(d)))

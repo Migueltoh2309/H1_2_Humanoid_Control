@@ -16,11 +16,14 @@ seguidor_linea/
 ├── config/seguidor.yaml     TODAS las ganancias, límites y medidas
 ├── INTERFACES.md            interfaces entre bloques (sección 5 del reto)
 ├── RESPUESTAS.md            respuestas a la sección 6 con números del simulador
-├── herramientas/            geometria_camara · calibrar_camara · escalon_vyaw · teleop · grabar_dataset ·
-│                            evaluar_percepcion · metricas
+├── herramientas/            geometria_camara · calibrar_camara · escalon_vyaw · calibrar_vx · teleop ·
+│                            grabar_dataset · evaluar_percepcion · metricas
+│                            + videos: grabar_video · operador_sim · video_percepcion · grafica_simulacro
 ├── sim/construir_pistas.py  genera sim/pistas/pista_nivel{1..4}.xml + .json (verdad de terreno)
-├── scripts/                 sim_pista · tirada_sim · bateria_sim · instalar_en_robot · seguidor_robot
-├── tests/                   19 pruebas automáticas (sin robot, sin MuJoCo, sin ROS)
+├── scripts/                 sim_pista · tirada_sim · bateria_sim · ver_tarea · videos_hitos ·
+│                            instalar_en_robot · seguidor_robot
+├── tests/                   21 pruebas automáticas (sin robot, sin MuJoCo, sin ROS)
+├── videos/                  los videos de los hitos (scripts/videos_hitos.sh; no se versiona)
 └── datos/                   tiradas (CSV + JSON + PNG), conjuntos de datos, calibración (no se versiona)
 ```
 
@@ -65,8 +68,35 @@ python3 herramientas/teleop.py --sim               # llevar el robot con el tecl
 python3 herramientas/grabar_dataset.py --sim --nivel 3
 python3 herramientas/evaluar_percepcion.py datos/dataset_n3_XXXX --video   # fijo vs adaptativo, verdad
 python3 herramientas/metricas.py datos/tiradas/nivel3_XXXX.csv --png       # sección 9 + verdad de terreno
-python3 -m pytest tests -q                         # 19 pruebas
+python3 -m pytest tests -q                         # 21 pruebas
 ```
+
+### Videos de cada actividad del reto (sec. 8)
+
+```bash
+./scripts/videos_hitos.sh                  # todos (~20 min, sin ventanas) -> videos/*.mp4
+./scripts/videos_hitos.sh hito3 nivel4     # solo algunos
+RVIZ=1 ./scripts/videos_hitos.sh           # además graba la ventana de RViz2 (rviz_*.mp4) y una foto del
+                                           # visor de MuJoCo por pista; se abren EN TU PANTALLA, encima de todo
+```
+
+Una carpeta por hito en `videos/`. Los `.mp4` son **solo la simulación**; las gráficas van aparte en
+`.png`, los resultados en `.txt`, y el `LEEME.txt` de cada carpeta explica qué muestra cada vídeo.
+
+| Carpeta | Contenido |
+|---|---|
+| `1_hito1_preparacion_medida/` | vídeo (cámara, FOV / zona ciega / alcance, altura e inclinación), `resultados.txt`, `calibracion.json` |
+| `2_conjunto_datos/` | `recorrido_nivel{1,2,3}.mp4` + `.txt`; `escalon_vyaw.mp4`, `escalon_vyaw.png` (respuesta) y `.json` |
+| `3_hito2_percepcion/` | `percepcion.mp4` (adaptativo frente a fijo), `percepcion_resultados.txt/.json`, `pruebas_automaticas.txt` |
+| `4_hito3_simulacro/` | `simulacro.mp4`, `signo_ordenes_y_parada.png`, `resultados.txt`, `registro_simulacro.csv` |
+| `5_tiradas_niveles/` | `tirada_nivel{1..4}.mp4`, `trayectoria_nivel{1..4}.png`, `metricas_nivel{1..4}.txt`, registros CSV |
+| `6_cierre/` | `metricas.txt` y `metricas.png` (tabla de las cuatro tiradas) |
+
+Cada video muestra el robot en MuJoCo (cámara que lo sigue), la IR con la línea detectada, la vista
+cenital (cinta real, detectada, memoria y mira), el estado del supervisor y la consola. Lo que en el
+robot hace una persona con `wasd.py`, aquí lo hace `herramientas/operador_sim.py`, que sigue la cinta
+con la pose real del simulador (no usa la cámara). Para tapar la cámara en el simulador:
+`ros2 topic pub -w 1 --once /sim/tapar_camara std_msgs/msg/Bool "{data: true}"`.
 
 ## En el robot real (siguiendo el orden de hitos del reto)
 

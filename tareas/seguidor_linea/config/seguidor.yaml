@@ -107,5 +107,10 @@ supervisor:
     max_s: 20.0
   vigilante:
     camara_s: 0.5        # sin fotogramas
+    # camara tapada: una mano delante sigue dando fotogramas, pero casi uniformes. Desviacion
+    # tipica de la IR (submuestreada 1:8) con suelo a la vista: 35-45 en el simulador; tapada ~3.
+    # En el robot real, comprobar los dos valores (el emisor puede iluminar la mano).
+    tapada_std: 8.0
+    tapada_s: 0.5        # s seguidos sin textura -> PARADA
     imu_s: 0.5           # sin rt/lowstate
     inclinacion_deg: 20.0
