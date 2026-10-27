@@ -1,0 +1,96 @@
+# Estación del reto R40-RT-H1_2-0002 (sección 4). TODAS las medidas de la estación.
+#
+# Marco "suelo": origen en el suelo bajo la pelvis con el robot de pie al empezar,
+# x adelante, y a la izquierda, z arriba. El robot no se mueve, así que en el simulador
+# es también el marco del mundo. El "marco del torso" (torso_link, el de la cinemática de
+# la tesis y el de la salida de la percepción) es este mismo desplazado en z (torso_z).
+
+robot:
+  # x del frente del pecho (malla de colisión de torso_link entre 1.4 y 1.6 m). En el
+  # robot real se mide con la regla: es el origen de la distancia d.
+  pecho_x: 0.09
+  # z de torso_link con el robot de pie y quieto (simulador, 10 s de pie: 1.0118 ± 0.0001).
+  # En el robot real sale de la calibración (hito 2).
+  torso_z: 1.012
+  # inclinación del torso hacia atrás de pie (grados; simulador: 1.1). Informativo.
+  torso_pitch_deg: -1.1
+
+mesa:
+  # superficie del tablero (m desde el suelo). El reto dice 86 cm; se sube a 92 cm (calzos
+  # de 6 cm en la mesa real) porque a 86 la mano solo llega al 80 % de la zona con la palma
+  # abajo y no llega a B ni a D; a 92 llega al 100 % y a las cuatro bandejas (mapa de
+  # alcance, herramientas/mapa_alcance.py --mesa, 2026-10-13).
+  altura: 0.92
+  ancho: 0.80             # tablero 80 (y) x 50 (x) cm, blanco mate
+  fondo: 0.50
+  grosor: 0.03
+  # Distancia del borde cercano al pecho (10 a 35 cm). La elige el hito 1 con
+  # herramientas/mapa_alcance.py; ya no se mueve en toda la sesión.
+  d: 0.10
+
+# El enunciado no acota las posiciones en x de la zona y las bandejas: se toman de la figura
+# de la sección 4 (página 2), medida a 3.06 px/cm: centro de la zona a ~19 cm del borde
+# cercano, A y C a ~12 cm y B y D a ~30 cm. En la sesión se miden con la regla.
+zona_recogida:            # rectángulo de 40 (y) x 25 (x) cm, centrado en y
+  ancho: 0.40
+  fondo: 0.25
+  centro_desde_borde: 0.19   # x del centro medida desde el borde cercano
+  # Espacio libre mínimo entre las huellas de dos objetos al colocarlos (simulador; en la sesión
+  # se le pide al instructor). Con 2 cm la mano, que rodea el objeto ~3 cm por cada lado y mide
+  # 8 cm de ancho, tropezaba con el vecino; con 8 cm caben los cuatro (~15 cm entre centros).
+  holgura_objetos: 0.08
+
+bandejas:
+  lado: 0.12              # 12 x 12 cm con borde de 2 cm
+  borde: 0.02
+  espesor_pared: 0.004
+  y: 0.30                 # centro a 30 cm de la línea media
+  # x del centro medida desde el borde cercano (figura de la sección 4)
+  x_cerca: 0.12
+  x_lejos: 0.30
+  # A y B a la izquierda del robot (+y), C y D a la derecha (como en el dibujo, visto
+  # desde arriba con el robot abajo mirando hacia el tablero).
+  posiciones: {A: [cerca, izq], B: [lejos, izq], C: [cerca, der], D: [lejos, der]}
+
+aruco:
+  diccionario: DICT_4X4_50
+  lado: 0.04              # marcadores de 4 cm
+  esquinas: [0, 1, 2, 3]  # ids en las esquinas del tablero: 0 cerca-izq, 1 lejos-izq, 2 lejos-der, 3 cerca-der
+  margen_esquina: 0.04    # centro del marcador a 4 cm de cada borde
+  mano: {izq: 10, der: 11}
+
+dianas:                   # nivel 1: pegatinas de 2 cm con una cruz
+  diametro: 0.02
+  separacion_min: 0.06
+
+# Aspecto de la sala en el simulador (no afecta a la geometría de la estación). Pensado
+# para la detección: tablero blanco puro y mate sobre un canto gris (el borde se ve), suelo
+# más oscuro que el tablero, cinta azul en la zona, luz cenital difusa con una sola sombra.
+ambiente:
+  tablero: [0.96, 0.96, 0.95]     # placa superior (3 mm)
+  canto: [0.45, 0.45, 0.47]       # cuerpo del tablero y patas
+  suelo: [0.38, 0.38, 0.40]
+  paredes: [0.80, 0.79, 0.76]
+  cinta_zona: [0.15, 0.35, 0.75]
+  sala: {delante: 2.5, detras: -2.0, lado: 2.5, alto: 2.8}   # paredes (m, marco suelo)
+  luz_ambiente: 0.30
+  luz_cenital: 0.40               # direccional con sombra
+  focos: 0.25                     # dos focos sin sombra a los lados de la mesa
+
+cruz_n4:                  # nivel 4: cruz en el centro del tablero
+  largo: 0.10
+  ancho: 0.008
+
+# Cámara D435i de la cabeza: intrínsecos del reto (sec. 3), color 640x480.
+camara:
+  color: {fx: 604.1, fy: 603.6, cx: 321.3, cy: 236.4, ancho: 640, alto: 480}
+  # profundidad nativa (IR) a 640x480; la alineada al color tiene el campo del color
+  ir: {fx: 378.8, fy: 378.8, ancho: 640, alto: 480}
+  escala_profundidad: 0.001
+  profundidad_min: 0.28   # m (D435 a 640x480)
+  # Pose NOMINAL en torso_link (la del URDF de Unitree: camera_joint). La real NO se
+  # conoce: la da la calibración del hito 2. Solo la usan el mapa de alcance (estimación
+  # de lo que se ve) y el generador de escenas.
+  nominal:
+    pos: [0.11109, 0.01750, 0.68789]
+    inclinacion_deg: 50.76  # bajo la horizontal (pitch 0.886 rad del URDF)

@@ -1,0 +1,17 @@
+# Supervisor (manip/supervisor.py) y programa principal (manipulacion.py).
+palabra: MANIPULAR        # hay que teclearla antes de mover los brazos (sec. 10)
+fotogramas: 8             # fusionados por observación (mediana de la profundidad: 6.2)
+t_quieto: 1.0             # s quieto en la pose de observación antes de mirar
+cruce_max: 0.05          # m: el agarre directo cruza la línea media como mucho esto; más allá, cambio de mano
+conf_min: 0.3             # confianza mínima para intentar un objeto (6.2.5)
+intentos_max: 2           # por objeto y tirada
+t_previo: 2.0             # s entre oponer el pulgar y cerrar (agarre lateral)
+t_cerrar: 2.5             # s para que los dedos se paren
+t_soltar: 1.5             # s con la mano abriéndose antes de retirar
+corte_gf: 1200            # fuerza medida máxima en cualquier dedo (sec. 10)
+altura_seguridad: 0.10    # m, la de la salida segura (= config/planificacion.yaml)
+t_max: 1800              # s por tirada (nivel 3 con cambios de mano: ~4-5 min por objeto)
+n4_tol_pos: 0.010          # m: nivel 4, se para cuando está a esto de la cruz (el reto pide 1.5 cm)
+n4_tol_giro_deg: 12        # grados: y a esto del giro pedido (el reto pide 15)
+camara_prof_min: 0.10     # fracción de profundidad válida por debajo de la cual la cámara está tapada
+camara_brillo_min: 25      # brillo medio de IR1 (0-255) por debajo del cual está tapada

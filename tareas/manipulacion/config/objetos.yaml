@@ -1,0 +1,62 @@
+# Los cuatro objetos del reto (sección 4). Los elige el instructor al empezar el hito 1;
+# estos son los del ejemplo del enunciado, para el simulador. En el robot se reemplazan
+# por los reales, medidos con la regla y la báscula (tabla del hito 2: peso, medidas,
+# agarre y fuerza).
+#
+# forma: caja (medidas x y z) | cilindro (radio, alto; de pie) | esfera (radio)
+#        | cilindro_tumbado (radio, largo; eje horizontal)
+# color: RGB 0..1, distintos entre sí y del tablero blanco. Mates.
+# bandeja: la que asigna el instructor (A..D).
+# friccion: [deslizamiento, torsión, rodadura] de MuJoCo.
+
+cubo:
+  forma: caja
+  medidas: [0.06, 0.06, 0.06]
+  masa: 0.13              # madera, 0.6 g/cm3
+  color: [0.80, 0.60, 0.38]
+  bandeja: A
+  friccion: [0.7, 0.005, 0.0001]
+
+vaso:
+  forma: cilindro
+  # 6 cm de diámetro (decidido el 2026-10-13): con 7.2 cm el hueco entre el pulgar (poste a
+  # 17-19 cm de la muñeca) y las puntas de los dedos (26.8 cm) no da para rodearlo desde
+  # arriba, y de lado la muñeca no baja lo bastante. El reto pide 3-8 cm por donde se coge:
+  # en la sesión hay que llevar un vaso de este diámetro.
+  radio: 0.030
+  alto: 0.095
+  masa: 0.25              # vaso de plástico con arena
+  color: [0.15, 0.35, 0.85]
+  bandeja: B
+  friccion: [0.6, 0.005, 0.0001]
+
+pelota:
+  # Pelota de GOMA hueca y firme, del tamaño de una de tenis (decidido el 2026-10-15). Con la de
+  # tenis (fieltro, blanda: solref 0.015, torsión 0.01, rodadura 0.002) la mano izquierda no la
+  # sostiene quieta 15 s (0/5: rueda despacio entre los dedos) y el cambio de mano del nivel 3
+  # fallaba 0/7; con una firme y de goma, 5/5 y 6/7 (barrido_agarre.py, 4 mm de error), y en la
+  # bandeja igual (10/12). Con 6 cm no hay plan (la palma toca la mesa) y con 7.5 cm, 0/6. En
+  # la sesión hay que llevar una pelota así (goma, 6.5-7 cm, ~60 g, que no bote mucho).
+  forma: esfera
+  radio: 0.0335
+  masa: 0.06
+  color: [0.78, 0.90, 0.15]
+  bandeja: C
+  # goma contra las yemas: torsión y rodadura más altas que el fieltro (área de contacto que no
+  # deja rodar la esfera entre tres dedos); en la mesa también para antes
+  friccion: [0.9, 0.03, 0.006]
+  # goma firme: cede ~1 mm (más blanda que la madera, 0.004 por defecto)
+  solref: 0.006
+  solimp: [0.8, 0.95, 0.004]
+
+prisma:
+  # Prisma de madera de 6x4x10 cm DE PIE (decidido el 2026-10-13): sustituye al rotulador del
+  # ejemplo, que tumbado mide 3.2 cm de alto y el reto pide objetos de 4 a 15 cm (sec. 4). Es
+  # la cuarta forma (caja alta) y, con la sección rectangular, el objeto del nivel 4: girado 90
+  # grados se distingue (con 4x4 o el cubo, no). Se coge por las caras de 6 cm (4 cm de grosor).
+  forma: caja
+  medidas: [0.06, 0.04, 0.10]
+  masa: 0.144             # madera, 0.6 g/cm3
+  color: [0.85, 0.15, 0.15]
+  bandeja: D
+  friccion: [0.7, 0.005, 0.0001]

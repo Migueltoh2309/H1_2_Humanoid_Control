@@ -1,0 +1,106 @@
+# Tabla por objeto (entregable del hito 2): peso, medidas, agarre y fuerza. Un solo programa
+# de agarre con estos parámetros (nivel 2). PROVISIONAL (simulador): en la sesión se pesan los
+# objetos reales, se miden con la regla y la fuerza se ajusta con la báscula
+# (herramientas/fuerza_mano.py) y con pruebas de agarre.
+#
+# Fuerza: para levantar sin que resbale hace falta, en cada lado del agarre,
+#   N >= m·g·k / (2·mu)      (dos lados que aprietan, coeficiente de seguridad k = 2)
+# y de FORCE_SET llega al objeto ~73 % (simulador: la fuerza de contacto en la falange frente
+# a FORCE_ACT, herramientas/fuerza_mano.py --sim). Máximo 800 gf por dedo (sec. 10).
+# Ángulos Inspire: [meñique, anular, medio, índice, flexión pulgar, rotación pulgar];
+# 0 = cerrado, 1000 = abierto. La consigna de cierre es CERRADA (la fuerza la limita FORCE_SET).
+# altura_agarre: centro de agarre sobre la mesa (m). elev_deg: dedos respecto de la horizontal.
+# prof_palma: del centro de agarre a la línea de la muñeca a lo largo de la normal de la palma
+#   (m): la superficie de la palma está a 2.74 cm de esa línea; se deja 5 mm por encima de la
+#   cara de arriba del objeto (la tesis: 0.058 para la mandarina de 4 cm de radio).
+# avance / lateral: el centro del objeto a lo largo de los dedos y hacia el pulgar (m). Con el
+#   pulgar opuesto (rotación 0) pulgar y dedos se encuentran en ~(0.21, ·, +0.015) (mallas).
+
+cubo:                       # madera, 6 cm, 130 g, mu ~0.7 -> N >= 1.8 N por lado (~190 gf)
+  tipo: arriba              # palma abajo, pulgar contra índice-medio-anular
+  preforma: [1000, 1000, 1000, 1000, 800, 0]     # pulgar opuesto y algo flexionado
+  cierre: [0, 0, 0, 0, 0, 0]
+  avance: 0.23          # barrido en la física (probar_agarre.py): 0.19 no llega, 0.23 levanta
+  lateral: 0.015
+  force_set: [300, 300, 300, 300, 450, 300]
+  altura_agarre: 0.030
+  prof_palma: 0.057     # palma casi apoyada (0.062 lo levanta pero se cae al transportar)
+  elev_deg: 0
+  simetria_deg: 90          # se coge igual cada 90 grados de guiñada
+  # suelto girado 45 en la bandeja ocupa su diagonal y queda apoyado en la pared, inclinado
+  # 21 grados (nivel 3 s1): se suelta con las caras paralelas a las paredes (+-8 grados)
+  alinear_bandeja_deg: 90
+  tolerancia_m: null        # se mide en F3 (6.4.1)
+
+vaso:                       # vaso de 6 cm con arena, 250 g, mu ~0.6 -> N >= 4.1 N por lado (~420 gf)
+  # DESDE ARRIBA por su parte alta, como el cubo: el pulgar baja como un poste por la cara
+  # cercana y los dedos rodean la lejana. De lado no se puede: la muñeca (±0.46 rad) no deja
+  # bajar la mano y o el meñique toca la mesa o el pulgar queda sobre la boca.
+  tipo: arriba
+  preforma: [1000, 1000, 1000, 1000, 800, 0]
+  cierre: [0, 0, 0, 0, 0, 0]
+  avance: 0.22          # barrido (barrido_agarre.py): 0.22 y 0.24 dan 3/3, 0.23 2/3
+  lateral: 0.015
+  force_set: [500, 500, 500, 500, 700, 300]
+  altura_agarre: 0.065
+  prof_palma: 0.062     # 3 cm hasta la boca + 0.5 + 2.74
+  elev_deg: 0
+  simetria_deg: 0           # redondo
+  tolerancia_m: null
+
+pelota:                     # goma firme del tamaño de una de tenis, 60 g; rueda al primer contacto (6.4.1)
+  # DESDE ARRIBA con la palma APOYADA (3 mm sobre la pelota blanda): queda enjaulada entre la
+  # palma, el pulgar (poste por la cara cercana) y los dedos antes de que pueda rodar. Con la
+  # palma 5 mm por encima rueda al cerrar (barrido_agarre.py: 0/3 frente a 3/3).
+  tipo: arriba
+  preforma: [1000, 1000, 1000, 1000, 800, 0]     # pulgar opuesto y algo flexionado
+  cierre: [0, 0, 0, 0, 0, 0]
+  avance: 0.215
+  lateral: 0.015
+  force_set: [400, 400, 400, 400, 550, 300]   # más agarre: se escurría al elevar en las tiradas
+  altura_agarre: 0.0335
+  # 2026-10-15, barrido con 6 mm de error de posición (lo que suman percepción y brazo), 18
+  # semillas: -30 grados y 0.052 -> 14/18; -20 y 0.055 (lo de antes) -> 9/18
+  prof_palma: 0.052     # 3.35 + 2.74 - 0.9: la palma la aprieta
+  elev_deg: -30         # dedos 30 grados hacia abajo: llegan más por debajo del ecuador
+  elevaciones: [-30]
+  simetria_deg: 0
+  # altura de suelta: al abrirse, los dedos (inclinados hacia abajo) apoyan sobre la pelota y, si
+  # está en el fondo, la aprietan contra él hasta que sale disparada por encima de la pared
+  # (el cuerpo llega a cabecear 2 grados). Soltándola a 3.5 cm cae libre: 6/12 frente a 5/12
+  # con 8 mm de error; con 4 mm, 5/6 frente a 4/6 (0.03-0.055 igual).
+  suelta_sobre_fondo: 0.035
+  # dónde queda DE VERDAD en la mano (marco de la muñeca, mano izquierda; barrido con 4 mm de error,
+  # 12 semillas, desviación 2 mm): 2.4 cm más cerca de la muñeca y 2.6 más hacia la palma que el
+  # punto de agarre. Sin esto, en el cambio de mano por la mesa quedaba ~4.5 cm corta
+  suelta_off: [0.1915, -0.078, 0.018]
+  tolerancia_m: null
+
+prisma:                     # 6x4x10 de pie, 144 g, mu ~0.7 -> N >= 2.0 N por lado (~210 gf)
+  # Desde arriba por su parte alta, como el vaso: pulgar de poste por una cara de 6 cm, dedos por
+  # la opuesta. Se coge por cualquiera de los dos lados (4 o 6 cm): 6/6 semillas; exigiendo los
+  # dedos perpendiculares al lado largo, la mitad de las guiñadas no tenían IK.
+  tipo: arriba
+  preforma: [1000, 1000, 1000, 1000, 800, 0]
+  cierre: [0, 0, 0, 0, 0, 0]
+  avance: 0.225         # barrido: 0.215 -> 5/6, 0.225 -> 6/6
+  lateral: 0.015
+  force_set: [300, 300, 300, 300, 450, 300]
+  altura_agarre: 0.07
+  prof_palma: 0.062     # 3 cm hasta la cara de arriba + 0.5 + 2.74
+  elev_deg: 0
+  simetria_deg: 90          # de agarre: por cualquiera de los dos lados
+  # medidos con la verdad del simulador (giro.py, 6 agarres): al cerrar la reacción de los dedos
+  # sube la mano y al elevar el prisma resbala; queda ~4 cm más lejos de la palma y 1-3 cm más
+  # cerca de la muñeca. Y gira dentro de la mano al elevar (+5..+15 la izquierda, -5..-13 la
+  # derecha). Para colocarlo con precisión (nivel 4) se suelta con esto.
+  suelta_off: [0.205, -0.095, 0.02]   # entre la izquierda (-0.105) y la derecha (-0.09)
+  # deriva dentro de la mano al elevar: +-5-25 grados SIN signo fijo (depende de la cara que se
+  # coja): compensarla con un valor fijo anulaba las correcciones pequeñas del nivel 4 (pedía
+  # +20 y giraba 0). La corrige el lazo con la vista (observar tras cada paso).
+  deriva_giro: {izq: 0.0, der: 0.0}
+  # soltarlo APOYADO: el fondo previsto 1 cm por debajo de la mesa. Si toca antes, el brazo
+  # (kp 100) y el resbalamiento en la mano lo absorben; soltándolo en el aire un prisma de 10 cm
+  # cae unos cm y vuelca (nivel 4, 2026-10-14)
+  suelta_sobre_fondo: -0.010
+  tolerancia_m: null

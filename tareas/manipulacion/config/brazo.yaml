@@ -1,0 +1,22 @@
+# Bloque del brazo (rt/arm_sdk). Límites de la sección 10 y patrones de caja_cuadrado.py.
+hz: 50.0                  # publicación de rt/arm_sdk (fija)
+kp: 100.0                 # brazos (<= 150, sec. 10); con 100 el brazo se queda ~5 grados corto
+kd: 2.0
+kp_cintura: 200.0         # índice 12: recibe su postura medida (no se mueve)
+kd_cintura: 5.0
+rampa_entrada: 12.0       # s, siguiendo la postura medida con tope de 2 grados (caja_cuadrado)
+tope_seguir: 0.035        # rad
+rampa_salida: 5.0         # s (>= 5), hasta 0.00
+# Duración mínima de un movimiento y velocidad articular máxima. Provisional: la mínima
+# medida en 6.3 (herramientas/curva_pasos.py en el robot) y nunca por debajo de 8 s.
+duracion_min: 8.0
+v_max: 0.5                # rad/s (sec. 10). Con mínima sacudida, v_pico = 1.875 · Δq / T
+margen_limites: 0.05      # rad de margen a los límites del URDF
+error_seguimiento_max: 0.25   # rad: por encima, choque o arm_sdk sin efecto -> parada segura
+
+# Posturas fijas (observación, calibración): config/poses.yaml, generadas por herramientas/poses.py.
+
+# Inclinación del cuerpo al extender el brazo (manip/compensacion.py: por_cuerpo). Pivote
+# efectivo del giro en el marco de torso_link (m). Simulador (piernas rígidas): ajustado con 9
+# agarres, error <= 0.1 mm. ROBOT: se mide en el hito 2 (IMU + ArUco del tablero).
+pivote_cuerpo: [0.022, 0.0, -0.564]

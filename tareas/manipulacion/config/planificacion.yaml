@@ -1,0 +1,17 @@
+# Planificación (sec. 5): puntos de paso articulares comprobados contra el modelo.
+altura_seguridad: 0.10      # m: ningún punto de la mano por debajo, sobre la mesa, salvo el descenso final
+preagarre_min: 0.06         # m: el preagarre sube al menos esto sobre el agarre, y lo que haga falta
+                            # para que el punto más bajo de la mano quede a altura_seguridad
+tol_ik: 0.004               # m: error de posición admitido al planificar (la preforma tolera más)
+suelta_sobre_fondo: 0.008   # m del fondo del objeto al fondo de la bandeja al soltar
+paso_cartesiano: 0.01       # m entre puntos de las rectas de descenso
+margen_rrt_entorno: 0.06    # m (tesis, capa 3): cápsulas a la nube de la mesa en los tránsitos
+margen_rrt_brazos: 0.04
+tiempo_rrt: 4.0             # s por tránsito
+# comprobación final contra el MJCF (mallas)
+margen_mesa: 0.005          # m (descenso final incluido: los dedos no tocan el tablero)
+margen_cuerpo: 0.02
+margen_otro_brazo: 0.03
+azimuts: [-90, -75, -60, -45, -30, -15, 0, 15, 30, 45, 60, 75, 90]
+elevaciones: [0, -20]
+tolerancia_guinada: [0, -10, 10, -20, 20]   # grados de desalineación mano-cara que admite el agarre (6.4.1)

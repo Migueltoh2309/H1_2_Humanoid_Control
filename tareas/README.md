@@ -8,3 +8,4 @@ de `humanoid_ws` busque paquetes aquí.
 | Tarea | Enunciado | Estado |
 |---|---|---|
 | [`seguidor_linea/`](seguidor_linea/README.md) | `../Reto_Seguidor_Linea_H1_2_Robotics40.pdf` (R40-RT-H1_2-0001) | Completo en simulación (4 niveles, 12/12 tiradas); sin probar en el robot |
+| [`manipulacion/`](manipulacion/README.md) | `../Reto_Manipulacion_H1_2_Robotics40.pdf` (R40-RT-H1_2-0002) | En curso: F0-F2 hechos en el simulador (estación, mapa de alcance, calibración 0.6 mm), F3 percepción y plan hechos, física del agarre en curso |
