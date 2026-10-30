@@ -27,3 +27,9 @@ Usar 6 workers como máximo (con 8 se agota la RAM de 15 GB).
 `fallo_t.py`, `fase_otro.py`, `rasgos.py`, `trabado.py`, `desfase.py`, `percep*.py`, `sesgo.py`
 (este último: visibilidad de la fruta en cámara según x, y).
 Son scripts de una sola vez: pueden necesitar ajustes de rutas o semillas.
+
+## Brazos amortiguados (doc §6.7)
+- `pipeline_suave.sh` — pipeline del perfil `suave` + 4 videos (≈ 2 h 30 min).
+- `vuelta.py` (+ `vuelta_met.py`, `vuelta_an.py`) — un episodio instrumentado: q medido
+  frente a q_ref y oscilación de la muñeca tras volver (`PERF`, `SEED`, `KD`, `FF`, `OUT`).
+- `aislar.py` / `aislar.txt` — qué explica la ganancia de `suave` (kd, asentado, tiempos).

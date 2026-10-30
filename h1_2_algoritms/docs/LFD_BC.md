@@ -329,7 +329,8 @@ depositaron 218/400 frutas.
   táctil superan a la configuración base. Una cota de capacidad: llegan 10
   frutas en ~20 s, cada una pasa ~9 s por la zona de trabajo, y cada brazo
   tarda ~8.5 s por ciclo. Eso da un máximo de ~65–70%, y la BC logra el 62%.
-  Bajando el ciclo a 5.0 s (§6.6), el experto llega a 68% y la BC a 67%.
+  Bajando el ciclo a 5.0 s (§6.6), el experto llega a 68% y la BC a 67%; con
+  los brazos amortiguados (§6.7), a 84%.
 
 ### 6.5 Estudios de sensibilidad (escenario exigente)
 
@@ -480,6 +481,68 @@ rondas de DAgger), evaluado en los mismos 90 episodios (semillas
   inflaban al experto (74% frente a 62% en las de evaluación). Por eso el
   ajuste final se hizo en semillas de desarrollo aparte (5000–5047).
 
+### 6.7 Brazos amortiguados (perfil `suave`, exigente)
+
+En los videos, al volver del depósito el brazo rebotaba. Con un episodio
+instrumentado (`scripts_diagnostico/vuelta.py`) se midió que la muñeca
+oscila 4–5 cm con período ~0.5 s durante ~1 s, y recorre 27–33 cm en el
+segundo siguiente a volver. La causa es el PD articular que emula los
+motores: kd de `DEFAULT_GAINS` (hombro kp 60, kd 2) con armature 0.01 y
+damping 0.05 da un factor de amortiguamiento de ~0.2. A eso se suman la
+referencia en escalones de 50 ms y el paso al control cartesiano con el
+brazo todavía a ~0.5 m/s.
+
+Perfil `suave` = `espera` + `kd_escala 4` (ζ ≈ 0.7) + `interp` (la
+referencia se interpola en cada paso de física) + `home_vel_tol 0.5 rad/s`
+(volver termina con el brazo asentado). Tiempos re-medidos: depositar
+1.50 s y volver 0.65 s, frente a 1.15 y 0.40 s; el ciclo sube ~0.6 s.
+
+| Medida (3 episodios) | `espera` | kd ×4 | `suave` | `suave_kp2` (+ kp ×2) |
+|---|---|---|---|---|
+| Recorrido de la muñeca en 1 s tras volver | 27–33 cm | 10 cm | 11–14 cm | 8–19 cm |
+| Aceleración de la muñeca, p99 | 8.8–9.8 m/s² | 6.3 | **4.5** | 6.1–7.6 |
+| Depositar / volver | 1.15 / 0.40 s | — | 1.50 / 0.65 s | 1.25 / 0.50 s |
+
+Pasar `dq_des` (feedforward de velocidad) al PD no ayudó.
+
+**Resultados** (pipeline completo, mismos 90 episodios que §6.6):
+
+| | FIFO | Experto | BC |
+|---|---|---|---|
+| `espera` | 535 (59%) | 616 (68%) | 607 (67%) |
+| **`suave`** | 547 (61%) | **753 (84%)** | **757 (84%)** |
+
+- BC `suave` − BC `espera`: +1.67 frutas por episodio, IC 95%
+  [+1.12, +2.22], gana en 60 de 90, p = 4·10⁻⁷. Experto: +1.52, p = 9·10⁻⁷.
+- BC − FIFO: +2.33, gana en 73 de 90, p ≈ 10⁻¹³. BC − experto: +0.04,
+  p = 0.58 (acierto en validación 97.6%).
+- FIFO no cambia (p = 0.67). El experto hace más intentos (852 frente a
+  748), con 10 agarres fallidos en vez de 16 y sin caídas. La distancia
+  mínima entre brazos es de 27–29 mm.
+
+**De dónde sale la ganancia** (experto, semillas de desarrollo 5000–5023,
+de 240 frutas; `scripts_diagnostico/aislar.py`):
+
+| Variante | Depositadas | vs `espera` |
+|---|---|---|
+| `espera` | 171 | — |
+| `espera` con los tiempos de `suave` | 165 | −0.25/ep, p = 0.20 |
+| `espera` + solo asentado (tiempos de `suave`) | 172 | +0.29/ep frente a la anterior, p = 0.49 |
+| **`espera` + solo kd ×4** (tiempos de `suave`) | **202** | **+1.29/ep, p = 0.007** |
+| `suave` | 192 | +0.88/ep, p = 0.09 |
+| `suave` con los tiempos de `espera` | 185 | −0.29/ep frente a `suave`, p = 0.08 |
+
+La ganancia viene del **amortiguamiento**, no del modelo de tiempos ni del
+fin de vuelta asentado. Solo con kd ×4 sale incluso algo mejor que `suave`
+(+0.42/ep, p = 0.07, no significativo), aunque con más aceleración (p99
+6.3 frente a 4.5 m/s²). Las pérdidas por la faja caen a la mitad (284 → 147
+del experto). Falta identificar el mecanismo; una hipótesis es que el brazo
+que oscila arranca peor el alcance siguiente o perturba la percepción.
+
+**En el robot real**, kp y kd se mandan en el `LowCmd`. La reductora real
+amortigua más que el modelo, así que kd hay que calibrarlo en el robot,
+empezando por valores bajos.
+
 ## 7. Uso
 
 ```bash
@@ -512,6 +575,9 @@ MUJOCO_GL=egl python3 demos/bc_faja.py evaluar  $A --episodios 90 --seed 10000 \
     --out evaluacion_exigente_espera.csv
 ```
 
+# §6.7: igual con --perfil suave (datos _suave, red politica_bc_exigente_suave.pt);
+# pipeline + videos en results/bc/scripts_diagnostico/pipeline_suave.sh (≈ 2 h 30 min)
+
 El mismo pipeline completo está en
 `results/bc/scripts_diagnostico/pipeline_espera.sh` (≈ 2 h 10 min con 6 workers).
 Los diagnósticos de §6.6 están en esa carpeta, junto con `comparar.py` para
@@ -529,6 +595,8 @@ Resultados en `results/bc/`:
   10030–10089), con sus datos y redes `politica_bc_exigente_{corto,espera}.pt`;
   `previo_espera_sep2/`: el perfil `espera` con la regla anti-interferencia
   anterior;
+- §6.7: `evaluacion_exigente_suave.csv` (90 episodios), la red
+  `politica_bc_exigente_suave.pt` y los videos `episodio_{experto,bc}_suave_s{10002,10018}.mp4`;
 - las redes `politica_bc.pt` y `politica_bc_exigente.pt`;
 - `previo_2026-10-22/`: la primera evaluación, de antes de las correcciones
   de §6.1.

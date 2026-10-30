@@ -69,7 +69,8 @@ class ArmExecutor:
 
     def __init__(self, side, home, reach_dmp=None, reach_tau=None, timing=TIMING,
                  deposit_tol=0.03, deposit_timeout=3.5, open_time=0.5, home_tol=0.03, home_timeout=3.0,
-                 joint_space=True, joint_tol=0.08, open_tol=None, grasp_kwargs=None, deposit_pose=None):
+                 joint_space=True, joint_tol=0.08, open_tol=None, grasp_kwargs=None, deposit_pose=None,
+                 home_vel_tol=None):
         self.side = side
         self.home = np.asarray(home[side], dtype=float)
         self._home_all = home
@@ -86,6 +87,11 @@ class ArmExecutor:
         self.joint_space = joint_space
         self.joint_tol = joint_tol
         self.open_tol = joint_tol if open_tol is None else open_tol   # empieza a abrir a esta distancia del depósito
+        # volver termina además con el brazo asentado (|q̇| < home_vel_tol rad/s,
+        # por diferencias de q entre ciclos); sin esto se pasa al control
+        # cartesiano a media marcha (~0.5 m/s en la muñeca) y el brazo rebota
+        self.home_vel_tol = home_vel_tol
+        self._q_prev = None
         self.grasp_kwargs = dict(grasp_kwargs or {})                # parámetros de GraspServoing (perfil de tiempos)
         self.q_home = self.q_deposit = None
         if joint_space:
@@ -152,6 +158,8 @@ class ArmExecutor:
         Devuelve (meta 7, feedforward 3 o None, mano 6, eventos), con eventos
         en {"cierra", "verificado", "fallo", "perdida", "suelta", "libre"}."""
         q = q_meas[:7] if self.side == "left" else q_meas[7:]
+        qd = None if self._q_prev is None or t <= self._q_prev[0] else (q - self._q_prev[1]) / (t - self._q_prev[0])
+        self._q_prev = (t, q.copy())
         ev = []
         self.joint_target = None
         if self.skill is None:
@@ -199,6 +207,8 @@ class ArmExecutor:
             x = GG.FK[self.side](q)[0:3, 3]
             home = np.max(np.abs(q - self.q_home)) < self.joint_tol if self.joint_space else \
                 np.linalg.norm(x - self.home[0:3]) < self.home_tol
+            if self.home_vel_tol is not None:
+                home = home and qd is not None and np.max(np.abs(qd)) < self.home_vel_tol
             self.joint_target = self.q_home
             if home or t - self.t_skill > self.home_timeout:
                 ev.append("libre")

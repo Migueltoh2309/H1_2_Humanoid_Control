@@ -133,7 +133,25 @@ PERFILES = {
                                 "lift_time": 0.5},
                "timing": {"reach_extra": 0.37, "close_lift": 1.35, "show_verify": 0.05, "deposit": 1.15,
                           "home": 0.4}},
+    # espera + brazos amortiguados: el PD articular (kd de DEFAULT_GAINS,
+    # ζ ≈ 0.2 en el hombro con armature 0.01) dejaba la muñeca oscilando
+    # 4-5 cm durante ~1 s al volver (33 cm recorridos en el segundo
+    # siguiente; kd x4: 10 cm, aceleración p99 9.8 -> 6.3 m/s²). Además la
+    # referencia se interpola en cada paso de física (antes, escalones de
+    # 50 ms) y volver termina con el brazo asentado. Cuesta ~0.6 s de ciclo
+    # (depositar 1.15 -> 1.50 s, volver 0.40 -> 0.65; experto, 12 episodios).
+    # suave_kp2 (además kp x2) recupera la mitad (1.25 / 0.50 s) pero
+    # vuelve a vibrar (aceleración p99 4.5 -> 6.1-7.6 m/s²).
+    "suave": {"tactil": True, "experto": {"sep_t": 1.0, "sep_y": 0.15}, "deposit_pose": DEPOSIT_SHORT,
+              "espera": (0.34, -0.10, 0.12), "reach_tau_scale": 0.5,
+              "kd_escala": 4.0, "interp": True, "home_vel_tol": 0.5,
+              "grasp_kwargs": {"close_max_vrel": 0.05, "close_touch": True, "lift_height": 0.06,
+                               "lift_time": 0.5},
+              "timing": {"reach_extra": 0.37, "close_lift": 1.35, "show_verify": 0.05, "deposit": 1.50,
+                         "home": 0.65}},
 }
+PERFILES["suave_kp2"] = {**PERFILES["suave"], "kp_escala": 2.0,
+                         "timing": {**PERFILES["suave"]["timing"], "deposit": 1.25, "home": 0.50}}
 PERFIL = "base"                # el del resultado principal (LFD_BC §6.3)
 Z_BELT_FRUIT = EF.BELT_TOP + EF.FRUIT_R - GG.TORSO_Z   # z (torso_link) del centro de una fruta en la faja
 KP_JOINT = 6.0                 # servo articular de depositar / volver (3: depositar 1.80 s, volver 1.20; 6: 1.45, 0.90)
@@ -199,6 +217,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
         d.qpos[qadr[s]] = q
         pd.q_des[idx[s]] = q
         d.ctrl[hand_ids[s]] = GG.HAND_PRESHAPE
+    q_ref0 = q_ref.copy()
     mujoco.mj_forward(m, d)
 
     cams = V.Cameras(m, d, noise=True, seed=seed)
@@ -215,6 +234,9 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     prof.pop("timing", None)
     prof.pop("espera", None)
     prof.pop("experto", None)
+    pd.kd[idx["left"] + idx["right"]] *= prof.pop("kd_escala", 1.0)   # amortiguamiento de los brazos
+    pd.kp[idx["left"] + idx["right"]] *= prof.pop("kp_escala", 1.0)
+    interp = prof.pop("interp", False)     # referencia en rampa entre ciclos de control
     if prof.pop("tactil", False):       # verificación por la fuerza de los dedos, sin mostrar a la cámara
         prof["grasp_kwargs"] = {**prof.get("grasp_kwargs", {}), "touch": faja.grip_force}
     TR = reach_time(tau)
@@ -356,6 +378,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                     counts["agarrar"] += 1
             dq, diag = ctrl.step(q_ref, targets, obstacles=obstacles, x_dot_ff=ff,
                                  joint_targets={s: ex[s].joint_target for s in SIDES})
+            q_ref0 = q_ref
             q_ref = q_ref + dq * ctrl.dt
             d_arms_min = min(d_arms_min, diag["d_arms_min"])
             for s in SIDES:
@@ -367,8 +390,11 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
 
         for s in SIDES:
             d.ctrl[hand_ids[s]] = hands[s]
-        pd.q_des[idx["left"]] = q_ref[:7]
-        pd.q_des[idx["right"]] = q_ref[7:]
+        q_cmd = q_ref
+        if interp:
+            q_cmd = q_ref0 + (q_ref - q_ref0) * min(1.0, (step % n_ctrl + 1) / n_ctrl)
+        pd.q_des[idx["left"]] = q_cmd[:7]
+        pd.q_des[idx["right"]] = q_cmd[7:]
         faja.before_step()
         sim.step(pd)
         faja.after_step(t)
@@ -596,7 +622,8 @@ def resumen(res):
 
 def video(args):
     os.makedirs(OUT, exist_ok=True)
-    path = os.path.join(OUT, f"episodio_{args.politica}_s{args.seed}.mp4")
+    suf = "" if PERFIL == "base" else f"_{PERFIL}"
+    path = os.path.join(OUT, f"episodio_{args.politica}{suf}_s{args.seed}.mp4")
     res, _ = run_episode(make_policy(args.politica), args.seed, perception=args.percepcion, video=path)
     print(res)
     print("video:", path)

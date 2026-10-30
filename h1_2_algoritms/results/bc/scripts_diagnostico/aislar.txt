@@ -1,0 +1,6 @@
+espera         depositadas 171/240  intentos 204  abortos 9  t_fin 53.7  [7, 9, 7, 9, 6, 3, 6, 6, 7, 6, 5, 8, 9, 9, 3, 9, 9, 7, 9, 8, 5, 10, 8, 6]
+suave          depositadas 192/240  intentos 224  abortos 19  t_fin 43.4  [9, 7, 9, 9, 6, 8, 8, 7, 8, 10, 8, 7, 7, 7, 8, 8, 6, 10, 8, 7, 9, 9, 10, 7]
+espera_tS      depositadas 165/240  intentos 203  abortos 10  t_fin 54.5  [7, 9, 7, 9, 2, 3, 6, 4, 8, 6, 5, 8, 8, 9, 3, 9, 9, 7, 9, 8, 5, 10, 8, 6]
+suave_tE       depositadas 185/240  intentos 222  abortos 24  t_fin 44.0  [9, 6, 9, 9, 6, 9, 6, 7, 8, 10, 8, 7, 8, 7, 8, 7, 6, 9, 8, 7, 9, 9, 8, 5]
+solo_kd        depositadas 202/240  intentos 222  abortos 10  t_fin 42.6  [10, 10, 10, 9, 9, 7, 8, 8, 9, 9, 8, 7, 8, 7, 4, 9, 6, 10, 10, 8, 10, 9, 10, 7]
+solo_asentado  depositadas 172/240  intentos 209  abortos 14  t_fin 52.2  [7, 8, 7, 9, 8, 5, 9, 8, 10, 6, 6, 8, 8, 8, 6, 7, 9, 7, 9, 6, 3, 5, 7, 6]

@@ -1,0 +1,6 @@
+270 episodios en 4558 s -> results/bc/evaluacion_exigente_suave.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+fifo       90   547/900      0.61       352       1       882      14       260        24
+experto    90   753/900      0.84       147       0       852      10        65        27
+bc         90   757/900      0.84       143       0       840       8        52        29
