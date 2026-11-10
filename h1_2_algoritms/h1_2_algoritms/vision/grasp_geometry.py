@@ -29,6 +29,15 @@ from h1_2_algoritms.movimiento.ik_functions import ik_solve_limited
 from h1_2_algoritms.movimiento import joint_limits as JL
 
 TORSO_Z = 1.0282          # z de torso_link en el mundo de la escena de la faja
+# z (torso_link) del centro de una fruta apoyada en la faja: superficie medida
+# con mj_ray (0.9645, mesa u_table; con la mesa vieja 0.8245 -> -0.164) + radio.
+Z_FRUTA_FAJA = 0.9645 + 0.04 - TORSO_Z
+# Cuánto subió la faja respecto de la mesa con la que se ajustaron las poses
+# de tarea (depósito, mostrar) y se grabaron las demos de la DMP (fruta a
+# z = -0.164). Esas poses se definen relativas a la faja: suben con ella.
+DZ_MESA = Z_FRUTA_FAJA - (-0.164)
+# caja de la superficie útil de la faja (torso_link) en x, z: ±4 cm en z
+BELT_BOX_XZ = {"x": (0.26, 0.47), "z": (Z_FRUTA_FAJA - 0.04, Z_FRUTA_FAJA + 0.04)}
 FK = {"left": fkine_arm_left_unitree, "right": fkine_arm_right_unitree}
 
 # Centro de la fruta en el frame de la muñeca para el agarre de potencia
@@ -103,7 +112,7 @@ def pregrasp_wrist_target(side, fruit_torso, approach=0.08, R=None):
 # y la verificación daba falsos negativos con la fruta en la mano. Palma
 # arriba: 55-64% visible y 1.3-1.5 mm de error de la esfera, aunque la fruta
 # haya quedado ±3 cm corrida en la mano (barrido en docs/LFD_DMP.md §4.2).
-SHOW_FRUIT = {"left": np.array([0.36, 0.18, 0.10]), "right": np.array([0.36, -0.18, 0.10])}
+SHOW_FRUIT = {"left": np.array([0.36, 0.18, 0.10 + DZ_MESA]), "right": np.array([0.36, -0.18, 0.10 + DZ_MESA])}
 
 
 def show_wrist_target(side, fruit_torso=None):

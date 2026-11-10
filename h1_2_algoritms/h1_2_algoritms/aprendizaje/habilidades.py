@@ -22,6 +22,8 @@ articulaciones 2 y 4 quedaban en sus límites, el brazo ya no volvía a home
 (timeout de 3 s, a 38 mm y 0.24 rad) y todos los alcances siguientes de ese
 brazo fallaban a 260-290 mm (medido en los episodios de varias frutas).
 """
+import warnings
+
 import numpy as np
 
 from h1_2_algoritms.vision import grasp_geometry as GG
@@ -29,7 +31,9 @@ from h1_2_algoritms.vision.visual_servoing import GraspServoing
 
 # Depósito al costado, fuera de la faja: dedos 60° hacia abajo y hacia
 # afuera (barrido de IK: alcanzable en ambos brazos).
-DEPOSIT_FRUIT = {"left": np.array([0.15, 0.40, -0.05]), "right": np.array([0.15, -0.40, -0.05])}
+# (z relativa a la faja: GG.DZ_MESA)
+DEPOSIT_FRUIT = {"left": np.array([0.15, 0.40, -0.05 + GG.DZ_MESA]),
+                 "right": np.array([0.15, -0.40, -0.05 + GG.DZ_MESA])}
 DEPOSIT_AZ = {"left": np.deg2rad(90.0), "right": np.deg2rad(-90.0)}
 DEPOSIT_ELEV = np.deg2rad(-60.0)
 
@@ -47,7 +51,13 @@ TIMING = {"reach_extra": 0.33, "close_lift": 1.9, "show_verify": 1.0, "deposit":
 # que más gira lo hace 0.77 rad, contra 1.65 con el azimut de ±90°.
 # (x, y, z de la fruta del brazo derecho, elevación, azimut); la izquierda
 # se refleja en y y en azimut.
-DEPOSIT_SHORT = ((0.20, -0.40, -0.05), -60.0, 0.0)
+# Mesa u_table (faja 14 cm más alta): con los dedos a -60° el depósito no
+# tiene IK dentro de los límites del robot (muñeca pitch <= 0.30, yaw <= 0.96;
+# comandos_robot.aplicar_limites_robot) y el IK caía en otra rama (hombro
+# yaw -2.6, 2 rad desde home): el brazo barría la faja al depositar y al
+# volver (35 frutas tiradas en 180 episodios --robot). A -45° hay solución
+# a <= 0.75 rad de home con los dos juegos de límites.
+DEPOSIT_SHORT = ((0.20, -0.40, -0.05 + GG.DZ_MESA), -45.0, 0.0)
 
 
 def deposit_wrist_target(side, pose=None):
@@ -96,7 +106,10 @@ class ArmExecutor:
         self.q_home = self.q_deposit = None
         if joint_space:
             self.q_home, _ = GG.solve_arm_ik(side, self.home)
-            self.q_deposit, _ = GG.solve_arm_ik(side, self.deposit, q0=self.q_home)
+            self.q_deposit, ok = GG.solve_arm_ik(side, self.deposit, q0=self.q_home)
+            if not ok:
+                warnings.warn(f"{side}: el depósito no tiene IK dentro de los límites articulares; "
+                              f"la postura usada está a {np.max(np.abs(self.q_deposit - self.q_home)):.2f} rad de home")
         self.joint_target = None    # postura articular para el QP (depositar / volver) o None
         self.skill = None           # None (libre) | "agarrar" | "depositar" | "volver"
         self.fsm = None

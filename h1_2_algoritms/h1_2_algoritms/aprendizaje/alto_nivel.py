@@ -76,7 +76,10 @@ def reach_time(tau, timing=TIMING):
     return tau + timing["reach_extra"]
 
 
-def start_interval(side, p, v, t, tau, margin=0.02, track_band=0.08, timing=TIMING):
+TRACK_BAND = 0.08             # bc_faja: perfil "anticipa" (alcance con intercepción) lo agranda
+
+
+def start_interval(side, p, v, t, tau, margin=0.02, track_band=None, timing=TIMING):
     """[s_min, s_max]: instantes de inicio del alcance para los que
 
       * la fruta, al agarrarla (inicio + duración del alcance), está dentro
@@ -87,6 +90,8 @@ def start_interval(side, p, v, t, tau, margin=0.02, track_band=0.08, timing=TIMI
         260-290 mm en los episodios).
 
     Vacío si s_min > s_max."""
+    if track_band is None:
+        track_band = TRACK_BAND
     w = window(side, float(p[0]))
     if w is None:
         return np.inf, -np.inf

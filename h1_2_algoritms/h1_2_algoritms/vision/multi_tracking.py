@@ -11,12 +11,13 @@ estable mientras la fruta viaja por la faja.
 import numpy as np
 
 from h1_2_algoritms.vision.fruit_localization import segment_orange_all, locate_sphere, MANDARINA_RADIUS
+from h1_2_algoritms.vision import grasp_geometry as GG
 from h1_2_algoritms.vision.visual_servoing import FruitTracker
 
 # Superficie útil de la faja en torso_link: la MISMA x, z que
 # GraspServoing.belt_box (una pista fuera de esa caja haría que el agarre
 # se aborte al instante), con todo el largo de la faja en y.
-BELT_BOX = {"x": (0.26, 0.47), "y": (-0.60, 0.60), "z": (-0.20, -0.12)}
+BELT_BOX = {**GG.BELT_BOX_XZ, "y": (-0.60, 0.60)}
 
 
 def detect_fruits(rgb, depth, K, R, p, min_visible=0.35):
@@ -162,7 +163,8 @@ class MultiFruitTracker:
         for tid in list(self.tracks):
             tr = self.tracks[tid]
             p, _ = tr.kf.predict(t)
-            if t - tr.t_last > self.max_age or not on_belt(p, {**BELT_BOX, "z": (-0.30, 0.0)}):
+            z_amplia = (GG.Z_FRUTA_FAJA - 0.14, GG.Z_FRUTA_FAJA + 0.16)
+            if t - tr.t_last > self.max_age or not on_belt(p, {**BELT_BOX, "z": z_amplia}):
                 del self.tracks[tid]
 
     def estimates(self, t, min_updates=3):

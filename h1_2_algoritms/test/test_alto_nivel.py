@@ -6,6 +6,7 @@ from h1_2_algoritms.aprendizaje.alto_nivel import (
     ExpertPolicy, FifoPolicy, BCPolicy, build_net, features, start_interval, reach_time,
     N_CAND_FEAT, N_CTX_FEAT)
 from h1_2_algoritms.vision.multi_tracking import MultiFruitTracker
+from h1_2_algoritms.vision import grasp_geometry as GG
 
 TAU = 2.9
 V = np.array([0.0, 0.05, 0.0])
@@ -88,7 +89,7 @@ def test_multi_tracker_keeps_identities():
     ids = None
     for k in range(30):
         t = k / 15.0
-        dets = [np.array([0.35, y + 0.05 * t, -0.16]) for y in ys]
+        dets = [np.array([0.35, y + 0.05 * t, GG.Z_FRUTA_FAJA]) for y in ys]
         tr.update(dets[::-1] if k % 2 else dets, t)      # el orden de las detecciones no importa
         est = tr.estimates(t)
         if k == 5:

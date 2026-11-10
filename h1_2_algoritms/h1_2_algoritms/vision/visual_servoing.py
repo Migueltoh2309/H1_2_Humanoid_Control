@@ -192,7 +192,7 @@ class GraspServoing:
                  min_updates=3, reach_dmp=None, reach_tau=None, reach_settle=1.0, reach_alpha_err=0.0,
                  reach_dt=0.01, reach_intercept=False, reach_match_frac=0.6, show=True, auto_start=True,
                  touch=None, touch_min=1.0, touch_hits=3, touch_timeout=0.5, close_max_vrel=None,
-                 close_touch=False):
+                 close_touch=False, lost_timeout=None):
         self.home = {s: np.asarray(home[s], dtype=float) for s in SIDES}
         # Ventana alcanzable en y (torso_link) de cada brazo sobre la faja
         # (barrido de IK del plan §4).
@@ -200,7 +200,7 @@ class GraspServoing:
         # Superficie útil de la faja en torso_link (x, z): una fruta fuera de
         # aquí (p.ej. empujada a la mesa, medido en vivo) no es alcanzable
         # y no se persigue, aunque su y caiga en la ventana de un brazo.
-        self.belt_box = belt_box or {"x": (0.26, 0.47), "z": (-0.20, -0.12)}
+        self.belt_box = belt_box or dict(GG.BELT_BOX_XZ)
         self.lookahead = lookahead
         self.exit_margin = exit_margin
         self.approach = approach
@@ -250,6 +250,12 @@ class GraspServoing:
         # cerrados (`close_time`), `touch_hits` lecturas seguidas >=
         # `touch_min` pasan a LIFT sin esperar el resto de `close_hold`.
         self.close_touch = close_touch
+        # Pista PERDIDA durante el alcance (opcional): sin medida de la fruta
+        # `lost_timeout` s en REACH/APPROACH/DESCEND -> MISSED. Sin esto la FSM
+        # espera para siempre si el tracker borra la pista (en un reintento
+        # tras un aborto, con el brazo lento del modo robot: LFD_ROBOT §3).
+        self.lost_timeout = lost_timeout
+        self._t_seen = None
         self._x_prev = None
         # False: no elige brazo solo en WAIT; lo arranca `start()` (la
         # política de alto nivel decide qué fruta y con qué brazo).
@@ -299,6 +305,7 @@ class GraspServoing:
         self.side = side
         self._enter("APPROACH" if self.reach_dmp is None else "REACH", t)
         self.events["t_start"] = t
+        self._t_seen = t
 
     def _settled(self, t, q_side, vel):
         """¿Muñeca quieta respecto de la fruta? (siempre True sin `close_max_vrel`)."""
@@ -416,6 +423,12 @@ class GraspServoing:
         s = self.side
         if s is not None:
             q_side = q_meas[:7] if s == "left" else q_meas[7:]
+            if seen:
+                self._t_seen = t
+            elif (self.lost_timeout is not None and self.phase in ("APPROACH", "DESCEND", "REACH")
+                  and self._t_seen is not None and t - self._t_seen > self.lost_timeout):
+                self._enter("MISSED", t)
+                self.events["why"] = f"pista perdida {self.lost_timeout:.1f} s"
             if self.phase in ("APPROACH", "DESCEND", "REACH") and seen and not on_belt:
                 self._enter("MISSED", t)
                 self.events["why"] = "la fruta ya no está sobre la faja"

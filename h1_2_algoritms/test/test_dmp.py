@@ -85,12 +85,12 @@ def test_reach_phase_tracks_moving_goal():
     perfecto (q por IK de x_ref), la fase REACH llega al agarre de una
     fruta que se mueve y pasa a CLOSE; el feedforward incluye ġ."""
     m = DMP(parametric=True).fit(demos())
-    home = {"left": np.array([0.25, 0.25, 0.10, 1, 0, 0, 0.0]),
-            "right": np.array([0.25, -0.25, 0.10, 1, 0, 0, 0.0])}
+    home = {"left": np.array([0.25, 0.25, 0.10 + GG.DZ_MESA, 1, 0, 0, 0.0]),
+            "right": np.array([0.25, -0.25, 0.10 + GG.DZ_MESA, 1, 0, 0, 0.0])}
     fsm = GraspServoing(home, reach_dmp=m, reach_tau=2.0)
     q = {s: GG.solve_arm_ik(s, home[s])[0] for s in ("left", "right")}
     v = np.array([0.0, 0.03, 0.0])
-    p0 = np.array([0.34, -0.20, -0.163])
+    p0 = np.array([0.34, -0.20, -0.163 + GG.DZ_MESA])
     saw_ff = False
     for k in range(int(5.0 / 0.05)):
         t = k * 0.05

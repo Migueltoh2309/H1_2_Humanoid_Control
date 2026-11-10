@@ -86,7 +86,11 @@ _XML = {}
 #             x ∈ (0.30, 0.37).
 ESCENARIOS = {"normal": ((0.03, 0.07), 3.0, 8, (0.30, 0.40)),
               "exigente": ((0.05, 0.08), 2.0, 10, (0.30, 0.40)),
-              "alcanzable": ((0.05, 0.08), 2.0, 10, (0.30, 0.37))}
+              "alcanzable": ((0.05, 0.08), 2.0, 10, (0.30, 0.37)),
+              # barrido de velocidad (mesa nueva): llegadas del exigente, faja más rápida
+              "rapido": ((0.08, 0.10), 2.0, 10, (0.30, 0.40)),
+              "muy_rapido": ((0.10, 0.12), 2.0, 10, (0.30, 0.40)),
+              "extremo": ((0.12, 0.15), 2.0, 10, (0.30, 0.40))}
 ESCENARIO = "normal"           # lo fija main() antes de abrir el pool (los procesos lo heredan)
 # Perfiles de tiempos de las habilidades (main: --perfil): parámetros de
 # ArmExecutor y de su GraspServoing, escala de τ del alcance y el modelo de
@@ -150,10 +154,44 @@ PERFILES = {
               "timing": {"reach_extra": 0.37, "close_lift": 1.35, "show_verify": 0.05, "deposit": 1.50,
                          "home": 0.65}},
 }
+# suave con el QP y las habilidades a 50 / 100 Hz (la cámara sigue a 15 Hz)
+PERFILES["suave_50"] = {**PERFILES["suave"], "ctrl_hz": 50}
+PERFILES["suave_100"] = {**PERFILES["suave"], "ctrl_hz": 100}
 PERFILES["suave_kp2"] = {**PERFILES["suave"], "kp_escala": 2.0,
                          "timing": {**PERFILES["suave"]["timing"], "deposit": 1.25, "home": 0.50}}
+# Acortar el ciclo (mesa nueva, 2026-11-09): sufijos combinables sobre suave
+# (suave_D, suave_DR, suave_DRA, ...). Los tiempos se recalibran con
+# `calibrar` y se pasan con --timing.
+#   D  depósito más cerca de la faja (y = 0.30 en vez de 0.40; a −30°, que
+#      es el que tiene IK ahí con los límites del robot) y soltar en
+#      movimiento: abre a 0.30 rad de la postura de depósito, en 0.3 s.
+#   R  volver sin esperar a que el brazo se asiente: libre a 0.25 rad de
+#      la espera y con |q̇| < 1.5 rad/s (suave: 0.08 rad, 0.5 rad/s).
+#   A  alcance anticipado: meta en el punto de intercepción
+#      (GraspServoing.reach_intercept) y el planificador deja empezar con la
+#      fruta hasta 25 cm antes de la ventana (alto_nivel.TRACK_BAND; 8 cm).
+_VARIANTES = {
+    "D": {"deposit_pose": ((0.20, -0.30, -0.05 + GG.DZ_MESA), -30.0, 0.0), "open_tol": 0.30, "open_time": 0.30},
+    "R": {"joint_tol": 0.25, "home_vel_tol": 1.5},
+    "A": {"track_band": 0.25, "grasp_kwargs": {"reach_intercept": True}},
+}
+for _suf in ("D", "R", "A", "DR", "DA", "RA", "DRA"):
+    _p = dict(PERFILES["suave"])
+    for _c in _suf:
+        for _k, _v in _VARIANTES[_c].items():
+            _p[_k] = {**_p.get(_k, {}), **_v} if _k == "grasp_kwargs" else _v
+    PERFILES[f"suave_{_suf}"] = _p
 PERFIL = "base"                # el del resultado principal (LFD_BC §6.3)
 Z_BELT_FRUIT = EF.BELT_TOP + EF.FRUIT_R - GG.TORSO_Z   # z (torso_link) del centro de una fruta en la faja
+# Modo ROBOT (main: --robot): los comandos van por el camino del H1-2 real
+# (aprendizaje/comandos_robot.py, docs/LFD_ROBOT.md): agente arm_sdk emulado
+# (límites, rampa de velocidad, kp/kd del robot, 100 Hz), motor PD puro con la
+# gravedad en tau_ff desde el PC y manos Inspire 0-1000 a SPEED_SET.
+# None = el sim de la tesis (PD ideal con compensación de gravedad).
+ROBOT = None
+DROP_DEBUG = bool(os.environ.get("BC_DROP_DEBUG"))
+TRACE = [float(x) for x in os.environ["BC_TRACE"].split(",")] if os.environ.get("BC_TRACE") else None
+LOST_TIMEOUT = None            # main: --lost-timeout (GraspServoing; None = sin él, salvo en --robot: 1 s)
 KP_JOINT = 6.0                 # servo articular de depositar / volver (3: depositar 1.80 s, volver 1.20; 6: 1.45, 0.90)
 
 
@@ -224,8 +262,12 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     Kc = (cams.K.fx, cams.K.fy, cams.K.cx, cams.K.cy)
     T_cam = V._T(cams.T_torso("robot_rgbd_camera"))
     R_cam, p_cam = cams.T_torso("robot_rgbd_camera")
-    ctrl = BimanualAvoidanceController(dt=0.05)
+    ctrl_hz = PERFILES[PERFIL].get("ctrl_hz", 20)
+    ctrl = BimanualAvoidanceController(dt=1.0 / ctrl_hz)
     ctrl.Kp_joint = KP_JOINT
+    if ROBOT:      # el QP no pide más velocidad articular que la rampa del agente
+        ctrl.dq_max = np.full(14, min(2.0, ROBOT["vel_max"]))
+        ctrl.dq_min = -ctrl.dq_max
     memory = ObstacleMemory(voxel=0.03)
     tracker = MultiFruitTracker()
     dmp = DMP.load(DMP_PATH)
@@ -234,16 +276,43 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     prof.pop("timing", None)
     prof.pop("espera", None)
     prof.pop("experto", None)
+    prof.pop("ctrl_hz", None)
+    prof.pop("track_band", None)           # main() lo pone en alto_nivel.TRACK_BAND
     pd.kd[idx["left"] + idx["right"]] *= prof.pop("kd_escala", 1.0)   # amortiguamiento de los brazos
     pd.kp[idx["left"] + idx["right"]] *= prof.pop("kp_escala", 1.0)
     interp = prof.pop("interp", False)     # referencia en rampa entre ciclos de control
     if prof.pop("tactil", False):       # verificación por la fuerza de los dedos, sin mostrar a la cámara
         prof["grasp_kwargs"] = {**prof.get("grasp_kwargs", {}), "touch": faja.grip_force}
+        # touch_hits cuenta ciclos de control: misma duración (150 ms) a cualquier frecuencia
+        prof["grasp_kwargs"].setdefault("touch_hits", max(3, round(3 * ctrl_hz / 20)))
+    # un agarre no puede quedarse esperando una pista que ya no existe (en el robot, siempre)
+    lost = LOST_TIMEOUT if LOST_TIMEOUT is not None else (1.0 if ROBOT else None)
+    if lost is not None:
+        prof["grasp_kwargs"] = {**prof.get("grasp_kwargs", {}), "lost_timeout": lost}
     TR = reach_time(tau)
     ex = {s: ArmExecutor(s, home, dmp, tau, **prof) for s in SIDES}
 
     dt_phys = m.opt.timestep
-    n_ctrl = int(round(0.05 / dt_phys))
+    rob = ROBOT
+    if rob:
+        from h1_2_algoritms.aprendizaje import comandos_robot as CR
+        arm_idx = idx["left"] + idx["right"]
+        i_torso = sim.mapping.index.get("torso_joint")
+        agente = CR.AgenteEmulado(hz=rob["hz"], vel_max=rob["vel_max"], tau_max=rob["tau_max"],
+                                  kp_escala=rob["kp_escala"], kd_escala=rob["kd_escala"])
+        q27 = np.zeros(CR.J.N)
+        q27[CR.IDX_DDS] = q_ref
+        if i_torso is not None:
+            q27[CR.J.INDICE["torso_joint"]] = sim.get_q_dq()[0][i_torso]
+        agente.iniciar(q27)
+        manos = CR.ManosInspire(rob["vel_mano"])
+        for s in SIDES:
+            manos.iniciar(s, GG.HAND_PRESHAPE)
+        n_ag = max(1, int(round(1.0 / rob["hz"] / dt_phys)))
+        reg = CR.Registro()
+        tau_cmd = np.zeros(14)
+        sel15 = ([i_torso] if i_torso is not None else [arm_idx[0]]) + arm_idx
+    n_ctrl = int(round(1.0 / ctrl_hz / dt_phys))
     n_cam = int(round((1 / 15.0) / dt_phys))
     t_max = times[-1] + 1.10 / v_belt + 15.0
     assigned = {}            # pista -> brazo
@@ -255,6 +324,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     targets = {s: home[s].copy() for s in SIDES}
     ff = {s: None for s in SIDES}
     hands = {s: GG.HAND_PRESHAPE.copy() for s in SIDES}
+    drop_log = []
     counts = {"decisiones": 0, "agarrar": 0, "cierra": 0, "verificado": 0, "fallo": 0, "perdida": 0,
               "suelta": 0}
     d_arms_min = np.inf
@@ -264,7 +334,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     if video:
         vid_r = mujoco.Renderer(m, 480, 640)
         vcam = mujoco.MjvCamera()
-        vcam.lookat[:] = [0.36, 0.0, 0.88]
+        vcam.lookat[:] = [0.36, 0.0, 1.02]
         vcam.distance, vcam.azimuth, vcam.elevation = 1.4, 150, -35
 
     def reaching_points():
@@ -336,6 +406,9 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                 for ev in evs:
                     counts[ev] = counts.get(ev, 0) + 1
                     tid = ex[s].track
+                    if DROP_DEBUG:
+                        why = ex[s].fsm.events.get("why", "") if ex[s].fsm else ""
+                        drop_log.append((t, f"{s} {ev} track={tid} held={faja.held[s]} why={why}"))
                     if ev == "cierra":
                         tracker.remove(tid)
                     elif ev == "suelta":
@@ -380,6 +453,15 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                                  joint_targets={s: ex[s].joint_target for s in SIDES})
             q_ref0 = q_ref
             q_ref = q_ref + dq * ctrl.dt
+            if rob:
+                # la orden del PC: q del QP, dq como feedforward y g(q medida) en tau_ff
+                dq14 = dq.copy() if rob["dq"] else None
+                tau14 = sim.gravity_torque()[arm_idx] if rob["grav"] else None
+                agente.orden(q_ref, dq14, tau14)
+                for s in SIDES:
+                    manos.mandar(s, hands[s])
+                reg.orden_pc(t, q_ref, dq14, tau14,
+                             [*CR.rad_a_inspire("left", hands["left"]), *CR.rad_a_inspire("right", hands["right"])])
             d_arms_min = min(d_arms_min, diag["d_arms_min"])
             for s in SIDES:
                 if ex[s].skill == "agarrar" and ex[s].phase in ("CLOSE", "LIFT") and faja.held[s] is None:
@@ -388,27 +470,70 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                                            for st in faja.state) and not any(ex[s].busy for s in SIDES):
                 break
 
-        for s in SIDES:
-            d.ctrl[hand_ids[s]] = hands[s]
-        q_cmd = q_ref
-        if interp:
-            q_cmd = q_ref0 + (q_ref - q_ref0) * min(1.0, (step % n_ctrl + 1) / n_ctrl)
-        pd.q_des[idx["left"]] = q_cmd[:7]
-        pd.q_des[idx["right"]] = q_cmd[7:]
+        if rob:
+            if step % n_ag == 0:            # un ciclo del agente: el LowCmd de rt/arm_sdk
+                cmd = agente.ciclo()
+                qm, dqm = sim.get_q_dq()
+                reg.ciclo_agente(t, cmd, qm[sel15], dqm[sel15])
+                pd.q_des[arm_idx] = cmd["q"][1:]
+                pd.dq_des[arm_idx] = cmd["dq"][1:]
+                pd.kp[arm_idx] = cmd["kp"][1:]
+                pd.kd[arm_idx] = cmd["kd"][1:]
+                tau_cmd = cmd["tau"][1:]
+            # motor del robot = PD puro + tau_ff: se descuenta la compensación de
+            # gravedad ideal que MujocoSim suma en cada paso
+            pd.tau_ff[arm_idx] = tau_cmd - sim.gravity_torque()[arm_idx]
+            hr = manos.paso(t, dt_phys)
+            for s in SIDES:
+                d.ctrl[hand_ids[s]] = hr[s]
+        else:
+            for s in SIDES:
+                d.ctrl[hand_ids[s]] = hands[s]
+            q_cmd = q_ref
+            if interp:
+                q_cmd = q_ref0 + (q_ref - q_ref0) * min(1.0, (step % n_ctrl + 1) / n_ctrl)
+            pd.q_des[idx["left"]] = q_cmd[:7]
+            pd.q_des[idx["right"]] = q_cmd[7:]
         faja.before_step()
         sim.step(pd)
-        faja.after_step(t)
+        if DROP_DEBUG and TRACE and TRACE[1] <= t <= TRACE[2] and step % 25 == 0:
+            i_ = int(TRACE[0])
+            wl, wr = (faja.d.xpos[faja.wrist[s_]] for s_ in SIDES)
+            print(f"  [traza] t={t:.2f} fruta{i_} {faja.state[i_]:8s} p={np.round(faja.d.xpos[faja.bid[i_]], 3)} "
+                  f"izq={np.round(wl, 2)} {ex['left'].phase} der={np.round(wr, 2)} {ex['right'].phase} "
+                  f"Fizq={faja.grip_force('left'):.1f} Fder={faja.grip_force('right'):.1f}", flush=True)
+        if DROP_DEBUG:
+            st0 = list(faja.state)
+            pos0 = [faja.d.xpos[b].copy() for b in faja.bid]
+        for ev_f, i_f in faja.after_step(t):
+            if DROP_DEBUG and ev_f == "dropped":
+                print(f"[caida] {policy.name} s{seed} t={t:.2f} fruta {i_f} estado_previo={st0[i_f]} "
+                      f"pos={np.round(pos0[i_f], 3)} t_spawn={faja.t_spawn[i_f]:.1f} | "
+                      + " | ".join(f"{s}: {ex[s].skill}/{ex[s].phase} track={ex[s].track} held={faja.held[s]}"
+                                   for s in SIDES), flush=True)
+                for tl, e_ in drop_log[-12:]:
+                    print(f"    {tl:6.2f} {e_}", flush=True)
 
     res = {"politica": policy.name, "seed": seed, "v_faja": round(v_belt, 3), "n_frutas": n,
            "depositadas": faja.state.count("deposited"), "perdidas_faja": faja.state.count("lost"),
            "caidas": faja.state.count("dropped"), **counts,
            "t_fin": round(t, 1), "d_brazos_min_mm": round(1e3 * d_arms_min, 1)}
     res["tasa"] = round(res["depositadas"] / n, 3)
+    if rob:
+        res.update({k: round(v, 4) for k, v in CR.resumen_registro(reg, 1.0 / rob["hz"]).items()})
+        res["ordenes_recortadas"] = int(agente.n_recortes)
+        res["tau_ff_saturado"] = int(agente.n_tau_sat)
+        if rob.get("registro"):
+            os.makedirs(rob["registro"], exist_ok=True)
+            reg.guardar(os.path.join(rob["registro"], f"comandos_{policy.name}_s{seed}.npz"),
+                        hz_agente=rob["hz"], vel_max=rob["vel_max"], tau_max=rob["tau_max"],
+                        ctrl_hz=ctrl_hz, perfil=PERFIL, seed=seed)
     res["_eventos"] = {s: list(ex[s].log) for s in SIDES}
     if os.environ.get("BC_DEBUG"):
         for s in SIDES:
             for e in ex[s].log:
                 print(s, *e)
+            print(s, "fase final:", ex[s].phase, "track", ex[s].track)
     if video and frames:
         import cv2
         vw = cv2.VideoWriter(video, cv2.VideoWriter_fourcc(*"mp4v"), 15, (640, 480))
@@ -630,7 +755,7 @@ def video(args):
 
 
 def main():
-    global ESCENARIO, KP_JOINT, DATA, NET_PATH, PERFIL
+    global ESCENARIO, KP_JOINT, DATA, NET_PATH, PERFIL, ROBOT, LOST_TIMEOUT
     ap = argparse.ArgumentParser()
     ap.add_argument("accion", choices=["calibrar", "generar", "entrenar", "evaluar", "resumen", "video"])
     ap.add_argument("--episodios", type=int, default=40)
@@ -646,16 +771,42 @@ def main():
     ap.add_argument("--escenario", default="normal", choices=list(ESCENARIOS))
     ap.add_argument("--kp-articular", type=float, default=KP_JOINT)
     ap.add_argument("--perfil", default=PERFIL, choices=list(PERFILES))
+    ap.add_argument("--timing", default=None, help="k=v,... sobre habilidades.TIMING (p. ej. deposit=1.2,home=0.4)")
     ap.add_argument("--red", default=None, help="red BC a evaluar (por omisión, la del escenario)")
     ap.add_argument("--mapa-alcance", nargs="?", const="", default=None, metavar="JSON",
                     help="ventanas del planificador dependientes de x (alto_nivel.window); FIFO no cambia. "
                          "Opcional: JSON {'right': [[x, [y_lo, y_hi]], ...], 'xmax': x} en lugar del mapa por omisión")
     ap.add_argument("--faja-dx", type=float, default=0.0,
                     help="acerca la faja al robot (m): estudio de montaje (escena_faja.BELT_DX)")
+    rb = ap.add_argument_group("modo robot (comandos del H1-2 real: docs/LFD_ROBOT.md)")
+    rb.add_argument("--robot", action="store_true", help="agente arm_sdk emulado + motor PD puro + manos Inspire")
+    rb.add_argument("--vel-max", type=float, default=1.0, help="--vel-max del agente (rad/s; el suyo por omisión: 1)")
+    rb.add_argument("--hz-agente", type=float, default=100.0, help="--hz del agente (arm_sdk: 100)")
+    rb.add_argument("--tau-max", type=float, default=10.0, help="--tau-max del agente (N·m de tau_ff)")
+    rb.add_argument("--kd-robot", type=float, default=1.0, help="escala de J.KD (el agente hoy usa 1)")
+    rb.add_argument("--kp-robot", type=float, default=1.0, help="escala de J.KP")
+    rb.add_argument("--sin-gravedad", action="store_true", help="tau_ff = 0 (sin compensación de gravedad del PC)")
+    rb.add_argument("--sin-dq", action="store_true", help="dq = 0 en las órdenes")
+    rb.add_argument("--vel-mano", type=int, default=1000, help="SPEED_SET de las Inspire")
+    rb.add_argument("--registro", default=None, help="carpeta para guardar el flujo de comandos (.npz por episodio)")
+    ap.add_argument("--lost-timeout", type=float, default=None,
+                    help="s sin ver la fruta durante el alcance -> abortar (LFD_ROBOT §3; en --robot, 1 por omisión)")
     args = ap.parse_args()
+    LOST_TIMEOUT = args.lost_timeout
+    if args.robot:
+        ROBOT = {"hz": args.hz_agente, "vel_max": args.vel_max, "tau_max": args.tau_max,
+                 "kd_escala": args.kd_robot, "kp_escala": args.kp_robot, "grav": not args.sin_gravedad,
+                 "dq": not args.sin_dq, "vel_mano": args.vel_mano,
+                 "registro": os.path.abspath(args.registro) if args.registro else None}
+        from h1_2_algoritms.aprendizaje.comandos_robot import aplicar_limites_robot
+        aplicar_limites_robot()            # antes del pool: los procesos lo heredan
     ESCENARIO, KP_JOINT, PERFIL = args.escenario, args.kp_articular, args.perfil
     from h1_2_algoritms.aprendizaje.habilidades import TIMING
     TIMING.update(PERFILES[PERFIL].get("timing", {}))
+    if args.timing:                # tiempos recalibrados (k=v,k=v): pisan los del perfil
+        TIMING.update({k: float(v) for k, v in (kv.split("=") for kv in args.timing.split(","))})
+    from h1_2_algoritms.aprendizaje import alto_nivel
+    alto_nivel.TRACK_BAND = PERFILES[PERFIL].get("track_band", alto_nivel.TRACK_BAND)
     if ESCENARIO != "normal":      # datos y red propios del escenario
         DATA = os.path.join(OUT, f"datos_{ESCENARIO}")
         NET_PATH = os.path.join(OUT, f"politica_bc_{ESCENARIO}.pt")

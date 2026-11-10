@@ -271,8 +271,9 @@ class Agente:
             lim = abs(self.obj[i] - self.pedido_q[i]) > 1e-4
             c.dq = dq[i] if (fresco and self.comandada[i] and not lim) else 0.0
             c.tau = tau[i] if (fresco and self.comandada[i]) else 0.0
-            c.kp = J.KP[i] * kp_escala
-            c.kd = J.KD[i]
+            brazo = i in J.IZQ or i in J.DER
+            c.kp = J.KP[i] * kp_escala * (self.a.kp_escala if brazo else 1.0)
+            c.kd = J.KD[i] * (self.a.kd_escala if brazo else 1.0)
         if self.modo == P.MODO_ARM_SDK:
             cmd.motor_cmd[J.PESO_ARM_SDK].q = self.peso
         cmd.crc = self.crc.Crc(cmd)
@@ -431,6 +432,9 @@ def main():
                          "probados de caja_cuadrado; 250 en lowcmd)")
     ap.add_argument("--hz-estado", type=float, default=50.0, help="estado al PC por UDP")
     ap.add_argument("--vel-max", type=float, default=1.0, help="rad/s maximos de la consigna enviada")
+    ap.add_argument("--kp-escala", type=float, default=1.0, help="escala de kp de los BRAZOS (13-26); torso sin cambio")
+    ap.add_argument("--kd-escala", type=float, default=1.0,
+                    help="escala de kd de los BRAZOS (perfil 'suave' de la faja: 4; calibrar en el robot)")
     ap.add_argument("--tau-max", type=float, default=10.0, help="N·m maximos de par feedforward del PC")
     ap.add_argument("--t-rampa", type=float, default=12.0, help="s de la rampa de entrada de arm_sdk")
     ap.add_argument("--t-salida", type=float, default=5.0, help="s de la rampa de salida de arm_sdk")
