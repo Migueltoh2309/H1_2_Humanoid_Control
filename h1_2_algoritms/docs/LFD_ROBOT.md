@@ -179,3 +179,80 @@ python3 demos/reproducir_comandos.py results/bc/robot/comandos/comandos_bc_s1000
 * **Tacto.** `touch` usa la fuerza de contacto en N (`grip_force`, umbral 1 N). En el robot, la fuerza llega por FORCE_ACT en gf por dedo, por Modbus a ~30 Hz. Hay que definir la conversión y el umbral con la mano real.
 * **kd ×4 en el robot.** El motor real tiene fricción y una inercia reflejada distintas. Hay que calibrar kd con el robot colgado: mirar el rebote al volver a home.
 * La percepción y la latencia de la cámara real, la faja real y la deriva del torso (IMU; en el reto de manipulación, 4 mm y 0.19°).
+
+## Manos RH56DFTP oficiales y faja más cerca (2026-11-12)
+
+**Manos.** Son las del robot del laboratorio (`h1_2_utec/h1_2_inspire_description`):
+
+- `h1_2_scenes/scripts/build_manos_rh56.py` genera `meshes/inspire_rh56dftp/`;
+- `escena_faja` las injerta al construir la escena;
+- `H12_MANOS=vieja` vuelve a las anteriores.
+
+Lo que cambia respecto de la mano vieja:
+
+- 0.84 kg por mano (antes ~50 g de dedos);
+- mano 2.5 cm más larga: el agarre se corrió de x = 0.17 a 0.185;
+- falanges acopladas con las curvas medidas sobre fotos de la mano real;
+- ANGLE_SET no lineal en `comandos_robot`.
+
+Las mallas se simplificaron a ≤ 3000 triángulos: con las originales cada
+proceso llegaba a ~1.9 GB y la memoria se agotaba con 6 procesos.
+
+**Faja más cerca** (`H12_FAJA_DX`). Corre juntas la faja y la mesa, la caja
+de la percepción, la espera, el depósito y la pose de mostrar. En el estudio
+de 2026-10, la caja de la percepción no se corría: con 5 cm se descartaban
+las frutas más cercanas.
+
+La estructura de la faja queda a 13 cm de las caderas. Barrido con el
+experto, perfil `suave_DR`, modo robot, semillas 5000–5023 (240 frutas):
+
+| Acercamiento | exigente (x 0.30–0.40) | `ancho` (x 0.30–0.45) |
+|---|---|---|
+| 0 cm | 226 | 222 |
+| **3 cm** | 227 | 228 |
+| 6 cm | 226 | 230 (2 caídas) |
+| 9 cm | 162 | 198 |
+
+Con 9 cm, las frutas del lado cercano se van sin ser intentadas.
+
+**Final** (semillas 10000–10089, 900 frutas; `results/bc/mesa_u/rh56/`). La
+BC se reentrenó en `ancho` con 3 cm: 40 episodios del experto + 2 rondas de
+DAgger, `politica_bc_ancho_suave_DR_dx3.pt`.
+
+| | Experto | BC |
+|---|---|---|
+| `ancho`, 3 cm | **864 (96.0%)** | 853 (94.8%) |
+| `ancho`, 0 cm (referencia) | 828 (92.0%) | — |
+| exigente, 3 cm | 864 (96.0%) | 864 (96.0%) |
+| exigente, manos viejas, 0 cm (`final_robot_DR.csv`) | 880 (97.8%) | 882 (98.0%) |
+
+* **Acercar 3 cm amplía el rango de agarre.** Con las frutas en todo el
+  ancho de la faja, el experto deposita +0.40 fr/ep (p = 0.001) y las
+  pérdidas en la faja bajan de 68 a 35.
+* **La mano oficial cuesta ~2 puntos** en la franja de siempre (−0.2 fr/ep,
+  p = 0.002). Es más realista: es la mano del robot.
+* **En `ancho`, la BC queda −0.12 fr/ep por debajo del experto (p = 0.02).**
+  Con 4 rondas de DAgger no mejora (850; −0.16 fr/ep, p = 0.003), así que no
+  es falta de datos. La BC tiene más agarres fallidos (25–32 contra 18).
+  Queda la red de 2 rondas; la de 4 está en `_dagger4.pt`.
+
+## Corrección del tracker en el alcance (2026-11-13)
+
+Diagnóstico por intento (`BC_INTENTOS`, `demos/predictor_exito.py`): los
+fracasos se concentraban en las frutas cercanas al robot (21% vs 5%) y la
+BC fallaba igual que el experto. Un predictor de éxito en la BC
+(`bc_exito`, AUC 0.82) no cambió nada: el alto nivel no puede evitar un
+fallo físico. La causa era de bajo nivel: con la fruta tapada por la mano,
+`MultiFruitTracker.prune` predecía con la velocidad contaminada del Kalman
+de la pista y la borraba "fuera de la faja". Ahora asocia y da de baja con
+la velocidad compartida de la faja, con 3 cm de margen en x
+(MAPA_LFD.md §14.1).
+
+Final `ancho`, dx = 3 cm, RH56, semillas 10000–10089:
+experto 864 -> **878 / 900** (p = 0.04), BC 853 -> **880 / 900**
+(p = 0.0009); BC − experto +0.02 fr/ep (p = 0.48). Abortos 85 -> ~24.
+CSV: `results/bc/mesa_u/rh56/final_dx3_ancho_fixpista.csv`.
+Con la corrección, los otros dos escenarios (mismas semillas): `exigente`
+experto 888 / BC 883 (antes 864 / 864; p = 0.0002 / 0.003), y faja
+`rapido` experto 785 / **BC 809** (+0.27 fr/ep, p = 0.0002: la BC supera
+al experto).

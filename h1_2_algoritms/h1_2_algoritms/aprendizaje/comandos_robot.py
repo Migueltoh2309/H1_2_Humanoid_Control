@@ -66,7 +66,7 @@ IDX_DDS = np.array([J.INDICE[n] for s in SIDES for n in ARM_NAMES[s]])
 BRAZOS = np.array(J.BRAZOS)                    # 12..26: lo que manda rt/arm_sdk
 LADO_MANO = {"left": "izq", "right": "der"}
 # columna de GG.HAND_ACTUATORS (orden del sim) para cada registro de la Inspire
-_COL_GG = [GG.HAND_ACTUATORS.index(n) for n, _ in J.DOF_MANO]
+_COL_GG = [GG.HAND_ACTUATORS.index(n) for n, _ in J.DOF_MANO] if GG.MANOS != "rh56" else None
 
 
 # ---------------------------------------------------------------- límites
@@ -90,8 +90,30 @@ def aplicar_limites_robot():
 
 
 # ---------------------------------------------------------------- manos
+# Manos RH56DFTP oficiales (GG.MANOS == "rh56"): ANGLE_SET NO es lineal en
+# las juntas. Curvas medidas sobre fotos de la mano real
+# (h1_2_inspire_description/config/hand_coupling.yaml), junta actuada en
+# función de s = 1 - ANGLE_SET/1000, en el orden SDK: meñique, anular,
+# medio, índice (finger_1), pulgar flexión (thumb_1), pulgar rotación
+# (thumb_swing).
+_S_RH56 = np.linspace(0.0, 1.0, 21)
+_F1 = [0.0000, 0.1429, 0.2733, 0.3921, 0.5002, 0.5985, 0.6879, 0.7693, 0.8437, 0.9119, 0.9749, 1.0336,
+       1.0888, 1.1416, 1.1927, 1.2432, 1.2938, 1.3457, 1.3995, 1.4564, 1.5170]
+_T1 = [0.0000, 0.0372, 0.0742, 0.1109, 0.1474, 0.1834, 0.2189, 0.2539, 0.2883, 0.3219, 0.3548, 0.3868,
+       0.4179, 0.4480, 0.4769, 0.5048, 0.5314, 0.5567, 0.5806, 0.6030, 0.6239]
+_TS = [0.0000, 0.0640, 0.1280, 0.1917, 0.2546, 0.3200, 0.3905, 0.4637, 0.5367, 0.6112, 0.6800, 0.7368,
+       0.7903, 0.8535, 0.9274, 1.0000, 1.0746, 1.1406, 1.1724, 1.1921, 1.2000]
+_CURVA_RH56 = [np.array(c) for c in (_F1, _F1, _F1, _F1, _T1, _TS)]
+if GG.MANOS == "rh56":
+    _COL_GG = [GG.HAND_ACTUATORS.index(n) for n in ("little_1_joint", "ring_1_joint", "middle_1_joint",
+                                                     "index_1_joint", "thumb_1_joint", "thumb_swing_joint")]
+
+
 def rad_a_inspire(side, hand_rad):
     """6 rad en el orden del sim (GG.HAND_ACTUATORS) -> 6 enteros ANGLE_SET."""
+    if GG.MANOS == "rh56":
+        return [int(round(1000.0 * (1.0 - np.interp(float(hand_rad[_COL_GG[k]]), _CURVA_RH56[k], _S_RH56))))
+                for k in range(6)]
     return [J.rad_a_angulo(k, float(hand_rad[_COL_GG[k]])) for k in range(6)]
 
 
@@ -99,7 +121,10 @@ def inspire_a_rad(angulos):
     """6 ANGLE (0 cerrado .. 1000 abierto) -> 6 rad en el orden del sim."""
     out = np.zeros(6)
     for k in range(6):
-        out[_COL_GG[k]] = J.angulo_a_rad(k, angulos[k])
+        if GG.MANOS == "rh56":
+            out[_COL_GG[k]] = np.interp(1.0 - min(max(angulos[k], 0), 1000) / 1000.0, _S_RH56, _CURVA_RH56[k])
+        else:
+            out[_COL_GG[k]] = J.angulo_a_rad(k, angulos[k])
     return out
 
 

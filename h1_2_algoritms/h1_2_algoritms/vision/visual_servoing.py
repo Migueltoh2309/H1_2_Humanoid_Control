@@ -428,8 +428,14 @@ class GraspServoing:
             elif (self.lost_timeout is not None and self.phase in ("APPROACH", "DESCEND", "REACH")
                   and self._t_seen is not None and t - self._t_seen > self.lost_timeout):
                 self._enter("MISSED", t)
-                self.events["why"] = f"pista perdida {self.lost_timeout:.1f} s"
-            if self.phase in ("APPROACH", "DESCEND", "REACH") and seen and not on_belt:
+                self.events["why"] = (f"pista perdida {self.lost_timeout:.1f} s ({self.phase}, "
+                                      f"{t - self.events.get('t_start', t):.1f} s)")
+            # en pleno alcance, x con 3 cm de margen: la mano que baja tapa parte
+            # de la fruta y la estimación se corre hacia el robot (las frutas
+            # cercanas están a 4 cm del borde de la caja)
+            on_belt_r = seen and self.belt_box["x"][0] - 0.03 <= est[0] <= self.belt_box["x"][1] + 0.03 and \
+                self.belt_box["z"][0] <= est[2] <= self.belt_box["z"][1]
+            if self.phase in ("APPROACH", "DESCEND", "REACH") and seen and not on_belt_r:
                 self._enter("MISSED", t)
                 self.events["why"] = "la fruta ya no está sobre la faja"
             if self.phase in ("APPROACH", "DESCEND", "REACH") and seen:
@@ -438,7 +444,11 @@ class GraspServoing:
                 lo, hi = self.windows[s]
                 if (vel[1] >= 0 and est[1] > hi + self.exit_margin) or \
                         (vel[1] < 0 and est[1] < lo - self.exit_margin):
+                    ph0 = self.phase
+                    err = grasp_point_err(s, q_side, GG.grasp_wrist_target(s, est))
                     self._enter("MISSED", t)
+                    self.events["why"] = (f"salió de la ventana ({1e3 * err:.0f} mm, {ph0}, "
+                                          f"{t - self.events.get('t_start', t):.1f} s)")
 
             if self.phase == "APPROACH":
                 if seen:

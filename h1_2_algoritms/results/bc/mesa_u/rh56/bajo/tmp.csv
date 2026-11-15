@@ -1,0 +1,2 @@
+politica,seed,v_faja,n_frutas,depositadas,perdidas_faja,caidas,decisiones,agarrar,cierra,verificado,fallo,perdida,suelta,libre,t_fin,d_brazos_min_mm,tasa,vel_pedida_p99,vel_pedida_max,tau_ff_max,err_seguimiento_p99_rad,err_seguimiento_med_rad,ordenes_recortadas,tau_ff_saturado,muestras
+experto,20000,0.066,10,10,0,0,48,10,10,10,0,0,10,10,32.0,34.8,1.0,2.0,2.0,10.8783,0.1401,0.0024,0,0,0

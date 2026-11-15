@@ -1,0 +1,5 @@
+80 episodios en 1564 s -> results/bc/mesa_u/rh56/bajo/fix_pista2.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+experto    40   390/400      0.97         9       1       412       7        11        30
+bc         40   392/400      0.98         8       0       414       7        13        30

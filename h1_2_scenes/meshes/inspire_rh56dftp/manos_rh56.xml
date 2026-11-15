@@ -1,0 +1,305 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="manos_rh56">
+  <!-- GENERADO por h1_2_scenes/scripts/build_manos_rh56.py desde h1_2_inspire_description (h1_2_utec). NO editar a mano. -->
+  <asset>
+    <mesh name="rh56_left_hand_base_black" file="left_hand_base_black.STL" />
+    <mesh name="rh56_left_hand_base_white" file="left_hand_base_white.STL" />
+    <mesh name="rh56_left_hand_base_silver" file="left_hand_base_silver.STL" />
+    <mesh name="rh56_left_hand_base_link" file="left_hand_base_link.STL" />
+    <mesh name="rh56_left_thumb_swing_silver" file="left_thumb_swing_silver.STL" />
+    <mesh name="rh56_left_thumb_swing" file="left_thumb_swing.STL" />
+    <mesh name="rh56_left_thumb_1_black" file="left_thumb_1_black.STL" />
+    <mesh name="rh56_left_thumb_1_white" file="left_thumb_1_white.STL" />
+    <mesh name="rh56_left_thumb_1_silver" file="left_thumb_1_silver.STL" />
+    <mesh name="rh56_left_thumb_1" file="left_thumb_1.STL" />
+    <mesh name="rh56_left_thumb_2_black" file="left_thumb_2_black.STL" />
+    <mesh name="rh56_left_thumb_2_white" file="left_thumb_2_white.STL" />
+    <mesh name="rh56_left_thumb_2" file="left_thumb_2.STL" />
+    <mesh name="rh56_left_thumb_3_black" file="left_thumb_3_black.STL" />
+    <mesh name="rh56_left_thumb_3_white" file="left_thumb_3_white.STL" />
+    <mesh name="rh56_left_thumb_3_silver" file="left_thumb_3_silver.STL" />
+    <mesh name="rh56_left_thumb_3" file="left_thumb_3.STL" />
+    <mesh name="rh56_left_index_1_black" file="left_index_1_black.STL" />
+    <mesh name="rh56_left_index_1_white" file="left_index_1_white.STL" />
+    <mesh name="rh56_left_index_1" file="left_index_1.STL" />
+    <mesh name="rh56_left_index_2_black" file="left_index_2_black.STL" />
+    <mesh name="rh56_left_index_2_white" file="left_index_2_white.STL" />
+    <mesh name="rh56_left_index_2_silver" file="left_index_2_silver.STL" />
+    <mesh name="rh56_left_index_2" file="left_index_2.STL" />
+    <mesh name="rh56_left_middle_1_black" file="left_middle_1_black.STL" />
+    <mesh name="rh56_left_middle_1_white" file="left_middle_1_white.STL" />
+    <mesh name="rh56_left_middle_1" file="left_middle_1.STL" />
+    <mesh name="rh56_left_middle_2_black" file="left_middle_2_black.STL" />
+    <mesh name="rh56_left_middle_2_white" file="left_middle_2_white.STL" />
+    <mesh name="rh56_left_middle_2_silver" file="left_middle_2_silver.STL" />
+    <mesh name="rh56_left_middle_2" file="left_middle_2.STL" />
+    <mesh name="rh56_left_ring_1_black" file="left_ring_1_black.STL" />
+    <mesh name="rh56_left_ring_1_white" file="left_ring_1_white.STL" />
+    <mesh name="rh56_left_ring_1" file="left_ring_1.STL" />
+    <mesh name="rh56_left_ring_2_black" file="left_ring_2_black.STL" />
+    <mesh name="rh56_left_ring_2_white" file="left_ring_2_white.STL" />
+    <mesh name="rh56_left_ring_2_silver" file="left_ring_2_silver.STL" />
+    <mesh name="rh56_left_ring_2" file="left_ring_2.STL" />
+    <mesh name="rh56_left_little_1_black" file="left_little_1_black.STL" />
+    <mesh name="rh56_left_little_1_white" file="left_little_1_white.STL" />
+    <mesh name="rh56_left_little_1" file="left_little_1.STL" />
+    <mesh name="rh56_left_little_2_black" file="left_little_2_black.STL" />
+    <mesh name="rh56_left_little_2_white" file="left_little_2_white.STL" />
+    <mesh name="rh56_left_little_2_silver" file="left_little_2_silver.STL" />
+    <mesh name="rh56_left_little_2" file="left_little_2.STL" />
+    <mesh name="rh56_right_hand_base_black" file="right_hand_base_black.STL" />
+    <mesh name="rh56_right_hand_base_white" file="right_hand_base_white.STL" />
+    <mesh name="rh56_right_hand_base_silver" file="right_hand_base_silver.STL" />
+    <mesh name="rh56_right_hand_base_link" file="right_hand_base_link.STL" />
+    <mesh name="rh56_right_thumb_swing_silver" file="right_thumb_swing_silver.STL" />
+    <mesh name="rh56_right_thumb_swing" file="right_thumb_swing.STL" />
+    <mesh name="rh56_right_thumb_1_black" file="right_thumb_1_black.STL" />
+    <mesh name="rh56_right_thumb_1_white" file="right_thumb_1_white.STL" />
+    <mesh name="rh56_right_thumb_1_silver" file="right_thumb_1_silver.STL" />
+    <mesh name="rh56_right_thumb_1" file="right_thumb_1.STL" />
+    <mesh name="rh56_right_thumb_2_black" file="right_thumb_2_black.STL" />
+    <mesh name="rh56_right_thumb_2_white" file="right_thumb_2_white.STL" />
+    <mesh name="rh56_right_thumb_2" file="right_thumb_2.STL" />
+    <mesh name="rh56_right_thumb_3_black" file="right_thumb_3_black.STL" />
+    <mesh name="rh56_right_thumb_3_white" file="right_thumb_3_white.STL" />
+    <mesh name="rh56_right_thumb_3_silver" file="right_thumb_3_silver.STL" />
+    <mesh name="rh56_right_thumb_3" file="right_thumb_3.STL" />
+    <mesh name="rh56_right_index_1_black" file="right_index_1_black.STL" />
+    <mesh name="rh56_right_index_1_white" file="right_index_1_white.STL" />
+    <mesh name="rh56_right_index_1" file="right_index_1.STL" />
+    <mesh name="rh56_right_index_2_black" file="right_index_2_black.STL" />
+    <mesh name="rh56_right_index_2_white" file="right_index_2_white.STL" />
+    <mesh name="rh56_right_index_2_silver" file="right_index_2_silver.STL" />
+    <mesh name="rh56_right_index_2" file="right_index_2.STL" />
+    <mesh name="rh56_right_middle_1_black" file="right_middle_1_black.STL" />
+    <mesh name="rh56_right_middle_1_white" file="right_middle_1_white.STL" />
+    <mesh name="rh56_right_middle_1" file="right_middle_1.STL" />
+    <mesh name="rh56_right_middle_2_black" file="right_middle_2_black.STL" />
+    <mesh name="rh56_right_middle_2_white" file="right_middle_2_white.STL" />
+    <mesh name="rh56_right_middle_2_silver" file="right_middle_2_silver.STL" />
+    <mesh name="rh56_right_middle_2" file="right_middle_2.STL" />
+    <mesh name="rh56_right_ring_1_black" file="right_ring_1_black.STL" />
+    <mesh name="rh56_right_ring_1_white" file="right_ring_1_white.STL" />
+    <mesh name="rh56_right_ring_1" file="right_ring_1.STL" />
+    <mesh name="rh56_right_ring_2_black" file="right_ring_2_black.STL" />
+    <mesh name="rh56_right_ring_2_white" file="right_ring_2_white.STL" />
+    <mesh name="rh56_right_ring_2_silver" file="right_ring_2_silver.STL" />
+    <mesh name="rh56_right_ring_2" file="right_ring_2.STL" />
+    <mesh name="rh56_right_little_1_black" file="right_little_1_black.STL" />
+    <mesh name="rh56_right_little_1_white" file="right_little_1_white.STL" />
+    <mesh name="rh56_right_little_1" file="right_little_1.STL" />
+    <mesh name="rh56_right_little_2_black" file="right_little_2_black.STL" />
+    <mesh name="rh56_right_little_2_white" file="right_little_2_white.STL" />
+    <mesh name="rh56_right_little_2_silver" file="right_little_2_silver.STL" />
+    <mesh name="rh56_right_little_2" file="right_little_2.STL" />
+    <mesh name="rh56_wrist_yaw_link" file="wrist_yaw_link.STL" />
+  </asset>
+  <worldbody>
+    <body name="left_hand_base_link" pos="0.161 -0.1125 -0.0075" quat="0.707107 0 0.707107 0">
+      <inertial pos="-0.00826856 0.115496 -0.0283405" quat="0.714459 -0.0395624 0.0337152 0.697744" mass="0.696619" diaginertia="0.000718743 0.000599117 0.000351977" />
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_hand_base_black" />
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_hand_base_white" />
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_hand_base_silver" />
+      <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_hand_base_link" />
+      <body name="left_thumb_swing" pos="-0.035227 0.0908 -0.040206" quat="0.991284 0 0 0.131744">
+        <inertial pos="-0.0018974 -7.12517e-05 0.00313589" quat="0.666998 0.657723 0.259625 -0.234752" mass="0.00115519" diaginertia="6.58579e-08 5.87769e-08 3.77927e-08" />
+        <joint name="left_thumb_swing_joint" pos="0 0 0" axis="0 0 1" range="0 1.2" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_thumb_swing_silver" />
+        <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_thumb_swing" />
+        <body name="left_thumb_1" pos="-0.0096402 -0.0097687 0.00125" quat="0.705824 0.703732 0.0690105 -0.0425527">
+          <inertial pos="-0.0163208 0.00996673 -0.00940274" quat="0.205761 0.676828 -0.206195 0.676055" mass="0.035" diaginertia="1.43633e-06 1.18365e-06 9.93449e-07" />
+          <joint name="left_thumb_1_joint" pos="0 0 0" axis="0 0 -1" range="0 0.624" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_thumb_1_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_thumb_1_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_thumb_1_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_thumb_1" />
+          <body name="left_thumb_2" pos="-0.0385855 0.0137354 -0.00085" quat="0.995275 0 0 0.0970936">
+            <inertial pos="-0.010067 0.00272269 -0.00854141" quat="0.672124 0.674078 0.217466 0.215815" mass="0.023" diaginertia="5.04925e-07 4.38696e-07 3.77731e-07" />
+            <joint name="left_thumb_2_joint" pos="0 0 0" axis="0 0 -1" range="0 0.375" actuatorfrcrange="-1 1" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_thumb_2_black" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_thumb_2_white" />
+            <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_left_thumb_2" />
+            <body name="left_thumb_3" pos="-0.0204657 0.0083768 0.0002" quat="0.999432 0 0 0.0337138">
+              <inertial pos="-0.0166253 0.00439732 -0.00874331" quat="0.618217 0.61702 0.343701 0.344912" mass="0.018" diaginertia="9.67937e-07 9.25704e-07 4.39365e-07" />
+              <joint name="left_thumb_3_joint" pos="0 0 0" axis="0 0 -1" range="0 0.362" actuatorfrcrange="-1 1" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_thumb_3_black" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_thumb_3_white" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_thumb_3_silver" />
+              <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_thumb_3" />
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="left_index_1" pos="-0.048156 0.11125 0.045404" quat="0.482771 0.517227 -0.499924 -0.499484">
+        <inertial pos="0.00219916 0.012295 -0.00779932" quat="0.52177 0.477162 -0.521785 0.477298" mass="0.00719951" diaginertia="1.32913e-06 1.28614e-06 5.76927e-07" />
+        <joint name="left_index_1_joint" pos="0 0 0" axis="0 0 -1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_index_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_index_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_left_index_1" />
+        <body name="left_index_2" pos="0.00259487 0.0326722 -0.0003" quat="0.999977 0 0 0.00671511">
+          <inertial pos="-0.000690175 0.0256943 -0.00749253" quat="0.704012 0.703364 -0.0676868 -0.0711635" mass="0.00968688" diaginertia="2.34233e-06 2.30247e-06 3.04577e-07" />
+          <joint name="left_index_2_joint" pos="0 0 0" axis="0 0 -1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_index_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_index_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_index_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_index_2" />
+        </body>
+      </body>
+      <body name="left_middle_1" pos="-0.026577 0.11125 0.046044" quat="0.49324 0.506668 -0.493244 -0.506668">
+        <inertial pos="0.00229271 0.0122779 -0.00779932" quat="0.523583 0.475172 -0.523598 0.475307" mass="0.0071995" diaginertia="1.32913e-06 1.28614e-06 5.76927e-07" />
+        <joint name="left_middle_1_joint" pos="0 0 0" axis="0 0 -1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_middle_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_middle_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_left_middle_1" />
+        <body name="left_middle_2" pos="0.0028436 0.032651 -0.0003" quat="0.999945 0 0 0.0104797">
+          <inertial pos="-7.51984e-05 0.0274488 -0.0075006" quat="0.703925 0.703913 -0.0670976 -0.067032" mass="0.0104612" diaginertia="2.84801e-06 2.80723e-06 3.32779e-07" />
+          <joint name="left_middle_2_joint" pos="0 0 0" axis="0 0 -1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_middle_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_middle_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_middle_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_middle_2" />
+        </body>
+      </body>
+      <body name="left_ring_1" pos="-0.004945 0.11125 0.045939" quat="0.505214 0.493939 -0.479415 -0.520524">
+        <inertial pos="0.0024053 0.0122563 -0.00779932" quat="0.525759 0.472763 -0.525774 0.4729" mass="0.0071995" diaginertia="1.32913e-06 1.28613e-06 5.76927e-07" />
+        <joint name="left_ring_1_joint" pos="0 0 0" axis="0 0 -1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_ring_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_ring_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_left_ring_1" />
+        <body name="left_ring_2" pos="0.0031431 0.032624 -0.0003" quat="0.99996 0 0 0.0089089">
+          <inertial pos="-0.000667145 0.0256949 -0.00749253" quat="0.703979 0.703335 -0.0679937 -0.0714872" mass="0.00968685" diaginertia="2.34233e-06 2.30247e-06 3.04576e-07" />
+          <joint name="left_ring_2_joint" pos="0 0 0" axis="0 0 -1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_ring_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_ring_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_ring_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_ring_2" />
+        </body>
+      </body>
+      <body name="left_little_1" pos="0.016446 0.11125 0.042817" quat="0.512314 0.484714 -0.461302 -0.538318">
+        <inertial pos="0.00209089 0.0123138 -0.0077993" quat="0.519665 0.479455 -0.519679 0.479589" mass="0.00719949" diaginertia="1.32915e-06 1.28615e-06 5.76927e-07" />
+        <joint name="left_little_1_joint" pos="0 0 0" axis="0 0 -1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_little_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_little_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_left_little_1" />
+        <body name="left_little_2" pos="0.0023072 0.032694 -0.0003" quat="0.999999 0 0 -0.00140387">
+          <inertial pos="-0.0017604 0.0209002 -0.00750031" quat="0.703185 0.703176 -0.0744095 -0.0744104" mass="0.00759259" diaginertia="1.28164e-06 1.23907e-06 2.26499e-07" />
+          <joint name="left_little_2_joint" pos="0 0 0" axis="0 0 -1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_left_little_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_left_little_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_left_little_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_left_little_2" />
+        </body>
+      </body>
+    </body>
+    <body name="right_hand_base_link" pos="0.161 0.1125 -0.0075" quat="0.707107 0 0.707107 0">
+      <inertial pos="-0.00826856 -0.115496 -0.0283405" quat="0.697744 0.0337152 -0.0395624 0.714459" mass="0.696619" diaginertia="0.000718743 0.000599117 0.000351977" />
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_hand_base_black" />
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_hand_base_white" />
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_hand_base_silver" />
+      <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_hand_base_link" />
+      <body name="right_thumb_swing" pos="-0.035227 -0.0908 -0.040206" quat="0.991284 0 0 -0.131744">
+        <inertial pos="-0.0018974 7.12517e-05 0.00313589" quat="0.657723 0.666998 0.234752 -0.259625" mass="0.00115519" diaginertia="6.58579e-08 5.87769e-08 3.77927e-08" />
+        <joint name="right_thumb_swing_joint" pos="0 0 0" axis="0 0 -1" range="0 1.2" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_thumb_swing_silver" />
+        <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_thumb_swing" />
+        <body name="right_thumb_1" pos="-0.0096402 0.0097687 0.00125" quat="0.705824 -0.703732 0.0690105 0.0425527">
+          <inertial pos="-0.0163208 -0.00996673 -0.00940274" quat="-0.205761 0.676828 0.206195 0.676055" mass="0.035" diaginertia="1.43633e-06 1.18365e-06 9.93449e-07" />
+          <joint name="right_thumb_1_joint" pos="0 0 0" axis="0 0 1" range="0 0.624" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_thumb_1_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_thumb_1_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_thumb_1_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_thumb_1" />
+          <body name="right_thumb_2" pos="-0.0385855 -0.0137354 -0.00085" quat="0.995275 0 0 -0.0970936">
+            <inertial pos="-0.010067 -0.00272269 -0.00854141" quat="0.674078 0.672124 -0.215815 -0.217466" mass="0.023" diaginertia="5.04925e-07 4.38696e-07 3.77731e-07" />
+            <joint name="right_thumb_2_joint" pos="0 0 0" axis="0 0 1" range="0 0.375" actuatorfrcrange="-1 1" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_thumb_2_black" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_thumb_2_white" />
+            <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_right_thumb_2" />
+            <body name="right_thumb_3" pos="-0.0204657 -0.0083768 0.0002" quat="0.999432 0 0 -0.0337138">
+              <inertial pos="-0.0166253 -0.00439732 -0.00874331" quat="0.344912 0.343701 0.61702 0.618217" mass="0.018" diaginertia="9.67937e-07 9.25704e-07 4.39365e-07" />
+              <joint name="right_thumb_3_joint" pos="0 0 0" axis="0 0 1" range="0 0.362" actuatorfrcrange="-1 1" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_thumb_3_black" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_thumb_3_white" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_thumb_3_silver" />
+              <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_thumb_3" />
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="right_index_1" pos="-0.048156 -0.11125 0.045404" quat="0.482771 -0.517227 -0.499924 0.499484">
+        <inertial pos="0.00219916 -0.012295 -0.00779932" quat="0.477162 0.52177 -0.477298 0.521785" mass="0.00719951" diaginertia="1.32913e-06 1.28614e-06 5.76927e-07" />
+        <joint name="right_index_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_index_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_index_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_right_index_1" />
+        <body name="right_index_2" pos="0.00259487 -0.0326722 -0.0003" quat="0.999977 0 0 -0.00671511">
+          <inertial pos="-0.000690175 -0.0256943 -0.00749253" quat="0.703364 0.704012 0.0711635 0.0676868" mass="0.00968688" diaginertia="2.34233e-06 2.30247e-06 3.04577e-07" />
+          <joint name="right_index_2_joint" pos="0 0 0" axis="0 0 1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_index_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_index_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_index_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_index_2" />
+        </body>
+      </body>
+      <body name="right_middle_1" pos="-0.026577 -0.11125 0.046044" quat="0.49324 -0.506668 -0.493244 0.506668">
+        <inertial pos="0.00229271 -0.0122779 -0.00779932" quat="0.475172 0.523583 -0.475307 0.523598" mass="0.0071995" diaginertia="1.32913e-06 1.28614e-06 5.76927e-07" />
+        <joint name="right_middle_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_middle_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_middle_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_right_middle_1" />
+        <body name="right_middle_2" pos="0.0028436 -0.032651 -0.0003" quat="0.999945 0 0 -0.0104797">
+          <inertial pos="-7.51984e-05 -0.0274488 -0.0075006" quat="0.703913 0.703925 0.067032 0.0670976" mass="0.0104612" diaginertia="2.84801e-06 2.80723e-06 3.32779e-07" />
+          <joint name="right_middle_2_joint" pos="0 0 0" axis="0 0 1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_middle_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_middle_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_middle_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_middle_2" />
+        </body>
+      </body>
+      <body name="right_ring_1" pos="-0.004945 -0.11125 0.045939" quat="0.505214 -0.493939 -0.479415 0.520524">
+        <inertial pos="0.0024053 -0.0122563 -0.00779932" quat="0.472763 0.525759 -0.4729 0.525774" mass="0.0071995" diaginertia="1.32913e-06 1.28613e-06 5.76927e-07" />
+        <joint name="right_ring_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_ring_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_ring_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_right_ring_1" />
+        <body name="right_ring_2" pos="0.0031431 -0.032624 -0.0003" quat="0.99996 0 0 -0.0089089">
+          <inertial pos="-0.000667145 -0.0256949 -0.00749253" quat="0.703335 0.703979 0.0714872 0.0679937" mass="0.00968685" diaginertia="2.34233e-06 2.30247e-06 3.04576e-07" />
+          <joint name="right_ring_2_joint" pos="0 0 0" axis="0 0 1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_ring_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_ring_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_ring_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_ring_2" />
+        </body>
+      </body>
+      <body name="right_little_1" pos="0.016446 -0.11125 0.042817" quat="0.512314 -0.484714 -0.461302 0.538318">
+        <inertial pos="0.00209089 -0.0123138 -0.0077993" quat="0.479455 0.519665 -0.479589 0.519679" mass="0.00719949" diaginertia="1.32915e-06 1.28615e-06 5.76927e-07" />
+        <joint name="right_little_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.517" actuatorfrcrange="-1 1" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_little_1_black" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_little_1_white" />
+        <geom type="mesh" rgba="0.93 0.93 0.93 1" mesh="rh56_right_little_1" />
+        <body name="right_little_2" pos="0.0023072 -0.032694 -0.0003" quat="0.999999 0 0 0.00140387">
+          <inertial pos="-0.0017604 -0.0209002 -0.00750031" quat="0.703176 0.703185 0.0744104 0.0744095" mass="0.00759259" diaginertia="1.28164e-06 1.23907e-06 2.26499e-07" />
+          <joint name="right_little_2_joint" pos="0 0 0" axis="0 0 1" range="0 1.351" actuatorfrcrange="-1 1" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.1 0.1 0.1 1" mesh="rh56_right_little_2_black" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.93 0.93 0.93 1" mesh="rh56_right_little_2_white" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.6 0.61 0.64 1" mesh="rh56_right_little_2_silver" />
+          <geom type="mesh" rgba="0.6 0.61 0.64 1" mesh="rh56_right_little_2" />
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <equality>
+    <joint joint1="left_index_2_joint" joint2="left_index_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="left_middle_2_joint" joint2="left_middle_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="left_ring_2_joint" joint2="left_ring_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="left_little_2_joint" joint2="left_little_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="left_thumb_2_joint" joint2="left_thumb_1_joint" polycoef="0 0.375595 0.234371 0.146248 0.0912586" />
+    <joint joint1="left_thumb_3_joint" joint2="left_thumb_1_joint" polycoef="0 0.362575 0.226247 0.141178 0.088095" />
+    <joint joint1="right_index_2_joint" joint2="right_index_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="right_middle_2_joint" joint2="right_middle_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="right_ring_2_joint" joint2="right_ring_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="right_little_2_joint" joint2="right_little_1_joint" polycoef="0 0.582853 -0.45387 0.808033 -0.246071" />
+    <joint joint1="right_thumb_2_joint" joint2="right_thumb_1_joint" polycoef="0 0.375595 0.234371 0.146248 0.0912586" />
+    <joint joint1="right_thumb_3_joint" joint2="right_thumb_1_joint" polycoef="0 0.362575 0.226247 0.141178 0.088095" />
+  </equality>
+</mujoco>

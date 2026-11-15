@@ -32,8 +32,8 @@ from h1_2_algoritms.vision.visual_servoing import GraspServoing
 # Depósito al costado, fuera de la faja: dedos 60° hacia abajo y hacia
 # afuera (barrido de IK: alcanzable en ambos brazos).
 # (z relativa a la faja: GG.DZ_MESA)
-DEPOSIT_FRUIT = {"left": np.array([0.15, 0.40, -0.05 + GG.DZ_MESA]),
-                 "right": np.array([0.15, -0.40, -0.05 + GG.DZ_MESA])}
+DEPOSIT_FRUIT = {"left": np.array([0.15 - GG.FAJA_DX, 0.40, -0.05 + GG.DZ_MESA]),
+                 "right": np.array([0.15 - GG.FAJA_DX, -0.40, -0.05 + GG.DZ_MESA])}
 DEPOSIT_AZ = {"left": np.deg2rad(90.0), "right": np.deg2rad(-90.0)}
 DEPOSIT_ELEV = np.deg2rad(-60.0)
 
@@ -65,6 +65,7 @@ def deposit_wrist_target(side, pose=None):
         R = GG.grasp_rotation(side, elev=DEPOSIT_ELEV, az=DEPOSIT_AZ[side])
         return GG.grasp_wrist_target(side, DEPOSIT_FRUIT[side], R)
     (x, y, z), elev, az = pose
+    x -= GG.FAJA_DX                  # el depósito está delante de la faja: se corre con ella
     sg = 1.0 if side == "right" else -1.0
     R = GG.grasp_rotation(side, elev=np.deg2rad(elev), az=np.deg2rad(sg * az))
     return GG.grasp_wrist_target(side, np.array([x, sg * y, z]), R)

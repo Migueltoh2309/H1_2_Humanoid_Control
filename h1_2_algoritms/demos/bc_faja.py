@@ -90,7 +90,10 @@ ESCENARIOS = {"normal": ((0.03, 0.07), 3.0, 8, (0.30, 0.40)),
               # barrido de velocidad (mesa nueva): llegadas del exigente, faja más rápida
               "rapido": ((0.08, 0.10), 2.0, 10, (0.30, 0.40)),
               "muy_rapido": ((0.10, 0.12), 2.0, 10, (0.30, 0.40)),
-              "extremo": ((0.12, 0.15), 2.0, 10, (0.30, 0.40))}
+              "extremo": ((0.12, 0.15), 2.0, 10, (0.30, 0.40)),
+              # rango de agarre: llegadas del exigente con las frutas en todo el
+              # ancho útil de la faja (x de la fruta hasta 4 cm del borde lejano)
+              "ancho": ((0.05, 0.08), 2.0, 10, (0.30, 0.45))}
 ESCENARIO = "normal"           # lo fija main() antes de abrir el pool (los procesos lo heredan)
 # Perfiles de tiempos de las habilidades (main: --perfil): parámetros de
 # ArmExecutor y de su GraspServoing, escala de τ del alcance y el modelo de
@@ -204,6 +207,7 @@ def home_pose(espera=None):
     if espera is None:
         return V.HOME
     x, y, approach = espera
+    x -= GG.FAJA_DX                      # espera sobre la faja: se corre con ella
     return {s: GG.pregrasp_wrist_target(s, np.array([x, y if s == "right" else -y, Z_BELT_FRUIT]),
                                         approach=approach) for s in SIDES}
 
@@ -219,7 +223,55 @@ def episode_params(seed, escenario=None):
     return v, times, xs
 
 
+EXITO = {"predictor": None, "alpha": 1.0, "umbral": 0.0}   # main: --predictor/--alpha-exito/--umbral-exito
+
+
+class BCExitoPolicy(BCPolicy):
+    """BC + predictor de éxito del agarre (predictor_exito.py): al logit de
+    cada fruta se le suma alpha·log P(ok), y las frutas con P(ok) < umbral
+    quedan fuera (si no queda ninguna, gana esperar)."""
+    name = "bc_exito"
+
+    def __init__(self, net, pred, alpha, umbral):
+        super().__init__(net)
+        self.pred, self.alpha, self.umbral = pred, alpha, umbral
+
+    def act(self, state, side):
+        import torch
+        ids, X, ctx = features(state, side)
+        with torch.no_grad():
+            lg = self.net(torch.from_numpy(X), torch.from_numpy(ctx)).numpy().copy()
+        if ids:
+            p = self.pred(X, ctx)
+            lg[:len(ids)] += self.alpha * np.log(np.clip(p, 1e-3, 1.0))
+            lg[:len(ids)][p < self.umbral] = -np.inf
+        k = int(np.argmax(lg))
+        return ids[k] if k < len(ids) else None
+
+
+class ExpertoExitoPolicy(ExpertPolicy):
+    """Control: el experto sin las frutas con P(ok) < umbral para este brazo."""
+    name = "experto_exito"
+
+    def __init__(self, pred, umbral, **kw):
+        super().__init__(**kw)
+        self.pred, self.umbral = pred, umbral
+
+    def act(self, state, side):
+        ids, X, ctx = features(state, side)
+        if ids:
+            p = self.pred(X, ctx)
+            state = {**state, "cands": {k: state["cands"][k] for k, pk in zip(ids, p) if pk >= self.umbral}}
+        return super().act(state, side)
+
+
 def make_policy(name):
+    if name in ("bc_exito", "experto_exito"):
+        from predictor_exito import Predictor
+        pred = Predictor(EXITO["predictor"])
+        if name == "bc_exito":
+            return BCExitoPolicy(BCPolicy.load(NET_PATH).net, pred, EXITO["alpha"], EXITO["umbral"])
+        return ExpertoExitoPolicy(pred, EXITO["umbral"], **PERFILES[PERFIL].get("experto", {}))
     if name == "fifo":
         return FifoPolicy()
     if name == "experto":
@@ -328,6 +380,8 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     counts = {"decisiones": 0, "agarrar": 0, "cierra": 0, "verificado": 0, "fallo": 0, "perdida": 0,
               "suelta": 0}
     d_arms_min = np.inf
+    intentos = []            # un registro por agarre: estado al decidir + resultado (diagnóstico / predictor)
+    abierto = {s: None for s in SIDES}
     next_spawn = 0
     frames = []
     vid_r = None
@@ -409,11 +463,24 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                     if DROP_DEBUG:
                         why = ex[s].fsm.events.get("why", "") if ex[s].fsm else ""
                         drop_log.append((t, f"{s} {ev} track={tid} held={faja.held[s]} why={why}"))
+                    a_ = intentos[abierto[s]] if abierto[s] is not None else None
+                    if a_ is not None and ev == "cierra":
+                        a_["t_cierra"] = t
                     if ev == "cierra":
                         tracker.remove(tid)
                     elif ev == "suelta":
-                        faja.release(s, deposited=True)
+                        held_ = faja.release(s, deposited=True)
+                        if a_ is not None:      # se cayó en el camino si ya no la llevaba
+                            a_["resultado"] = "ok" if held_ is not None else "caida"
                     elif ev in ("fallo", "perdida"):
+                        if a_ is not None:
+                            a_["resultado"] = ev
+                            # del log del ejecutor: con "libre" en el mismo ciclo la FSM ya no existe
+                            a_["why"] = next((e_[3] for e_ in reversed(ex[s].log) if e_[1] == ev and len(e_) > 3), "")
+                    if ev == "libre" and a_ is not None:
+                        a_.setdefault("resultado", "caida")
+                        abierto[s] = None
+                    if ev in ("fallo", "perdida"):
                         faja.release(s, deposited=False)
                         assigned.pop(tid, None)
                         if ev == "perdida":
@@ -421,6 +488,14 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                     elif ev == "libre":
                         assigned = {k: a for k, a in assigned.items() if a != s}
             est = tracker.estimates(t)
+            for s in SIDES:      # traza del alcance (4 Hz): t, punto de agarre - fruta (torso), fase
+                a_ = intentos[abierto[s]] if abierto[s] is not None else None
+                if a_ is not None and ex[s].busy and ex[s].phase in ("REACH", "APPROACH", "DESCEND") \
+                        and step % (4 * n_ctrl) == 0:
+                    e_ = est.get(ex[s].track)
+                    gp = GG.wrist_to_fruit(s, q_meas[:7] if s == "left" else q_meas[7:])
+                    a_.setdefault("traza", []).append(
+                        (round(t - a_["t"], 2), None if e_ is None else np.round(gp - e_[0], 3), ex[s].phase))
             # ---- decisiones de alto nivel ----
             for s in ("right", "left"):
                 if ex[s].busy or t - t_dec[s] < decision_dt:
@@ -446,6 +521,9 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                     lab = act if labeler is policy else labeler.act(state, s)
                     samples.append({"state": copy.deepcopy(state), "side": s, "label": lab})
                 if act is not None:
+                    abierto[s] = len(intentos)
+                    intentos.append({"state": copy.deepcopy(state), "side": s, "act": act, "t": t,
+                                     "seed": seed, "politica": policy.name})
                     ex[s].pick(t, act)
                     assigned[act] = s
                     counts["agarrar"] += 1
@@ -529,6 +607,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                         hz_agente=rob["hz"], vel_max=rob["vel_max"], tau_max=rob["tau_max"],
                         ctrl_hz=ctrl_hz, perfil=PERFIL, seed=seed)
     res["_eventos"] = {s: list(ex[s].log) for s in SIDES}
+    res["_intentos"] = [a for a in intentos if "resultado" in a]
     if os.environ.get("BC_DEBUG"):
         for s in SIDES:
             for e in ex[s].log:
@@ -562,6 +641,12 @@ def _job(a):
     if label:
         with open(os.path.join(DATA, f"{tag}_s{seed}.pkl"), "wb") as f:
             pickle.dump(samples, f)
+    dir_int = os.environ.get("BC_INTENTOS")       # registro de intentos con resultado (predictor de éxito)
+    if dir_int:
+        os.makedirs(dir_int, exist_ok=True)
+        with open(os.path.join(dir_int, f"{pol_name}_s{seed}.pkl"), "wb") as f:
+            pickle.dump(res["_intentos"], f)
+    res.pop("_intentos", None)
     res["muestras"] = len(samples)
     if not keep_events:
         res.pop("_eventos", None)
@@ -695,6 +780,9 @@ def entrenar(args):
     import torch
     tags = ["experto"]
     for rnd in range(args.dagger + 1):
+        if rnd < args.dagger_desde:        # rondas ya recolectadas: solo se suman sus datos
+            tags.append(f"dagger{rnd + 1}")
+            continue
         S = load_samples(tags)
         net, acc, ntr, nval = fit(S, epochs=args.epocas)
         torch.save(net.state_dict(), NET_PATH)
@@ -763,6 +851,8 @@ def main():
     ap.add_argument("--seed", type=int, default=10000)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--dagger", type=int, default=2)
+    ap.add_argument("--dagger-desde", type=int, default=0,
+                    help="continuar un entrenamiento: reusar los datos de las rondas DAgger < N ya recolectadas")
     ap.add_argument("--epocas", type=int, default=200)
     ap.add_argument("--politicas", nargs="+", default=["fifo", "experto", "bc"])
     ap.add_argument("--politica", default="bc")
@@ -772,11 +862,14 @@ def main():
     ap.add_argument("--kp-articular", type=float, default=KP_JOINT)
     ap.add_argument("--perfil", default=PERFIL, choices=list(PERFILES))
     ap.add_argument("--timing", default=None, help="k=v,... sobre habilidades.TIMING (p. ej. deposit=1.2,home=0.4)")
+    ap.add_argument("--predictor", default=None, help="predictor de éxito (predictor_exito.py) para bc_exito / experto_exito")
+    ap.add_argument("--alpha-exito", type=float, default=1.0, help="bc_exito: logit += alpha·log P(ok)")
+    ap.add_argument("--umbral-exito", type=float, default=0.0, help="descartar frutas con P(ok) < umbral")
     ap.add_argument("--red", default=None, help="red BC a evaluar (por omisión, la del escenario)")
     ap.add_argument("--mapa-alcance", nargs="?", const="", default=None, metavar="JSON",
                     help="ventanas del planificador dependientes de x (alto_nivel.window); FIFO no cambia. "
                          "Opcional: JSON {'right': [[x, [y_lo, y_hi]], ...], 'xmax': x} en lugar del mapa por omisión")
-    ap.add_argument("--faja-dx", type=float, default=0.0,
+    ap.add_argument("--faja-dx", type=float, default=GG.FAJA_DX,
                     help="acerca la faja al robot (m): estudio de montaje (escena_faja.BELT_DX)")
     rb = ap.add_argument_group("modo robot (comandos del H1-2 real: docs/LFD_ROBOT.md)")
     rb.add_argument("--robot", action="store_true", help="agente arm_sdk emulado + motor PD puro + manos Inspire")
@@ -793,6 +886,8 @@ def main():
                     help="s sin ver la fruta durante el alcance -> abortar (LFD_ROBOT §3; en --robot, 1 por omisión)")
     args = ap.parse_args()
     LOST_TIMEOUT = args.lost_timeout
+    EXITO.update(predictor=os.path.abspath(args.predictor) if args.predictor else None,
+                 alpha=args.alpha_exito, umbral=args.umbral_exito)
     if args.robot:
         ROBOT = {"hz": args.hz_agente, "vel_max": args.vel_max, "tau_max": args.tau_max,
                  "kd_escala": args.kd_robot, "kp_escala": args.kp_robot, "grav": not args.sin_gravedad,
@@ -826,6 +921,8 @@ def main():
             tag += "_" + os.path.splitext(os.path.basename(args.mapa_alcance))[0]
         DATA += tag
         NET_PATH = NET_PATH[:-3] + tag + ".pt"
+    if args.faja_dx != GG.FAJA_DX:
+        sys.exit("--faja-dx: usar H12_FAJA_DX=<m> en el entorno (corre también la percepción y las poses)")
     if args.faja_dx:               # antes del pool y de build_xml
         EF.BELT_DX = args.faja_dx
         tag = f"_dx{round(args.faja_dx * 100)}"

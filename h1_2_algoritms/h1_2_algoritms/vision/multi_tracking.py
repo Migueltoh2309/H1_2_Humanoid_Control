@@ -86,6 +86,22 @@ class MultiFruitTracker:
     def remove(self, tid):
         self.tracks.pop(tid, None)
 
+    # Posición de la pista para la ASOCIACIÓN y la BAJA, como en estimates():
+    # medidas recientes + velocidad compartida de la faja. Antes se usaba el
+    # Kalman de la pista, cuya velocidad se contamina en la oclusión parcial
+    # (la mano que baja corre la esfera ajustada): con la fruta ya tapada del
+    # todo la predicción derivaba ~5 cm/s en x hacia el robot y la pista se
+    # borraba por "fuera de la faja" a mitad del alcance (2026-11-13: la
+    # mayoría de los abortos de las frutas cercanas, x < 0.31).
+    SHARED_PRUNE = True
+    PRUNE_DX = 0.03
+
+    def _pos(self, tr, t, vb):
+        if not self.SHARED_PRUNE or vb is None or not tr.hist:
+            return tr.kf.predict(t)[0]
+        h = [(ti, z) for ti, z in tr.hist if ti >= tr.hist[-1][0] - self.pos_window]
+        return np.mean([z + vb * (t - ti) for ti, z in h], axis=0)
+
     def belt_velocity(self):
         """Velocidad común de las frutas: pendiente de mínimos cuadrados con
         una ordenada por pista, sobre las medidas del último `vel_window` s
@@ -120,8 +136,9 @@ class MultiFruitTracker:
         medida."""
         dets = [np.asarray(z) for z in dets]
         pairs = []
+        vb = self.belt_velocity() if self.shared_velocity else None
         for tid, tr in self.tracks.items():
-            p, _ = tr.kf.predict(t)
+            p = self._pos(tr, t, vb)
             sig = np.sqrt(np.max(np.diag(tr.kf.P[0:3, 0:3])))
             for j, z in enumerate(dets):
                 dist = np.linalg.norm(z - p)
@@ -160,11 +177,15 @@ class MultiFruitTracker:
         self.prune(t)
 
     def prune(self, t):
+        vb = self.belt_velocity() if self.shared_velocity else None
         for tid in list(self.tracks):
             tr = self.tracks[tid]
-            p, _ = tr.kf.predict(t)
+            p = self._pos(tr, t, vb)
             z_amplia = (GG.Z_FRUTA_FAJA - 0.14, GG.Z_FRUTA_FAJA + 0.16)
-            if t - tr.t_last > self.max_age or not on_belt(p, {**BELT_BOX, "z": z_amplia}):
+            # x con PRUNE_DX de margen: la oclusión parcial corre la esfera
+            # 1-2 cm hacia el robot y las frutas cercanas están a 4 cm del borde
+            x_amplia = (BELT_BOX["x"][0] - self.PRUNE_DX, BELT_BOX["x"][1] + self.PRUNE_DX)
+            if t - tr.t_last > self.max_age or not on_belt(p, {**BELT_BOX, "x": x_amplia, "z": z_amplia}):
                 del self.tracks[tid]
 
     def estimates(self, t, min_updates=3):

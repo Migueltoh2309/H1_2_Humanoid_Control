@@ -30,6 +30,8 @@ aproximación permitida baja linealmente hasta ser 0 en d = d_s, así que la
 distancia nunca cae por debajo de d_s (en tiempo continuo). Si ya está por
 dentro (d < d_s) el lado derecho es positivo: obliga a alejarse.
 """
+import os
+
 import numpy as np
 
 from h1_2_algoritms.movimiento.fk_functions import dh
@@ -121,6 +123,13 @@ FINGER_CAPSULE = ("fingers", 7, np.array([0.165, 0.0, 0.0]), np.array([0.245, 0.
 # esta cápsula la cámara lo ve como obstáculo a ~4 cm de la mano y el
 # damper empuja la mano hacia atrás (medido: la aproximación no converge).
 THUMB_CAPSULE = ("thumb", 7, np.array([0.11, 0.0, 0.02]), np.array([0.17, 0.0, 0.11]), 0.03)
+if os.environ.get("H12_MANOS", "rh56") == "rh56":   # = grasp_geometry.MANOS
+    # RH56DFTP oficial (montada 1 cm más afuera, palma hasta x = 0.211, dedos
+    # hasta 0.297, pulgar abierto x 0.114-0.164, z hasta 0.126; medido sobre
+    # las mallas de colisión en el frame de la muñeca)
+    CAPSULES[2] = ("hand", 7, np.array([0.03, 0.0, 0.0]), np.array([0.18, 0.0, 0.0]), 0.046)
+    FINGER_CAPSULE = ("fingers", 7, np.array([0.18, 0.0, 0.0]), np.array([0.27, 0.0, 0.0]), 0.05)
+    THUMB_CAPSULE = ("thumb", 7, np.array([0.115, 0.0, 0.025]), np.array([0.165, 0.0, 0.12]), 0.03)
 
 # Torso fijo en torso_link (no depende de q de los brazos). El tramo z
 # 0.35-0.45 es más ancho (y = ±0.159) pero ahí están los soportes de los

@@ -1,0 +1,5 @@
+180 episodios en 3435 s -> results/bc/mesa_u/rh56/final_dx3_ancho_fixpista.csv
+
+política   ep  depositadas   tasa  perdidas  caídas  intentos  fallos  pérdidas  d brazos
+experto    90   878/900      0.98        20       2       926      15        25        30
+bc         90   880/900      0.98        19       1       927      15        23        30

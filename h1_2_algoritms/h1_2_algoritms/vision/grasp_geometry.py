@@ -21,6 +21,8 @@ alcanzable con los dedos ~65° hacia abajo, y ahí las puntas entran en la
 faja. Aproximación con el pulgar ABIERTO (en la preforma opuesta cuelga
 bajo la palma y empuja la fruta); se opone al cerrar.
 """
+import os
+
 import numpy as np
 
 from h1_2_algoritms.movimiento.fk_functions import (
@@ -37,13 +39,23 @@ Z_FRUTA_FAJA = 0.9645 + 0.04 - TORSO_Z
 # z = -0.164). Esas poses se definen relativas a la faja: suben con ella.
 DZ_MESA = Z_FRUTA_FAJA - (-0.164)
 # caja de la superficie útil de la faja (torso_link) en x, z: ±4 cm en z
-BELT_BOX_XZ = {"x": (0.26, 0.47), "z": (Z_FRUTA_FAJA - 0.04, Z_FRUTA_FAJA + 0.04)}
+# Faja (y mesa) acercada al robot FAJA_DX m en -x (env H12_FAJA_DX; montaje).
+# Todo lo que se define respecto de la faja se corre con ella: la caja de la
+# percepción, la espera, el depósito y la pose de mostrar.
+FAJA_DX = float(os.environ.get("H12_FAJA_DX", "0"))
+BELT_BOX_XZ = {"x": (0.26 - FAJA_DX, 0.47 - FAJA_DX), "z": (Z_FRUTA_FAJA - 0.04, Z_FRUTA_FAJA + 0.04)}
 FK = {"left": fkine_arm_left_unitree, "right": fkine_arm_right_unitree}
 
 # Centro de la fruta en el frame de la muñeca para el agarre de potencia
 # (y se refleja entre manos). Ajustado en la prueba física.
 GRASP_OFFSET = {"left": np.array([0.17, -0.058, 0.0]),
                 "right": np.array([0.17, 0.058, 0.0])}
+if os.environ.get("H12_MANOS", "rh56") == "rh56":
+    # RH56DFTP oficial: palma hasta x = 0.211 (vieja 0.196) y dedos hasta
+    # 0.297 (0.272) en el frame de la muñeca; la cara de la palma sigue en
+    # y = 0.025. El agarre se corre lo mismo que la palma.
+    GRASP_OFFSET = {"left": np.array([0.185, -0.058, 0.0]),
+                    "right": np.array([0.185, 0.058, 0.0])}
 GRASP_MODE = "top"
 APPROACH_ELEV = np.deg2rad(-20.0)   # dedos 20° bajo la horizontal
 APPROACH_AZ = {"left": np.deg2rad(-40.0), "right": np.deg2rad(40.0)}   # hacia el centro
@@ -54,12 +66,29 @@ APPROACH_AZ = {"left": np.deg2rad(-40.0), "right": np.deg2rad(40.0)}   # hacia e
 HAND_OPEN = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 HAND_PRESHAPE = np.array([0.0, 0.0, 0.1, 0.1, 0.1, 0.1])
 HAND_CLOSED = np.array([1.2, 0.5, 1.4, 1.4, 1.4, 1.4])
-HAND_ACTUATORS = ["thumb_proximal_yaw_joint", "thumb_proximal_pitch_joint",
-                  "index_proximal_joint", "middle_proximal_joint",
-                  "ring_proximal_joint", "pinky_proximal_joint"]
+# Manos del modelo (env H12_MANOS):
+#   "rh56"    las RH56DFTP OFICIALES del H1-2 del laboratorio (h1_2_utec,
+#             h1_2_inspire_description; escena_faja las injerta en la escena):
+#             juntas {lado}_thumb_swing / thumb_1 / index_1 ... little_1,
+#             q = 0 abierta, máx = cerrada (1.2 / 0.624 / 1.517), mano de
+#             0.84 kg montada a x = 0.161 de la muñeca.
+#   "vieja"   las de h1_2_description (L_/R_ *_proximal_joint), con las que se
+#             hizo todo hasta 2026-11-10.
+MANOS = os.environ.get("H12_MANOS", "rh56")
+if MANOS == "rh56":
+    HAND_ACTUATORS = ["thumb_swing_joint", "thumb_1_joint", "index_1_joint", "middle_1_joint",
+                      "ring_1_joint", "little_1_joint"]
+    HAND_MAX = np.array([1.2, 0.624, 1.517, 1.517, 1.517, 1.517])
+else:
+    HAND_ACTUATORS = ["thumb_proximal_yaw_joint", "thumb_proximal_pitch_joint",
+                      "index_proximal_joint", "middle_proximal_joint",
+                      "ring_proximal_joint", "pinky_proximal_joint"]
+    HAND_MAX = np.array([1.3, 0.6, 1.7, 1.7, 1.7, 1.7])
 
 
 def hand_actuator_names(side):
+    if MANOS == "rh56":
+        return [f"{side}_{n}" for n in HAND_ACTUATORS]
     pre = "L" if side == "left" else "R"
     return [f"{pre}_{n}" for n in HAND_ACTUATORS]
 
@@ -112,7 +141,8 @@ def pregrasp_wrist_target(side, fruit_torso, approach=0.08, R=None):
 # y la verificación daba falsos negativos con la fruta en la mano. Palma
 # arriba: 55-64% visible y 1.3-1.5 mm de error de la esfera, aunque la fruta
 # haya quedado ±3 cm corrida en la mano (barrido en docs/LFD_DMP.md §4.2).
-SHOW_FRUIT = {"left": np.array([0.36, 0.18, 0.10 + DZ_MESA]), "right": np.array([0.36, -0.18, 0.10 + DZ_MESA])}
+SHOW_FRUIT = {"left": np.array([0.36 - FAJA_DX, 0.18, 0.10 + DZ_MESA]),
+              "right": np.array([0.36 - FAJA_DX, -0.18, 0.10 + DZ_MESA])}
 
 
 def show_wrist_target(side, fruit_torso=None):
