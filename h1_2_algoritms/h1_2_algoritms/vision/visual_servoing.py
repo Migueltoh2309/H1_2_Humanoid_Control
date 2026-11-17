@@ -201,6 +201,11 @@ class GraspServoing:
         # aquí (p.ej. empujada a la mesa, medido en vivo) no es alcanzable
         # y no se persigue, aunque su y caiga en la ventana de un brazo.
         self.belt_box = belt_box or dict(GG.BELT_BOX_XZ)
+        # Robot de pie (aprendizaje/cuerpo_pie.py): el torso se mueve y la faja deja de estar quieta en
+        # su marco. `a_marco_faja(p)` lleva un punto del torso actual al marco fijo N (cinemática de
+        # las piernas) para los chequeos de faja y de ventanas; la geometría del agarre sigue en el
+        # torso. None = el torso es fijo (pelvis soldada): como siempre.
+        self.a_marco_faja = None
         self.lookahead = lookahead
         self.exit_margin = exit_margin
         self.approach = approach
@@ -405,11 +410,12 @@ class GraspServoing:
         ff = {s: None for s in SIDES}
         hand = {s: GG.HAND_PRESHAPE.copy() for s in SIDES}
         seen = est is not None and n_updates >= self.min_updates
+        eb = est if (est is None or self.a_marco_faja is None) else self.a_marco_faja(est)   # marco de la faja
 
-        on_belt = seen and self.belt_box["x"][0] <= est[0] <= self.belt_box["x"][1] and \
-            self.belt_box["z"][0] <= est[2] <= self.belt_box["z"][1]
+        on_belt = seen and self.belt_box["x"][0] <= eb[0] <= self.belt_box["x"][1] and \
+            self.belt_box["z"][0] <= eb[2] <= self.belt_box["z"][1]
         if self.phase == "WAIT" and on_belt and self.auto_start:
-            y_future = est[1] + self.lookahead * vel[1]
+            y_future = eb[1] + self.lookahead * vel[1]
             # Las ventanas se solapan en el centro: primero el brazo del lado
             # donde estará la fruta.
             for s in (("right", "left") if y_future < 0 else ("left", "right")):
@@ -433,8 +439,8 @@ class GraspServoing:
             # en pleno alcance, x con 3 cm de margen: la mano que baja tapa parte
             # de la fruta y la estimación se corre hacia el robot (las frutas
             # cercanas están a 4 cm del borde de la caja)
-            on_belt_r = seen and self.belt_box["x"][0] - 0.03 <= est[0] <= self.belt_box["x"][1] + 0.03 and \
-                self.belt_box["z"][0] <= est[2] <= self.belt_box["z"][1]
+            on_belt_r = seen and self.belt_box["x"][0] - 0.03 <= eb[0] <= self.belt_box["x"][1] + 0.03 and \
+                self.belt_box["z"][0] <= eb[2] <= self.belt_box["z"][1]
             if self.phase in ("APPROACH", "DESCEND", "REACH") and seen and not on_belt_r:
                 self._enter("MISSED", t)
                 self.events["why"] = "la fruta ya no está sobre la faja"
@@ -442,8 +448,8 @@ class GraspServoing:
                 # Solo el borde hacia el que avanza la fruta: una fruta que
                 # todavía está llegando (del otro lado) no se ha perdido.
                 lo, hi = self.windows[s]
-                if (vel[1] >= 0 and est[1] > hi + self.exit_margin) or \
-                        (vel[1] < 0 and est[1] < lo - self.exit_margin):
+                if (vel[1] >= 0 and eb[1] > hi + self.exit_margin) or \
+                        (vel[1] < 0 and eb[1] < lo - self.exit_margin):
                     ph0 = self.phase
                     err = grasp_point_err(s, q_side, GG.grasp_wrist_target(s, est))
                     self._enter("MISSED", t)

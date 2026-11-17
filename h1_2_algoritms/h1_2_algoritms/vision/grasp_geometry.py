@@ -30,14 +30,23 @@ from h1_2_algoritms.movimiento.fk_functions import (
 from h1_2_algoritms.movimiento.ik_functions import ik_solve_limited
 from h1_2_algoritms.movimiento import joint_limits as JL
 
-TORSO_Z = 1.0282          # z de torso_link en el mundo de la escena de la faja
+# Cuerpo del robot (env H12_CUERPO):
+#   "soldado"  la pelvis fija al mundo, piernas rectas (todo hasta 2026-11-15);
+#   "pie"      de pie con su equilibrio tras el arranque con el arnés (aprendizaje/cuerpo_pie.py):
+#              rodillas dobladas, el torso más abajo (TORSO_Z_PIE, medido con cuerpo_pie.medir()).
+CUERPO = os.environ.get("H12_CUERPO", "soldado")
+TORSO_Z_PIE = 1.0059     # medido 2026-11-16: de pie tras el arranque, rodillas 0.46, suelas de caja
+TORSO_Z = TORSO_Z_PIE if CUERPO == "pie" else 1.0282   # z de torso_link en el mundo de la escena de la faja
 # z (torso_link) del centro de una fruta apoyada en la faja: superficie medida
 # con mj_ray (0.9645, mesa u_table; con la mesa vieja 0.8245 -> -0.164) + radio.
 Z_FRUTA_FAJA = 0.9645 + 0.04 - TORSO_Z
 # Cuánto subió la faja respecto de la mesa con la que se ajustaron las poses
 # de tarea (depósito, mostrar) y se grabaron las demos de la DMP (fruta a
 # z = -0.164). Esas poses se definen relativas a la faja: suben con ella.
-DZ_MESA = Z_FRUTA_FAJA - (-0.164)
+# De pie (CUERPO "pie") el torso baja 2.2 cm, pero el depósito (cesto abstracto al costado) y la
+# pose de mostrar (frente a la cámara, que va en el torso) no son de la faja: se quedan en el marco
+# del torso, con el valor de la pelvis soldada (con el de pie, el depósito sale de los límites).
+DZ_MESA = (0.9645 + 0.04 - 1.0282) - (-0.164)
 # caja de la superficie útil de la faja (torso_link) en x, z: ±4 cm en z
 # Faja (y mesa) acercada al robot FAJA_DX m en -x (env H12_FAJA_DX; montaje).
 # Todo lo que se define respecto de la faja se corre con ella: la caja de la

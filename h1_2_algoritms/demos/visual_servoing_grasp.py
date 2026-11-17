@@ -68,8 +68,19 @@ from h1_2_algoritms.vision.fruit_localization import (                      # no
     locate_stereo_ir, realsense_depth_noise, image_noise, MANDARINA_RADIUS)
 
 from ament_index_python.packages import get_package_share_directory  # noqa: E402
+from h1_2_algoritms.aprendizaje import escena_faja as EF               # noqa: E402
 MJCF = os.path.join(get_package_share_directory("h1_2_scenes"), "mjcf",
                     "h1_2_scene_surgery_table_hands.xml")
+_MJCF_SIM = None
+
+
+def mjcf_sim():
+    """La escena con las manos del modelo (GG.MANOS; por defecto las RH56DFTP
+    oficiales, injertadas como en la faja) y la faja corrida H12_FAJA_DX."""
+    global _MJCF_SIM
+    if _MJCF_SIM is None or not os.path.exists(_MJCF_SIM):
+        _MJCF_SIM = EF.build_xml_una(MJCF)
+    return _MJCF_SIM
 RESULTS_DIR = os.path.join(PKG_DIR, "results", "servoing")
 OPT_FLIP = np.diag([1.0, -1.0, -1.0])
 ARM_JOINTS = {s: [f"{s}_{j}" for j in ("shoulder_pitch_joint", "shoulder_roll_joint",
@@ -79,7 +90,7 @@ ARM_JOINTS = {s: [f"{s}_{j}" for j in ("shoulder_pitch_joint", "shoulder_roll_jo
 Q_FWD = np.array([1.0, 0.0, 0.0, 0.0])
 HOME = {"left": np.array([0.25, 0.25, 0.10, *Q_FWD]),
         "right": np.array([0.25, -0.25, 0.10, *Q_FWD])}
-FRUIT_Z_WORLD = 0.8255 + MANDARINA_RADIUS
+FRUIT_Z_WORLD = 0.9655 + MANDARINA_RADIUS   # carro sobre la faja (mesa u_table; antes 0.8255)
 CARRIER_Y0 = -0.03          # y del carro en la escena (qpos = y - CARRIER_Y0)
 
 
@@ -165,13 +176,15 @@ def measure(cams, method, rgb, depth, irL, irR, gt_torso):
 # Ensayo
 # =====================================================================
 def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=None,
-              t_max=None, log_dir=None, fruit_x=0.34, reach=None, reach_tau=None, tag="", fsm_kwargs=None):
+              t_max=None, log_dir=None, fruit_x=None, reach=None, reach_tau=None, tag="", fsm_kwargs=None):
     """scenario 'static': param = y de la fruta (mundo, x = `fruit_x`).
     scenario 'moving': param = velocidad de la faja [m/s] (+y), la fruta
     arranca en y = -0.50.
     reach: None = máquina de estados a mano (APPROACH/DESCEND); una DMP
     (aprendizaje.dmp.DMP) = alcance aprendido, con duración `reach_tau`."""
-    sim = MujocoSim(MJCF, DEFAULT_JOINT_NAMES, joint_armature=0.01, joint_damping=0.05)
+    if fruit_x is None:
+        fruit_x = 0.34 - EF.BELT_DX        # la fruta va con la faja
+    sim = MujocoSim(mjcf_sim(), DEFAULT_JOINT_NAMES, joint_armature=0.01, joint_damping=0.05)
     m, d = sim.model, sim.data
     kp = np.array([DEFAULT_GAINS[n][0] for n in DEFAULT_JOINT_NAMES])
     kd = np.array([DEFAULT_GAINS[n][1] for n in DEFAULT_JOINT_NAMES])
@@ -231,7 +244,7 @@ def run_trial(scenario, method, param, assist=True, noise=True, seed=0, video=No
     if video:
         vid_r = mujoco.Renderer(m, 480, 640)
         vcam = mujoco.MjvCamera()
-        vcam.lookat[:] = [0.36, 0.0, 0.88]
+        vcam.lookat[:] = [0.36, 0.0, 1.02]
         vcam.distance, vcam.azimuth, vcam.elevation = 1.1, 150, -30
 
     def gt_torso():
@@ -415,7 +428,8 @@ def _try_weld(m, d, side, fruit_bid, idx, sim):
         if fruit_bid not in (b1, b2):
             continue
         other = m.body(b2 if b1 == fruit_bid else b1).name
-        for g in ("thumb", "index", "middle", "ring", "pinky", "wrist_yaw"):
+        # manos viejas: L_/R_ *_proximal (pinky); RH56: {side}_*_1/2 (little), palma hand_base
+        for g in ("thumb", "index", "middle", "ring", "pinky", "little", "wrist_yaw", "hand_base"):
             if g in other and other.startswith(("L_", "R_", side)):
                 groups.add(g)
     if len(groups) < 2:

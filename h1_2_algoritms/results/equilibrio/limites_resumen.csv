@@ -1,0 +1,17 @@
+perfil,prueba,unidad,estable_hasta,aguanta_hasta,cae_desde
+base,empuje_adelante,N,,106.25,112.5
+base,empuje_atras,N,,62.5,65.625
+base,empuje_lado,N,25,62.5,65.625
+base,brazos_arriba,rad/s,,3.75,3.875
+base,brazos_frente,rad/s,1,13,
+base,brazo_lado,rad/s,13,13,
+base,carga_frente,kg,0,1,1.125
+base,cintura,rad/s,8,8,
+rigido,empuje_adelante,N,25,125.0,131.25
+rigido,empuje_atras,N,25,143.75,150
+rigido,empuje_lado,N,25,118.75,125.0
+rigido,brazos_arriba,rad/s,2,8.5,8.75
+rigido,brazos_frente,rad/s,3,13,
+rigido,brazo_lado,rad/s,4,13,
+rigido,carga_frente,kg,2,2.875,3
+rigido,cintura,rad/s,8,8,

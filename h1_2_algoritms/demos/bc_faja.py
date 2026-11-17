@@ -284,13 +284,58 @@ def make_policy(name):
 # =====================================================================
 # Episodio
 # =====================================================================
+_ARRANQUE = {}       # n frutas -> (instantánea del arranque, su reloj al terminar)
+
+
+def arranque_pie(sim, pd, xml, q_espera, n, video=None):
+    """El arranque de pie (cuerpo_pie: colgado -> grúa abajo -> equilibrio -> brazos a la de
+    espera). Es el mismo en cada episodio con `n` frutas (estacionadas, sin ruido): se simula una
+    vez por proceso y los demás episodios parten de la instantánea. Con vídeo se simula entero y se
+    graba. Devuelve (ControlCuerpo, reloj del control al terminar, fotogramas)."""
+    from h1_2_algoritms.aprendizaje import cuerpo_pie as CP
+    cc = CP.ControlCuerpo(sim, pd, xml, q_espera)
+    frames = []
+    if n in _ARRANQUE and not video:
+        st, t_fin = _ARRANQUE[n]
+        cc.restaurar(st)
+        return cc, t_fin, frames
+    al_paso = None
+    if video:
+        import cv2
+        r = mujoco.Renderer(sim.model, 480, 640)
+        vcam = mujoco.MjvCamera()
+        vcam.lookat[:] = [0.15, 0.0, 0.85]
+        vcam.distance, vcam.azimuth, vcam.elevation = 2.6, 150, -15
+        k_cam = max(1, int(round((1 / 15.0) / sim.model.opt.timestep)))
+        paso = {"k": 0}
+
+        def al_paso(t):
+            paso["k"] += 1
+            if paso["k"] % k_cam:
+                return
+            r.update_scene(sim.data, vcam)
+            cc.arnes.dibujar(r.scene)
+            f = r.render().copy()
+            e = cc.estado()
+            cv2.putText(f, f"arranque t={t:4.1f}s  {e['fase']}  brazos {e['brazos']}  cable {e['cable']:.0%}",
+                        (8, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            frames.append(f)
+    t_fin = cc.arrancar(al_paso=al_paso)
+    _ARRANQUE[n] = (cc.guardar(), t_fin)
+    return cc, t_fin, frames
+
+
 def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale=0.7,
                 video=None, decision_dt=0.25):
     v_belt, times, xs = episode_params(seed)
     n = len(times)
     if n not in _XML:
         _XML[n] = build_xml(V.MJCF, n)
-    sim = MujocoSim(_XML[n], V.DEFAULT_JOINT_NAMES, joint_armature=0.01, joint_damping=0.05)
+    # H12_CUERPO=pie: base flotante, el motor como PD puro (la gravedad la ponen el control de
+    # cuerpo y el PC) y el arranque con el arnés antes del picking (aprendizaje/cuerpo_pie.py)
+    pie = GG.CUERPO == "pie"
+    sim = MujocoSim(_XML[n], V.DEFAULT_JOINT_NAMES, joint_armature=0.01, joint_damping=0.05,
+                    gravity_comp=not pie)
     m, d = sim.model, sim.data
     G, N = V.DEFAULT_GAINS, V.DEFAULT_JOINT_NAMES
     pd = JointPD(sim.mapping, np.array([G[k][0] for k in N]), np.array([G[k][1] for k in N]),
@@ -304,11 +349,17 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     for k, s in enumerate(SIDES):
         q, _ = GG.solve_arm_ik(s, home[s])
         q_ref[7 * k:7 * k + 7] = q
-        d.qpos[qadr[s]] = q
+        if not pie:                 # de pie los brazos llegan a la de espera en el arranque
+            d.qpos[qadr[s]] = q
         pd.q_des[idx[s]] = q
         d.ctrl[hand_ids[s]] = GG.HAND_PRESHAPE
     q_ref0 = q_ref.copy()
     mujoco.mj_forward(m, d)
+    cuerpo, t_off, frames_arranque = None, 0.0, []
+    if pie:
+        cuerpo, t_off, frames_arranque = arranque_pie(sim, pd, _XML[n], q_ref, n, video)
+        q_ref = np.hstack([sim.get_q_dq()[0][idx[s]] for s in SIDES])   # donde quedaron
+        q_ref0 = q_ref.copy()
 
     cams = V.Cameras(m, d, noise=True, seed=seed)
     Kc = (cams.K.fx, cams.K.fy, cams.K.cx, cams.K.cy)
@@ -343,6 +394,23 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
         prof["grasp_kwargs"] = {**prof.get("grasp_kwargs", {}), "lost_timeout": lost}
     TR = reach_time(tau)
     ex = {s: ArmExecutor(s, home, dmp, tau, **prof) for s in SIDES}
+    # De pie el torso se mueve (y la cámara con él): el tracker de la faja trabaja en el marco fijo N
+    # (el torso en reposo, por la cinemática de las piernas: cuerpo_pie.torso_en_N); el control, en el
+    # torso actual. Con la pelvis soldada N = torso (identidad) y todo queda como siempre.
+    marco = {"R": np.eye(3), "p": np.zeros(3)}
+
+    def a_N(x):
+        return marco["R"] @ np.asarray(x) + marco["p"]
+
+    def a_T(x):
+        return marco["R"].T @ (np.asarray(x) - marco["p"])
+
+    def estimaciones(t_):
+        """Pistas de la faja en el torso ACTUAL (para el control y la geometría del agarre)."""
+        return {k: (a_T(p_), marco["R"].T @ v_) for k, (p_, v_) in tracker.estimates(t_).items()}
+    if pie:
+        for s in SIDES:
+            ex[s].a_marco_faja = a_N
 
     dt_phys = m.opt.timestep
     rob = ROBOT
@@ -352,6 +420,11 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
         i_torso = sim.mapping.index.get("torso_joint")
         agente = CR.AgenteEmulado(hz=rob["hz"], vel_max=rob["vel_max"], tau_max=rob["tau_max"],
                                   kp_escala=rob["kp_escala"], kd_escala=rob["kd_escala"])
+        if pie:              # perfil de equilibrio: la cintura la manda el agente (rt/arm_sdk)
+            from h1_2_algoritms.aprendizaje.cuerpo_pie import ESCALA_CINTURA
+            i_c = CR.J.INDICE["torso_joint"]
+            agente.kp[i_c] *= ESCALA_CINTURA
+            agente.kd[i_c] *= ESCALA_CINTURA
         q27 = np.zeros(CR.J.N)
         q27[CR.IDX_DDS] = q_ref
         if i_torso is not None:
@@ -380,10 +453,11 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
     counts = {"decisiones": 0, "agarrar": 0, "cierra": 0, "verificado": 0, "fallo": 0, "perdida": 0,
               "suelta": 0}
     d_arms_min = np.inf
+    mov_torso = []           # de pie: pose del torso por ciclo de control
     intentos = []            # un registro por agarre: estado al decidir + resultado (diagnóstico / predictor)
     abierto = {s: None for s in SIDES}
     next_spawn = 0
-    frames = []
+    frames = list(frames_arranque)
     vid_r = None
     if video:
         vid_r = mujoco.Renderer(m, 480, 640)
@@ -412,6 +486,8 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
             faja.spawn(next_spawn, xs[next_spawn], t)
             next_spawn += 1
 
+        if pie and (step % n_cam == 0 or step % n_ctrl == 0):
+            marco["R"], marco["p"] = cuerpo.torso_en_N()
         # ---------------- cámara (15 Hz, con latencia) ----------------
         if step % n_cam == 0:
             rgb, _, depth, _, _ = cams.grab()
@@ -419,10 +495,10 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                 dets = list(faja.visible_truth().values())
             else:
                 dets = detect_fruits(rgb, depth, cams.K, R_cam, p_cam)
-            pending.append((t + 1 / 15.0, dets, t))
+            pending.append((t + 1 / 15.0, dets, t, marco["R"].copy(), marco["p"].copy()))
             q_now = np.hstack([sim.get_q_dq()[0][idx[s]] for s in SIDES])
             fl, fr = arm_frames("left", q_now[:7]), arm_frames("right", q_now[7:])
-            excl = [p for p, _ in tracker.estimates(t).values()] + hand_points()
+            excl = [p for p, _ in estimaciones(t).values()] + hand_points()
             P = obstacles_from_depth(depth, Kc, T_cam, fl, fr, exclude_centers=excl or None,
                                      exclude_radius=0.12)
             obstacles = memory.update(P, depth, Kc, T_cam, t)
@@ -439,21 +515,23 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                 cv2.putText(fr_, txt, (8, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
                 frames.append(fr_)
         while pending and pending[0][0] <= t:
-            _, dets, tc = pending.pop(0)
+            _, dets, tc, R_c, p_c = pending.pop(0)
             for s in SIDES:
                 for z in dets:
                     ex[s].observe(tc, z)
+            dets = [R_c @ np.asarray(z) + p_c for z in dets]      # al marco N (torso al capturar)
             # Solo frutas APOYADAS en la faja: una detección a > 5 cm sobre la
             # superficie es la fruta que lleva una mano (la exclusión por
             # radio alrededor de la mano no basta: sujeta, queda a ~8 cm del
             # punto nominal) y contaminaría las pistas de la faja.
             dets_belt = [z for z in dets if z[2] < Z_BELT_FRUIT + 0.05]
-            tracker.update(dets_belt, tc, exclude=hand_points(), occluders=reaching_points())
+            tracker.update(dets_belt, tc, exclude=[a_N(h) for h in hand_points()],
+                           occluders=[a_N(h) for h in reaching_points()])
 
         # ---------------- control (20 Hz) ----------------
         if step % n_ctrl == 0:
             q_meas = np.hstack([sim.get_q_dq()[0][idx[s]] for s in SIDES])
-            est = tracker.estimates(t)
+            est = estimaciones(t)
             for s in SIDES:
                 e = est.get(ex[s].track) if ex[s].busy else None
                 targets[s], ff[s], hands[s], evs = ex[s].step(t, q_meas, *(e if e else (None, None)))
@@ -487,7 +565,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                             misses[tid] = (misses.get(tid, (0, 0.0))[0] + 1, t)
                     elif ev == "libre":
                         assigned = {k: a for k, a in assigned.items() if a != s}
-            est = tracker.estimates(t)
+            est = tracker.estimates(t)       # marco N (el de la faja): decisiones de alto nivel
             for s in SIDES:      # traza del alcance (4 Hz): t, punto de agarre - fruta (torso), fase
                 a_ = intentos[abierto[s]] if abierto[s] is not None else None
                 if a_ is not None and ex[s].busy and ex[s].phase in ("REACH", "APPROACH", "DESCEND") \
@@ -495,7 +573,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                     e_ = est.get(ex[s].track)
                     gp = GG.wrist_to_fruit(s, q_meas[:7] if s == "left" else q_meas[7:])
                     a_.setdefault("traza", []).append(
-                        (round(t - a_["t"], 2), None if e_ is None else np.round(gp - e_[0], 3), ex[s].phase))
+                        (round(t - a_["t"], 2), None if e_ is None else np.round(gp - a_T(e_[0]), 3), ex[s].phase))
             # ---- decisiones de alto nivel ----
             for s in ("right", "left"):
                 if ex[s].busy or t - t_dec[s] < decision_dt:
@@ -513,7 +591,7 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                     e_ = ex[a]
                     reaching = e_.busy and e_.phase in ("REACH", "APPROACH", "DESCEND")
                     state["arms"][a] = {"busy": e_.busy, "remaining": e_.remaining(t),
-                                        "target": None if not reaching or e_.target_p is None else e_.target_p.copy(),
+                                        "target": None if not reaching or e_.target_p is None else a_N(e_.target_p),
                                         "t_grasp": e_.t_skill + TR if reaching else None}
                 act = policy.act(state, s)
                 counts["decisiones"] += 1
@@ -541,6 +619,9 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                 reg.orden_pc(t, q_ref, dq14, tau14,
                              [*CR.rad_a_inspire("left", hands["left"]), *CR.rad_a_inspire("right", hands["right"])])
             d_arms_min = min(d_arms_min, diag["d_arms_min"])
+            if pie:                 # cuánto se mueve el torso (y la cámara) mientras recoge
+                tb_ = m.body("torso_link").id
+                mov_torso.append(np.hstack([d.xpos[tb_], d.xmat[tb_].reshape(3, 3)[:, 0], d.xmat[tb_].reshape(3, 3)[:, 2]]))
             for s in SIDES:
                 if ex[s].skill == "agarrar" and ex[s].phase in ("CLOSE", "LIFT") and faja.held[s] is None:
                     faja.try_weld(s, GG.wrist_to_fruit(s, q_meas[:7] if s == "left" else q_meas[7:]))
@@ -553,14 +634,20 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
                 cmd = agente.ciclo()
                 qm, dqm = sim.get_q_dq()
                 reg.ciclo_agente(t, cmd, qm[sel15], dqm[sel15])
-                pd.q_des[arm_idx] = cmd["q"][1:]
-                pd.dq_des[arm_idx] = cmd["dq"][1:]
-                pd.kp[arm_idx] = cmd["kp"][1:]
-                pd.kd[arm_idx] = cmd["kd"][1:]
-                tau_cmd = cmd["tau"][1:]
-            # motor del robot = PD puro + tau_ff: se descuenta la compensación de
-            # gravedad ideal que MujocoSim suma en cada paso
-            pd.tau_ff[arm_idx] = tau_cmd - sim.gravity_torque()[arm_idx]
+                if not pie:
+                    pd.q_des[arm_idx] = cmd["q"][1:]
+                    pd.dq_des[arm_idx] = cmd["dq"][1:]
+                    pd.kp[arm_idx] = cmd["kp"][1:]
+                    pd.kd[arm_idx] = cmd["kd"][1:]
+                    tau_cmd = cmd["tau"][1:]
+            if pie:
+                # de pie: el control de cuerpo (equilibrio) mezcla rt/arm_sdk (cintura + brazos) y
+                # escribe los 27 motores; PD puro + tau_ff (sin la gravedad ideal de MujocoSim)
+                cuerpo.paso(t + t_off, cmd)
+            else:
+                # motor del robot = PD puro + tau_ff: se descuenta la compensación de
+                # gravedad ideal que MujocoSim suma en cada paso
+                pd.tau_ff[arm_idx] = tau_cmd - sim.gravity_torque()[arm_idx]
             hr = manos.paso(t, dt_phys)
             for s in SIDES:
                 d.ctrl[hand_ids[s]] = hr[s]
@@ -597,6 +684,14 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
            "caidas": faja.state.count("dropped"), **counts,
            "t_fin": round(t, 1), "d_brazos_min_mm": round(1e3 * d_arms_min, 1)}
     res["tasa"] = round(res["depositadas"] / n, 3)
+    if pie and mov_torso:
+        M = np.array(mov_torso)
+        dp = 1e3 * (M[:, :3] - M[0, :3])
+        ang = np.degrees(np.arccos(np.clip(np.sum(M[:, 6:9] * M[0, 6:9], 1), -1, 1)))   # inclinación (eje z)
+        res["torso_mov_p99_mm"] = round(float(np.percentile(np.linalg.norm(dp, axis=1), 99)), 1)
+        res["torso_mov_max_mm"] = round(float(np.max(np.linalg.norm(dp, axis=1))), 1)
+        res["torso_incl_p99_deg"] = round(float(np.percentile(ang, 99)), 2)
+        res["torso_incl_max_deg"] = round(float(np.max(ang)), 2)
     if rob:
         res.update({k: round(v, 4) for k, v in CR.resumen_registro(reg, 1.0 / rob["hz"]).items()})
         res["ordenes_recortadas"] = int(agente.n_recortes)
@@ -835,7 +930,7 @@ def resumen(res):
 
 def video(args):
     os.makedirs(OUT, exist_ok=True)
-    suf = "" if PERFIL == "base" else f"_{PERFIL}"
+    suf = ("" if PERFIL == "base" else f"_{PERFIL}") + ("_pie" if GG.CUERPO == "pie" else "")
     path = os.path.join(OUT, f"episodio_{args.politica}{suf}_s{args.seed}.mp4")
     res, _ = run_episode(make_policy(args.politica), args.seed, perception=args.percepcion, video=path)
     print(res)
@@ -895,6 +990,8 @@ def main():
                  "registro": os.path.abspath(args.registro) if args.registro else None}
         from h1_2_algoritms.aprendizaje.comandos_robot import aplicar_limites_robot
         aplicar_limites_robot()            # antes del pool: los procesos lo heredan
+    if GG.CUERPO == "pie" and not args.robot:
+        sys.exit("H12_CUERPO=pie necesita --robot (el control de cuerpo mezcla el rt/arm_sdk del agente)")
     ESCENARIO, KP_JOINT, PERFIL = args.escenario, args.kp_articular, args.perfil
     from h1_2_algoritms.aprendizaje.habilidades import TIMING
     TIMING.update(PERFILES[PERFIL].get("timing", {}))

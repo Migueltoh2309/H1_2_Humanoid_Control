@@ -104,6 +104,7 @@ class ArmExecutor:
         self.home_vel_tol = home_vel_tol
         self._q_prev = None
         self.grasp_kwargs = dict(grasp_kwargs or {})                # parámetros de GraspServoing (perfil de tiempos)
+        self.a_marco_faja = None       # de pie: torso actual -> marco fijo N (GraspServoing.a_marco_faja)
         self.q_home = self.q_deposit = None
         if joint_space:
             self.q_home, _ = GG.solve_arm_ik(side, self.home)
@@ -158,6 +159,7 @@ class ArmExecutor:
         assert self.skill is None, "precondición: brazo libre"
         self.fsm = GraspServoing(self._home_all, reach_dmp=self.reach_dmp, reach_tau=self.reach_tau,
                                  auto_start=False, **self.grasp_kwargs)
+        self.fsm.a_marco_faja = self.a_marco_faja
         self.fsm.start(t, self.side)
         self.skill, self.track, self.t_skill = "agarrar", track_id, t
         self.log.append((t, "agarrar", track_id))

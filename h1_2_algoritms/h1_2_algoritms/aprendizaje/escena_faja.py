@@ -43,8 +43,9 @@ SPAWN_Y = -0.52              # la faja va hacia +y: entra por la derecha del rob
 EXIT_Y = 0.52
 
 
-def build_xml(src, n_fruits):
-    """Ruta a un MJCF temporal con `n_fruits` frutas."""
+def _preparar(src):
+    """Árbol de `src` con meshdir absoluto, la faja corrida BELT_DX, sin
+    keyframes y con las manos del modelo (GG.MANOS)."""
     tree = ET.parse(src)
     root = tree.getroot()
     comp = root.find("compiler")
@@ -61,6 +62,30 @@ def build_xml(src, n_fruits):
         root.remove(kf)
     if GG.MANOS == "rh56":
         manos_rh56(root, src)
+    if GG.CUERPO == "pie":
+        from h1_2_algoritms.aprendizaje.cuerpo_pie import escena_pie
+        escena_pie(root)
+    return tree, root
+
+
+def _escribir(tree, prefijo):
+    fd, path = tempfile.mkstemp(prefix=prefijo, suffix=".xml")
+    os.close(fd)
+    tree.write(path, encoding="UTF-8", xml_declaration=True)
+    return path
+
+
+def build_xml_una(src):
+    """Ruta a un MJCF temporal de la escena de UNA fruta (la mandarina sobre
+    el carro, demos/visual_servoing_grasp.py) con las manos del modelo
+    (GG.MANOS) y la faja corrida BELT_DX."""
+    tree, _ = _preparar(src)
+    return _escribir(tree, "h1_2_faja_una_")
+
+
+def build_xml(src, n_fruits):
+    """Ruta a un MJCF temporal con `n_fruits` frutas."""
+    tree, root = _preparar(src)
     world = next(w for w in root.findall("worldbody")
                  if any(b.get("name") == "mandarina" for b in w.findall("body")))
     world.remove(next(b for b in world.findall("body") if b.get("name") == "mandarina"))
@@ -78,10 +103,7 @@ def build_xml(src, n_fruits):
         for side in ("left", "right"):
             ET.SubElement(eq, "weld", {"name": f"{side}_assist_{i}", "body1": f"{side}_wrist_yaw_link",
                                        "body2": f"fruta_{i}", "active": "false", "solref": "0.02 1"})
-    fd, path = tempfile.mkstemp(prefix="h1_2_faja_multi_", suffix=".xml")
-    os.close(fd)
-    tree.write(path, encoding="UTF-8", xml_declaration=True)
-    return path
+    return _escribir(tree, "h1_2_faja_multi_")
 
 
 # Manos RH56DFTP oficiales (GG.MANOS == "rh56"): fragmento generado por
@@ -171,6 +193,7 @@ class FajaMulti:
         self.bid = [m.body(f"fruta_{i}").id for i in range(n_fruits)]
         self.eid = {(s, i): m.equality(f"{s}_assist_{i}").id for s in ("left", "right") for i in range(n_fruits)}
         self.wrist = {s: m.body(f"{s}_wrist_yaw_link").id for s in ("left", "right")}
+        self.torso = m.body("torso_link").id
         # "Sensor" de prensión: cuerpos de cada mano (dedos + palma) y del robot.
         root = m.body("pelvis").id
         self.robot_bodies = {b for b in range(m.nbody) if m.body_rootid[b] == root}
@@ -211,7 +234,14 @@ class FajaMulti:
         self.state[i] = state
 
     def pos_torso(self, i):
-        return self.d.xpos[self.bid[i]] - [0, 0, GG.TORSO_Z]
+        """Fruta en torso_link. De pie, con la pose REAL del torso (se mueve). Con la pelvis soldada,
+        la fórmula de siempre (torso en (0, 0, TORSO_Z) sin giro): la exacta difiere < 1 mm por el
+        giro de la cintura, pero basta para cambiar agarres al límite y los resultados publicados
+        dejarían de reproducirse (semilla 20001: 10 -> 9)."""
+        if GG.CUERPO != "pie":
+            return self.d.xpos[self.bid[i]] - [0, 0, GG.TORSO_Z]
+        t = self.torso
+        return self.d.xmat[t].reshape(3, 3).T @ (self.d.xpos[self.bid[i]] - self.d.xpos[t])
 
     def on_belt(self, i):
         p = self.d.xpos[self.bid[i]]
