@@ -61,7 +61,7 @@ MODE_LABEL = {
 # cámara = (lookat xyz en MUNDO, azimut, elevación, distancia)
 CAM_FRONT = ((0.30, 0.0, 1.10), 180, -18, 1.35)
 CAM_TRAY = ((0.30, -0.15, 1.15), 125, -8, 1.35)
-CAM_BELT = ((0.30, 0.0, 0.95), 165, -30, 1.45)
+CAM_BELT = ((0.30, 0.0, 1.09), 165, -30, 1.45)
 VIDEOS = [
     ("01_choque_vs_evasion_brazos.mp4", "circles", "off", "self", 12.0, CAM_FRONT,
      "Las manos se cruzan en circulos: sin evasion chocan; con la capa 1 nunca"),

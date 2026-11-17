@@ -139,8 +139,9 @@ TOL_POS = 0.02    # [m] "llegó" (tarea completada)
 TRAY_CENTER = np.array([0.44, -0.22, 0.19])
 TRAY_HALF = np.array([0.12, 0.12, 0.01])
 
-# Superficie de la faja (README de h1_2_mujoco_sim_bridge): z mundo 0.824.
-BELT_TOP_Z_WORLD = 0.824
+# Superficie de la faja (README de h1_2_mujoco_sim_bridge): z mundo 0.964
+# (mesa u_table, tablero a 0.770; con la mesa vieja era 0.824).
+BELT_TOP_Z_WORLD = 0.964
 
 ARM_LINKS = ["shoulder_roll_link", "shoulder_yaw_link", "elbow_link",
              "wrist_roll_link", "wrist_pitch_link", "wrist_yaw_link"]

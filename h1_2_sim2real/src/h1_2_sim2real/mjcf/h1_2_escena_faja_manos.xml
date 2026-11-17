@@ -431,9 +431,11 @@
     <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072" />
     <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300" />
     <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2" />
-    <!-- Mesa quirúrgica en forma de "U" (Maestria_tesis/Extra/surgery_table).
-         El STL trae unidades en cm; escala 0.01 para pasarlas a metros. -->
-    <mesh name="surgery_table" file="surgery_table.stl" scale="0.01 0.01 0.01" />
+    <!-- Mesa de trabajo en U REAL del laboratorio (u_table, medida sobre la
+         real: ur5_base_table_dimensions.pdf, 2026-10-27). Sustituye a la
+         vieja surgery_table.stl. OBJ del CAD en mm: escala 0.001. Ver el
+         body "u_table" más abajo para el frame y la colisión. -->
+    <mesh name="u_table" file="u_table.obj" scale="0.001 0.001 0.001" />
     <!-- Faja transportadora (h1_2_mujoco_sim_bridge/Extra/faja_L201.stl), decimada
          de 228232 a 60000 caras (con pymeshlab, quadric edge collapse) porque el
          decoder STL de MuJoCo rechaza mallas de más de 200000 triángulos.
@@ -471,47 +473,49 @@
     <light pos="1 0 3.5" dir="0 0 -1" directional="true" />
     <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" />
     <!-- ===================================================== -->
-    <!-- ESCENA: MESA QUIRÚRGICA (Maestria_tesis/Extra/surgery_table) -->
+    <!-- ESCENA: MESA DE TRABAJO EN U (u_table, la mesa real) -->
     <!-- ===================================================== -->
     <!-- Luz adicional para mejorar la imagen RGB de la cámara -->
     <light name="scene_key_light" pos="1.5 -1.2 2.8" dir="-0.5 0.4 -1" diffuse="0.8 0.8 0.8" specular="0.2 0.2 0.2" directional="true" />
-    <!-- Mesa quirúrgica: NO es un U profundo. Analizando las patas del STL
-         (h1_2_algoritms no interviene aquí, es geometría pura) resultó ser
-         una mesa sólida y rectangular de 1.62 x 2.12 m con una muesca poco
-         profunda de 0.42 x 1.28 m cortada en un borde (x local en
-         [0.39, 0.81], |y local| < 0.64) — justo para que una persona/robot
-         se pare ahí, con la mesa por delante y un "ala" a cada lado.
-         Rotada 180° en Z para que la muesca abra hacia +X (el frente del
-         robot) y desplazada en X para centrar la muesca sobre el robot:
-           pared frontal de la muesca -> x_mundo = pos.x - 0.39
-           ala izquierda/derecha      -> |y local| > 0.64 (según el boceto:
-             brazo izquierdo -> ala +Y, brazo derecho -> ala -Y)
-         pos.x=1.1 (no 0.7): con menos separación la esquina del ala golpea
-         el muslo (hip_roll_link) al pararse — verificado simulando la
-         postura de pie con PD+armature (igual que el bridge) y barriendo
-         pos.x: fuerza de contacto en reposo cae a 0 N recién en 1.1 m
-         (0.7->186 kN, 0.9->43 N, 1.0->5.6 N, 1.1->0 N). -->
-    <body name="surgery_table" pos="1.1 0 0" quat="0 0 0 1">
-      <geom name="surgery_table_geom" type="mesh" mesh="surgery_table" rgba="0.58 0.38 0.14 1" friction="1.0 0.005 0.0001" />
+    <!-- Mesa de trabajo en U real: 2205 (ancho) x 1800 (fondo) x 770 (alto)
+         mm, tablero de 35 mm. El "fondo" de la U (700 mm) queda frente al
+         humanoide; los dos brazos (600 mm de ancho, 1100 de largo) se alejan
+         del robot en +x, con el hueco de 1005 mm entre ellos.
+
+         Frame del body = frame del modelo u_table (igual que en Gazebo):
+         origen en el SUELO, bajo el centro del borde interior del fondo, +x
+         hacia el fondo. Girado 180° en Z (quat 0 0 0 1) para que el fondo
+         quede del lado del robot:
+           fondo      x_mundo 0.205 .. 0.905   (borde frente al robot en 0.205,
+                                                el mismo de la mesa vieja)
+           brazos     x_mundo 0.905 .. 2.005,  |y| 0.5025 .. 1.1025
+           tablero    z 0.735 .. 0.770         (la mesa vieja: z = 0.63)
+
+         Visual: la malla del CAD viene INVERTIDA en z; el geom la endereza
+         con roll = pi, yaw = pi/2 (mismo <pose> que el model.sdf de Gazebo:
+         -1.1 -1.1025 0.770, rpy pi 0 pi/2). Solo visual (contype 0): MuJoCo
+         choca contra la envolvente CONVEXA de una malla, que en una U rellena
+         el hueco. Colisión = tres cajas con el tablero (fondo y dos brazos),
+         como en el model.sdf. Mismo color mostaza que la mesa vieja: el
+         detector HSV de la mandarina está calibrado contra él. -->
+    <body name="u_table" pos="0.905 0 0" quat="0 0 0 1">
+      <geom name="u_table_visual" type="mesh" mesh="u_table" pos="-1.1 -1.1025 0.770" quat="0 0.7071068 0.7071068 0" contype="0" conaffinity="0" mass="0" rgba="0.58 0.38 0.14 1" />
+      <geom name="u_table_fondo" type="box" pos="0.35 0 0.7525" size="0.35 1.1025 0.0175" group="3" rgba="0.58 0.38 0.14 1" friction="1.0 0.005 0.0001" />
+      <geom name="u_table_brazo_izq" type="box" pos="-0.55 -0.8025 0.7525" size="0.55 0.3 0.0175" group="3" rgba="0.58 0.38 0.14 1" friction="1.0 0.005 0.0001" />
+      <geom name="u_table_brazo_der" type="box" pos="-0.55 0.8025 0.7525" size="0.55 0.3 0.0175" group="3" rgba="0.58 0.38 0.14 1" friction="1.0 0.005 0.0001" />
     </body>
     <!-- Faja transportadora encima de la mesa, frente al humanoide. Altura:
-         superficie de la mesa en z=0.63; tras la rotación de 90° en X el
-         borde inferior de la faja queda en z_local=-0.164, así que
-         pos.z=0.63+0.164=0.794 la apoya justo sobre la mesa.
-         Posición XY: comprobado con mj_ray (raycast hacia abajo barriendo
-         x,y) que la mesa NO es sólida en todo x>0.71 como decía el
-         comentario de "surgery_table" más abajo — en realidad, a x=1.3 solo
-         hay mesa sólida en dos "alas" angostas (|y| en [0.55,1.10] aprox.),
-         con el centro (|y|<0.55) hueco hasta el piso; ahí la faja quedaba
-         flotando sobre el hueco. La zona realmente sólida y ancha (mesa
-         confirmada sólida para todo y en [-1,1] con el raycast) es el
-         "puente" cercano al robot, x en [0.205,0.80] (borde delantero real
-         medido con mj_ray, más fino que el "0.25" de arriba). x=0.38 deja
-         el borde cercano de la faja (x=0.38-0.1265=0.2535) a ~5 cm del
-         borde de la mesa (0.205): más cerca del robot para que los brazos
-         alcancen a agarrar de la faja, sin quedar al ras del borde.
-         y=0 sigue centrada frente al robot. -->
-    <body name="conveyor_belt" pos="0.38 0 0.794" quat="0.7071068 0.7071068 0 0">
+         tablero de u_table en z=0.770; tras la rotación de 90° en X el borde
+         inferior de la faja queda en z_local=-0.164, así que
+         pos.z=0.770+0.164=0.934 la apoya justo sobre la mesa (con la mesa
+         vieja, tablero a 0.63, era 0.794: todo lo que va sobre la faja subió
+         0.14 m).
+         Posición XY: sobre el fondo de la U (x en [0.205, 0.905], sólido en
+         todo |y| < 1.10). x=0.38 deja el borde cercano de la faja
+         (x=0.38-0.1265=0.2535) a ~5 cm del borde de la mesa (0.205): cerca
+         del robot para que los brazos alcancen a agarrar de la faja, sin
+         quedar al ras del borde. y=0 sigue centrada frente al robot. -->
+    <body name="conveyor_belt" pos="0.38 0 0.934" quat="0.7071068 0.7071068 0 0">
       <geom name="conveyor_belt_geom" type="mesh" mesh="conveyor_belt" rgba="0.95 0.95 0.93 1" friction="1.0 0.005 0.0001" contype="0" conaffinity="0" />
     </body>
     <!-- Mandarina: objeto naranja esférico sobre la faja, para probar
@@ -520,9 +524,9 @@
          una punta), NO a la superficie plana real — usarlo flotaba la
          mandarina ~14 cm sobre la faja. Corregido con mj_ray (mismo método
          que la mesa/los pies): raycast hacia abajo sobre conveyor_belt_geom
-         en varios puntos a lo largo de la faja da z≈0.823-0.825 (superficie
-         real, casi plana); z_world=0.824 + radio(0.04) = 0.864 apoya la
-         mandarina justo encima, verificado.
+         en varios puntos a lo largo de la faja da z≈0.963-0.965 (superficie
+         real, casi plana; con la mesa vieja era 0.823-0.825);
+         z_world=0.964 + radio(0.04) = 1.004 apoya la mandarina justo encima.
          pos.x=0.34 y pos.y=-0.03 centran la mandarina sobre la faja
          (x local de la faja en [-0.167,0.086], y local en [-0.638,0.566]
          relativo a su cuerpo) — punto verificado con IK real: ambos brazos
@@ -534,12 +538,12 @@
          keyframe "mandarina_moving" (parámetro initial_keyframe), que la
          reposiciona en una punta de la faja (qpos=-0.52) y le da velocidad
          constante (ctrl=0.07 m/s) para que recorra la faja completa. -->
-    <body name="belt_carrier" pos="0.34 -0.03 0.8248">
+    <body name="belt_carrier" pos="0.34 -0.03 0.9648">
       <joint name="belt_carrier_joint" type="slide" axis="0 1 0" range="-0.52 0.53" damping="0.05" />
       <geom name="belt_carrier_geom" type="box" size="0.07 0.07 0.0008" mass="0.2" rgba="0.95 0.95 0.93 1" friction="1.2 0.01 0.001" contype="4" conaffinity="4" />
     </body>
-    <geom name="conveyor_belt_surface" type="box" pos="0.385 0 0.8145" size="0.11 0.58 0.01" group="3" rgba="0 1 0 0.3" friction="1.0 0.005 0.0001" />
-    <body name="mandarina" pos="0.34 -0.03 0.8655">
+    <geom name="conveyor_belt_surface" type="box" pos="0.385 0 0.9545" size="0.11 0.58 0.01" group="3" rgba="0 1 0 0.3" friction="1.0 0.005 0.0001" />
+    <body name="mandarina" pos="0.34 -0.03 1.0055">
       <freejoint name="mandarina_free" />
       <site name="mandarina_target" pos="0 0 0" size="0.01" rgba="1 0 0 1" group="4" />
       <geom name="mandarina_geom" type="sphere" size="0.04" mass="0.10" rgba="1.0 0.45 0.05 1" friction="1.2 0.02 0.002" condim="6" contype="5" conaffinity="5" />
@@ -591,7 +595,7 @@
     <weld name="right_grasp_assist" body1="right_wrist_yaw_link" body2="mandarina" active="false" solref="0.02 1" />
   </equality>
   <keyframe>
-    <key name="mandarina_moving" qpos="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.47 0.34 -0.5 0.8655 1 0 0 0" qvel="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0 0.05 0 0 0 0" ctrl="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0 0 0 0 0 0 0 0 0 0 0 0" />
-    <key name="mandarina_moving_fast" qpos="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.47 0.34 -0.5 0.8655 1 0 0 0" qvel="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0 0.07 0 0 0 0" ctrl="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0 0 0 0 0 0 0 0 0 0 0 0" />
+    <key name="mandarina_moving" qpos="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.47 0.34 -0.5 1.0055 1 0 0 0" qvel="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0 0.05 0 0 0 0" ctrl="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0 0 0 0 0 0 0 0 0 0 0 0" />
+    <key name="mandarina_moving_fast" qpos="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.47 0.34 -0.5 1.0055 1 0 0 0" qvel="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0 0.07 0 0 0 0" ctrl="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0 0 0 0 0 0 0 0 0 0 0 0" />
   </keyframe>
 </mujoco>

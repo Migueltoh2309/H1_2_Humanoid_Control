@@ -11,8 +11,14 @@ Inspire para el agarre, la bandeja-obstáculo y una escena vacía.
 | `h1_2_scene_tray_obstacle.xml` | La escena de la mesa + una bandeja de 24×24 cm que el modelo del robot no conoce (solo la ve la cámara) | escenario `obstacle` de la capa 3 bimanual |
 | `h1_2_scene_empty.xml` | El H1-2 sobre el piso, sin entorno | `sim_bridge_empty.launch.py` |
 
-`meshes/` trae las dos mallas propias: `faja_L201.stl` (faja transportadora,
-decimada) y `surgery_table.stl` (mesa).
+`meshes/` trae las mallas propias: `faja_L201.stl` (faja transportadora,
+decimada) y `u_table.obj` (+ `.mtl`): la mesa de trabajo en U real del
+laboratorio (2205 × 1800 × 770 mm, hueco de 1005 × 1100 mm), del CAD, igual
+que el modelo `u_table` de Gazebo. En la escena es solo visual; la colisión
+son tres cajas (fondo y brazos del tablero), porque MuJoCo choca contra la
+envolvente convexa de una malla y en una U eso rellena el hueco. Reemplazó a
+`surgery_table.stl` (2026-11-07): el tablero subió de 0.63 a 0.77 m y con él
+la faja (superficie a 0.964 m) y la mandarina.
 
 ## Cómo encuentra las mallas
 

@@ -40,9 +40,9 @@ MJCF = os.path.normpath(os.path.join(AQUI, "..", "src", "h1_2_sim2real", "mjcf")
 FUENTE = os.path.join(MJCF, "h1_2_escena_faja_manos.xml")
 SALIDA = os.path.join(MJCF, "h1_2_escena_suelo.xml")
 
-FUERA_CUERPOS = {"surgery_table", "conveyor_belt", "belt_carrier", "mandarina"}
+FUERA_CUERPOS = {"u_table", "conveyor_belt", "belt_carrier", "mandarina"}
 FUERA_GEOMS = {"conveyor_belt_surface"}
-FUERA_MALLAS = {"surgery_table", "conveyor_belt"}
+FUERA_MALLAS = {"u_table", "conveyor_belt"}
 FUERA_ACTUADORES = {"conveyor_motor"}
 
 # Postura de pie (rad). Brazos colgando, codos un poco flexionados para que las

@@ -78,8 +78,8 @@ Ambos pueden convivir en el workspace; no comparten nodos ni tópicos.
 
 Por defecto usa `h1_2_scenes/mjcf/h1_2_scene_surgery_table.xml` (paquete
 [`h1_2_scenes`](../h1_2_scenes)): mesa
-quirúrgica en forma de "U" (`surgery_table`, marrón/mostaza, mesh
-`Extra/surgery_table.stl` de la mesa real), faja transportadora encima
+de trabajo en forma de "U" (`u_table`, marrón/mostaza, mesh `u_table.obj`
+del CAD de la mesa real, tablero a 0.770 m), faja transportadora encima
 (`conveyor_belt`, blanca, mesh `h1_2_mujoco_sim_bridge/Extra/faja_L201.stl`
 decimado a 60k caras porque el decoder STL de MuJoCo rechaza >200k
 triángulos) y una mandarina (`mandarina`, esfera naranja) apoyada sobre la
@@ -101,16 +101,14 @@ a su superficie real de apoyo (ver notas en el propio XML):
   reales del mesh de `left/right_ankle_roll_link`, no con el comentario
   previo del archivo (que decía tocar el piso y en realidad dejaba los
   pies flotando ~7 cm).
-* **Faja en `pos="0.38 0 0.794"`**, rotada 90° en X (su eje largo de 1.2 m
-  queda de pie en Z en el mesh original). x=0.38 la deja sobre la única
-  franja de la mesa confirmada sólida y ancha en todo Y (`mj_ray` barriendo
-  x,y — la mesa NO es sólida en todo su footprint como sugería el
-  comentario original de `surgery_table`), cerca del borde para que los
-  brazos alcancen a agarrar de ella sin quedar al ras.
-* **Mandarina en `pos="0.34 -0.03 0.864"`**: el bbox del mesh de la faja
+* **Faja en `pos="0.38 0 0.934"`**, rotada 90° en X (su eje largo de 1.2 m
+  queda de pie en Z en el mesh original). x=0.38 la deja sobre el fondo de
+  la U (la franja sólida en todo Y, x en [0.205, 0.905]), cerca del borde
+  para que los brazos alcancen a agarrar de ella sin quedar al ras.
+* **Mandarina en `pos="0.34 -0.03 1.004"`**: el bbox del mesh de la faja
   sube hasta z_local=+0.174 pero eso es solo un saliente puntual (bloque
-  motor en una punta), no la superficie plana; la altura real (0.824,
-  +radio 0.04 = 0.864) se sacó con `mj_ray` apuntando hacia abajo sobre
+  motor en una punta), no la superficie plana; la altura real (0.964,
+  +radio 0.04 = 1.004) se sacó con `mj_ray` apuntando hacia abajo sobre
   `conveyor_belt_geom`. La posición X/Y se verificó con IK real (7 joints
   del brazo + ±23° de cintura): ambos brazos la alcanzan con error ~0 cm.
 

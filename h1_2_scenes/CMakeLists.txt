@@ -12,7 +12,7 @@ find_package(h1_2_description REQUIRED)
 #   mallas de este paquete  -> share/h1_2_scenes/meshes/<malla>
 get_filename_component(H12_DESCRIPTION_SHARE "${h1_2_description_DIR}/.." ABSOLUTE)
 set(SCENES_SHARE "${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}")
-set(SCENE_MESHES faja_L201.stl surgery_table.stl)
+set(SCENE_MESHES faja_L201.stl u_table.obj)
 
 file(GLOB SCENES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mjcf" "${CMAKE_CURRENT_SOURCE_DIR}/mjcf/*.xml")
 foreach(scene ${SCENES})

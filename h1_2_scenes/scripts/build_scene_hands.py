@@ -114,8 +114,8 @@ IR_LEFT_OFFSET = -0.015           # [m] sobre CAM_X, respecto al RGB
 IR_BASELINE = 0.050               # [m]
 
 # Mandarina / carro, en mundo (misma posición que la escena original).
-FRUIT_POS = (0.34, -0.03, 0.8655)   # 0.824 superficie + 0.0015 carro + 0.04 radio
-CARRIER_POS = (0.34, -0.03, 0.8248)
+FRUIT_POS = (0.34, -0.03, 1.0055)   # 0.964 superficie + 0.0015 carro + 0.04 radio (mesa u_table, tablero a 0.770)
+CARRIER_POS = (0.34, -0.03, 0.9648)
 CARRIER_HALF = (0.07, 0.07, 0.0008)
 BELT_Y0 = -0.50          # y inicial de la fruta en los keyframes de faja
 BELT_SPEED = 0.05        # m/s, valor de referencia del checkpoint S6
@@ -220,14 +220,14 @@ def main():
     # 25 mm y salía expulsada; los dedos chocaban con aire). Se deja la
     # malla solo como visual y se agrega una caja invisible (grupo 3, no se
     # renderiza en RGB ni en profundidad) con la cara superior en la
-    # superficie real, medida con mj_ray: z = 0.824-0.825 en
+    # superficie real, medida con mj_ray: z = 0.964-0.965 en
     # x ∈ [0.28, 0.49], |y| < 0.55.
     for g in world.iter("geom"):
         if g.get("name") == "conveyor_belt_geom":
             g.set("contype", "0")
             g.set("conaffinity", "0")
     ET.SubElement(world, "geom", {"name": "conveyor_belt_surface", "type": "box",
-                                  "pos": "0.385 0 0.8145", "size": "0.11 0.58 0.01",
+                                  "pos": "0.385 0 0.9545", "size": "0.11 0.58 0.01",
                                   "group": "3", "rgba": "0 1 0 0.3",
                                   "friction": "1.0 0.005 0.0001"})
     fruit = ET.SubElement(world, "body", {"name": "mandarina",

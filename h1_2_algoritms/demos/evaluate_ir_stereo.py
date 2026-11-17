@@ -145,7 +145,7 @@ def main():
 
     rig = Rig(MJCF)
     q0 = rig.d.qpos.copy()
-    z_fruit = 0.8655
+    z_fruit = 1.0055      # centro de la fruta sobre el carro (mesa u_table; antes 0.8655)
     ys = np.linspace(-0.40, 0.40, args.n_y)
     xs = [0.30, 0.34, 0.38]
     rows = []
