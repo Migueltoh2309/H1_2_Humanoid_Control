@@ -31,6 +31,7 @@ for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
     os.environ.setdefault(_v, "1")
 import argparse                                                               # noqa: E402
 import copy                                                                   # noqa: E402
+import math                                                                   # noqa: E402
 import csv                                                                    # noqa: E402
 import glob                                                                   # noqa: E402
 import pickle                                                                 # noqa: E402
@@ -285,6 +286,11 @@ def make_policy(name):
 # Episodio
 # =====================================================================
 _ARRANQUE = {}       # n frutas -> (instantánea del arranque, su reloj al terminar)
+# De pie, env H12_ARNES: "puesto" (por omisión: el arnés queda con 3 cm de holgura, como en el
+# laboratorio) o "suelto" (se suelta al terminar el arranque: nada sujeta al robot si se cae).
+ARNES_SUELTO = os.environ.get("H12_ARNES", "puesto") == "suelto"
+# El robot se cayó: torso inclinado > 15 grados o pelvis 8 cm más abajo (prueba_equilibrio.py).
+CAE_INCL_DEG, CAE_BAJA_M = 15.0, 0.08
 
 
 def arranque_pie(sim, pd, xml, q_espera, n, video=None):
@@ -298,6 +304,8 @@ def arranque_pie(sim, pd, xml, q_espera, n, video=None):
     if n in _ARRANQUE and not video:
         st, t_fin = _ARRANQUE[n]
         cc.restaurar(st)
+        if ARNES_SUELTO:
+            cc.arnes.soltar()
         return cc, t_fin, frames
     al_paso = None
     if video:
@@ -322,6 +330,8 @@ def arranque_pie(sim, pd, xml, q_espera, n, video=None):
             frames.append(f)
     t_fin = cc.arrancar(al_paso=al_paso)
     _ARRANQUE[n] = (cc.guardar(), t_fin)
+    if ARNES_SUELTO:
+        cc.arnes.soltar()
     return cc, t_fin, frames
 
 
@@ -454,6 +464,8 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
               "suelta": 0}
     d_arms_min = np.inf
     mov_torso = []           # de pie: pose del torso por ciclo de control
+    robot_cae = None         # de pie: instante en que el robot se cayó
+    robot_cae = None         # de pie: instante en que el robot se cayó
     intentos = []            # un registro por agarre: estado al decidir + resultado (diagnóstico / predictor)
     abierto = {s: None for s in SIDES}
     next_spawn = 0
@@ -621,7 +633,12 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
             d_arms_min = min(d_arms_min, diag["d_arms_min"])
             if pie:                 # cuánto se mueve el torso (y la cámara) mientras recoge
                 tb_ = m.body("torso_link").id
-                mov_torso.append(np.hstack([d.xpos[tb_], d.xmat[tb_].reshape(3, 3)[:, 0], d.xmat[tb_].reshape(3, 3)[:, 2]]))
+                mov_torso.append(np.hstack([d.xpos[tb_], d.xmat[tb_].reshape(3, 3)[:, 0], d.xmat[tb_].reshape(3, 3)[:, 2],
+                                            d.qpos[2], cuerpo.arnes.tension]))
+                inc_ = math.degrees(math.acos(min(1.0, float(mov_torso[-1][6:9] @ mov_torso[0][6:9]))))
+                if robot_cae is None and (inc_ > CAE_INCL_DEG or mov_torso[0][9] - d.qpos[2] > CAE_BAJA_M):
+                    robot_cae = t
+                    break           # el robot en el suelo (o colgando del arnés): fin del episodio
             for s in SIDES:
                 if ex[s].skill == "agarrar" and ex[s].phase in ("CLOSE", "LIFT") and faja.held[s] is None:
                     faja.try_weld(s, GG.wrist_to_fruit(s, q_meas[:7] if s == "left" else q_meas[7:]))
@@ -692,6 +709,11 @@ def run_episode(policy, seed, labeler=None, perception="sphere", reach_tau_scale
         res["torso_mov_max_mm"] = round(float(np.max(np.linalg.norm(dp, axis=1))), 1)
         res["torso_incl_p99_deg"] = round(float(np.percentile(ang, 99)), 2)
         res["torso_incl_max_deg"] = round(float(np.max(ang)), 2)
+        res["pelvis_baja_max_mm"] = round(1e3 * float(M[0, 9] - np.min(M[:, 9])), 1)
+        res["arnes_max_peso"] = round(float(np.max(M[:, 10])) / (cuerpo.eq.m.body_subtreemass[cuerpo.eq.pelvis] * 9.81), 3)
+        res["arnes"] = "suelto" if ARNES_SUELTO else "puesto"
+        res["robot_cae"] = int(robot_cae is not None)
+        res["t_robot_cae"] = None if robot_cae is None else round(robot_cae, 1)
     if rob:
         res.update({k: round(v, 4) for k, v in CR.resumen_registro(reg, 1.0 / rob["hz"]).items()})
         res["ordenes_recortadas"] = int(agente.n_recortes)
